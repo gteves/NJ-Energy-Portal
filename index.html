@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Jersey Energy Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #04A264;
+            color: #333;
+        }
+
+        header {
+            background-color: #0a2a1f;
+            padding: 20px;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+        .explore-button {
+            background-color: #04A264;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .explore-button:hover {
+            background-color: #4CAF50;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 100px);
+            padding: 20px;
+        }
+
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+
+        .box {
+            width: 200%;
+            background-color: #D9D9D9;
+            padding: 250px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .left-box {
+            margin-right: 5%;
+            text-align: center;
+        }
+
+        .right-box img {
+            width: 95%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <h1>New Jersey Energy Portal</h1>
+            <nav>
+                <a href="#">Home</a>
+                <a href="#">Link 1</a>
+                <a href="#">Link 2</a>
+                <a href="#" class="explore-button">Explore</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <section class="content">
+            <div class="box left-box">
+                <p>INSERT TEXT HERE</p>
+                <!--Wrap the explore button in an anchor tag to link it to a new page-->
+                <a href="dashboard.html" class="explore-button">Explore</a>
+                
+            </div>
+            <div class="box right-box">
+                <img src="https://www.pngall.com/wp-content/uploads/5/New-Jersey-Map-PNG-Free-Download.png" alt="New Jersey Outline">
+            </div>
+        </section>
+    </main>
+</body>
+</html>
