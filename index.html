@@ -10,15 +10,17 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
+        /* Green background of overall Home Page*/
         body {
             font-family: Arial, sans-serif;
             background-color: #04A264;
             color: #333;
         }
 
+        /* Color for navbar */
         header {
-            background-color: #0a2a1f;
+            background-color: #0a2a1f; 
             padding: 20px;
             color: white;
         }
@@ -41,84 +43,96 @@
             font-size: 18px;
         }
 
-        .explore-button {
-            background-color: #04A264;
-            color: white;
+        .navbar nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling for the "Data Maps" link */
+        nav a.data-maps-link {
+            background-color: #04A264; /* Green background */
             padding: 10px 20px;
-            border: none;
             border-radius: 20px;
-            cursor: pointer;
-            font-size: 16px;
-            text-align: center;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
         }
 
-        .explore-button:hover {
-            background-color: #4CAF50;
+        /* Hover effect for "Data Maps" link */
+        nav a.data-maps-link:hover {
+            background-color: #4CAF50; /* Change to a lighter green on hover */
+            color: white;
         }
 
-        main {
+        /* Flex container to hold the two boxes with reduced space in between */
+        .box-container {
             display: flex;
-            justify-content: center;
+            justify-content: space-around; /* Smaller space between the boxes */
             align-items: center;
-            height: calc(100vh - 100px);
+            margin: 20px;
             padding: 20px;
         }
 
-        .content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            max-width: 1200px;
-        }
-        
-
         .box {
-            width: 200%;
-            background-color: #D9D9D9;
-            padding: 250px;
-            border-radius: 10px;
+            background-color: white;
+            padding: 40px;
+            border-radius: 30px;
+            width: 48%; /* Slightly increased width */
+            min-height: 625px; /* Ensure both boxes have the same height */
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
         }
 
         .left-box {
-            margin-right: 5%;
-            text-align: center;
+            text-align: left;
         }
 
         .right-box img {
-            width: 95%;
+            max-width: 50%;
+            max-height: 50%;
+            object-fit: cover; /* Ensure the image fills the box without distortion */
+            border-radius: 15px;
+        }
+
+        /* Adjust the layout on smaller screens */
+        @media (max-width: 768px) {
+            .box-container {
+                flex-direction: column;
+            }
+
+            .box {
+                width: 100%;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
+
     <header>
         <div class="navbar">
             <h1>New Jersey Energy Portal</h1>
             <nav>
-                <a href="#">Home</a>
-                <a href="#">Link 1</a>
-                <a href="#">Link 2</a>
-                <a href="#" class="explore-button">Explore</a>
+                <a href="index.html">Home</a>
+                <a href="resources.html">Resources</a>
+                <a href="faqs.html">FAQs</a>
+                <a href="About.html">About</a>
+                <a href="dashboard.html" class="data-maps-link">Data Maps</a>
             </nav>
         </div>
     </header>
-    
-    <main>
-        <section class="content">
-            <div class="box left-box">
-                <p>INSERT TEXT HERE</p>
-                <!--Wrap the explore button in an anchor tag to link it to a new page-->
-                <a href="dashboard.html" class="explore-button">Explore</a>
-                
-            </div>
-            <div class="box right-box">
-                <img src="https://www.pngall.com/wp-content/uploads/5/New-Jersey-Map-PNG-Free-Download.png" alt="New Jersey Outline">
-            </div>
-        </section>
-    </main>
+
+    <!-- Container for the two white boxes -->
+    <div class="box-container">
+        <div class="box left-box">
+            <h2>Left Box</h2>
+            <p>This is the left box with some sample content. You can add whatever information you'd like here.</p>
+        </div>
+
+        <div class="box right-box">
+            <img src="https://i.pinimg.com/originals/2f/d1/22/2fd122e2df93df2a6fe1d3fc74dd2996.gif" alt="New Jersey County Map">
+        </div>
+    </div>
+
 </body>
 </html>
