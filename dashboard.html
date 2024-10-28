@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Jersey Energy Portal</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         * {
             margin: 0;
@@ -25,7 +26,6 @@
             background-color: #333;
             color: white;
             width: 20%;
-            height: 60px; /* Limiting the height to make it a top-left corner block */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -48,6 +48,11 @@
             align-items: center;
             padding-left: 20px;
         }
+
+        #map {
+            width: 100%;
+            height: calc(100vh - 60px); /* Adjust to fit the screen */
+        }
     </style>
 </head>
 <body>
@@ -57,7 +62,21 @@
         </div>
         <div class="main-content">
             <div class="header"></div>
+            <div id="map"></div>
         </div>
     </div>
+    
+    <!-- Include Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map and set its view to New Jersey with a starting zoom level
+        var map = L.map('map').setView([40.0583, -74.4057], 7); // Coordinates for New Jersey
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+    </script>
 </body>
 </html>
