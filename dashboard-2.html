@@ -74,7 +74,6 @@
     </div>
 
     <!-- Mapbox JavaScript -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
     <script>
         // Your Mapbox access token
         mapboxgl.accessToken = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
@@ -110,14 +109,59 @@
                 'id': 'county-borders',
                 'type': 'line',
                 'source': 'counties',
-                'source-layer': 'counties-layer-name', // Replace with the actual source layer name
+                'source-layer': 'NJ_Counties-8oy5X4', // Replace with the actual source layer name
                 'paint': {
                     'line-color': '#333333',
                     'line-width': 1
                 }
             });
-        });
 
+            // Variable to track the hovered state ID
+            let hoveredCountyId = null;
+
+            // Set up hover effect for counties
+            map.on('mousemove', 'county-fills', (e) => {
+                if (e.features.length > 0) {
+                    const newHoverId = e.features[0].id;
+
+                    // Only change the feature state if the hovered feature is different
+                    if (hoveredCountyId !== newHoverId) {
+                        // Reset the previously hovered county
+                        if (hoveredCountyId !== null) {
+                            map.setFeatureState(
+                                { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
+                                { hover: false }
+                            );
+                        }
+                        // Set the new hovered county
+                        hoveredCountyId = newHoverId;
+                        map.setFeatureState(
+                            { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
+                            { hover: true }
+                        );
+                    }
+                }
+            });
+
+            // Reset hover effect when the mouse leaves the county
+            map.on('mouseleave', 'county-fills', () => {
+                if (hoveredCountyId !== null) {
+                    map.setFeatureState(
+                        { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
+                        { hover: false }
+                    );
+                    hoveredCountyId = null;
+                }
+            });
+
+            // Define paint properties for hovered state
+            map.setPaintProperty('county-fills', 'fill-color', [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                '#FF5733', // Color when hovered
+                '#888888' // Default color
+            ]);
+        });
     </script>
 </body>
 
