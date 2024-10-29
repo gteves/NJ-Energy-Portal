@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Jersey Energy Portal</title>
-    <!-- Mapbox CSS -->
 
+    <!-- Mapbox CSS -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
 
@@ -27,49 +27,131 @@
             height: 100vh;
         }
 
-        .sidebar {
+        .sidebar-left,
+        .sidebar-right {
+            width: 20%;
+            overflow-y: auto;
+        }
+
+        .sidebar-left {
+            background-color: #f5f5f5;
+            padding: 10px;
+        }
+
+        .sidebar-right {
+            background-color: #f8f8f8;
+            padding: 10px;
+        }
+
+        .map-area {
+            flex: 1;
+            position: relative;
+        }
+
+
+        /* Back button */
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
             background-color: #333;
             color: white;
-            width: 20%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
         }
 
-        .TitleFont {
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Top Sidebar */
+        .top-sidebar {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .top-sidebar h1 {
             font-size: 18px;
             text-transform: uppercase;
+            margin: 0;
         }
 
+        /* Main content */
         .main-content {
-            background-color: #d3d3d3;
-            width: 100%;
+            display: flex;
+            flex: 1;
         }
 
-        .header {
+        /* Left Panel */
+        .left-panel {
+            width: 20%;
+            background-color: #888;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Floating Right Panel */
+        .right-panel {
+            width: 20%;
             background-color: #999;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            padding-left: 20px;
+            padding: 20px;
+            position: fixed;
+            top: 80px;
+            /* Adjust this value to leave space for the top sidebar */
+            right: 0;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        /* Map container */
+        #map-container {
+            flex: 1;
+            position: relative;
         }
 
         #map {
             width: 100%;
-            height: calc(100vh - 60px);
-            /* Adjust to fit the screen */
+            height: 100%;
         }
     </style>
 </head>
 
 <body>
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">← Back to Home</a>
+
     <div class="container">
-        <div class="sidebar">
+        <!-- Top Sidebar -->
+        <div class="top-sidebar">
             <h1>New Jersey Energy Portal</h1>
         </div>
+
         <div class="main-content">
-            <div class="header"></div>
-            <div id="map"></div>
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <!-- Placeholder for data and filters -->
+                <p>Data and Filters will go here</p>
+            </div>
+
+            <!-- Map Container -->
+            <div id="map-container">
+                <div id="map"></div>
+            </div>
+
+            <!-- Floating Right Panel -->
+            <div class="right-panel">
+                <!-- Placeholder for data and filters -->
+                <p>More data and filters here</p>
+            </div>
         </div>
     </div>
 
@@ -92,48 +174,41 @@
                 'url': 'mapbox://jk13.7gcz4wom' // Ensure this points to a valid and accessible vector tileset
             });
 
-            // Add county fill layer
             map.addLayer({
                 'id': 'county-fills',
                 'type': 'fill',
                 'source': 'counties',
-                'source-layer': 'NJ_Counties-8oy5x4', // Replace with the actual source layer name
+                'source-layer': 'NJ_Counties-8oy5x4',
                 'paint': {
                     'fill-color': '#888888',
                     'fill-opacity': 0.4
                 }
             });
 
-            // Add county border layer
             map.addLayer({
                 'id': 'county-borders',
                 'type': 'line',
                 'source': 'counties',
-                'source-layer': 'NJ_Counties-8oy5X4', // Replace with the actual source layer name
+                'source-layer': 'NJ_Counties-8oy5X4',
                 'paint': {
                     'line-color': '#333333',
                     'line-width': 1
                 }
             });
 
-            // Variable to track the hovered state ID
             let hoveredCountyId = null;
 
-            // Set up hover effect for counties
             map.on('mousemove', 'county-fills', (e) => {
                 if (e.features.length > 0) {
                     const newHoverId = e.features[0].id;
 
-                    // Only change the feature state if the hovered feature is different
                     if (hoveredCountyId !== newHoverId) {
-                        // Reset the previously hovered county
                         if (hoveredCountyId !== null) {
                             map.setFeatureState(
                                 { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
                                 { hover: false }
                             );
                         }
-                        // Set the new hovered county
                         hoveredCountyId = newHoverId;
                         map.setFeatureState(
                             { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
@@ -143,7 +218,6 @@
                 }
             });
 
-            // Reset hover effect when the mouse leaves the county
             map.on('mouseleave', 'county-fills', () => {
                 if (hoveredCountyId !== null) {
                     map.setFeatureState(
@@ -154,12 +228,11 @@
                 }
             });
 
-            // Define paint properties for hovered state
             map.setPaintProperty('county-fills', 'fill-color', [
                 'case',
                 ['boolean', ['feature-state', 'hover'], false],
-                '#FF5733', // Color when hovered
-                '#888888' // Default color
+                '#FF5733',
+                '#888888'
             ]);
         });
     </script>
