@@ -19,7 +19,7 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background-color: #04A264;
         }
 
         .container {
@@ -27,19 +27,19 @@
             height: 100vh;
         }
 
-        .sidebar-left,
-        .sidebar-right {
-            width: 20%;
+        .left-filterbar,
+        .right-filterbar {
+            width: 10%;
             overflow-y: auto;
         }
 
-        .sidebar-left {
-            background-color: #f5f5f5;
+        .left-filterbar {
+            background-color: #04A264;
             padding: 10px;
         }
 
-        .sidebar-right {
-            background-color: #f8f8f8;
+        .right-filterbar {
+            background-color: #04A264;
             padding: 10px;
         }
 
@@ -49,13 +49,13 @@
         }
 
 
-        /* Back button */
+        /* Back button arrow*/
         .back-button {
             position: absolute;
             top: 10px;
             left: 10px;
             z-index: 10;
-            background-color: #333;
+            background-color: #04A264;
             color: white;
             padding: 8px 16px;
             border-radius: 4px;
@@ -68,9 +68,9 @@
             height: 100vh;
         }
 
-        /* Top Sidebar */
+        /* Title Bar */
         .top-sidebar {
-            background-color: #333;
+            background-color: #04A264;
             color: white;
             padding: 20px;
             text-align: center;
@@ -91,18 +91,18 @@
             flex: 1;
         }
 
-        /* Left Panel */
+        /* Left Filter and Data square */
         .left-panel {
             width: 20%;
-            background-color: #888;
+            background-color: white;
             padding: 20px;
             overflow-y: auto;
         }
 
-        /* Floating Right Panel */
+        /* Floating Right Filter and Data square */
         .right-panel {
             width: 20%;
-            background-color: #999;
+            background-color: white;
             padding: 20px;
             position: fixed;
             top: 80px;
@@ -156,22 +156,18 @@
     </div>
 
     <!-- Mapbox JavaScript -->
-    <script>
-        // Your Mapbox access token
-        mapboxgl.accessToken = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
-
-        // Initialize the Mapbox map
+    <script> mapboxgl.accessToken = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
         const map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y', // Map style
-            center: [-74.4057, 40.0583], // Center on New Jersey
-            zoom: 7 // Initial zoom level
+            style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y',
+            center: [-74.4057, 40.0583],
+            zoom: 7
         });
 
         map.on('load', () => {
             map.addSource('counties', {
                 'type': 'vector',
-                'url': 'mapbox://jk13.7gcz4wom' // Ensure this points to a valid and accessible vector tileset
+                'url': 'mapbox://jk13.7gcz4wom'
             });
 
             map.addLayer({
@@ -189,7 +185,7 @@
                 'id': 'county-borders',
                 'type': 'line',
                 'source': 'counties',
-                'source-layer': 'NJ_Counties-8oy5X4',
+                'source-layer': 'NJ_Counties-8oy5x4',
                 'paint': {
                     'line-color': '#333333',
                     'line-width': 1
@@ -197,10 +193,10 @@
             });
 
             let hoveredCountyId = null;
-
             map.on('mousemove', 'county-fills', (e) => {
                 if (e.features.length > 0) {
                     const newHoverId = e.features[0].id;
+                    console.log('Hovering over: ${newHoverId}');
 
                     if (hoveredCountyId !== newHoverId) {
                         if (hoveredCountyId !== null) {
@@ -216,26 +212,26 @@
                         );
                     }
                 }
-            });
-
-            map.on('mouseleave', 'county-fills', () => {
-                if (hoveredCountyId !== null) {
+            }); 
+            
+            map.on('mouseleave', 'county-fills', () => { 
+                if (hoveredCountyId !== null) { 
                     map.setFeatureState(
-                        { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
+                        { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId }, 
                         { hover: false }
-                    );
-                    hoveredCountyId = null;
-                }
-            });
-
+                    ); 
+                    console.log('Feature state cleared on leave for: ${hoverCountyID}');
+                    hoveredCountyId = null; 
+                } 
+            }); 
             map.setPaintProperty('county-fills', 'fill-color', [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                '#FF5733',
+                'case', 
+                ['boolean', ['feature-state', 'hover'], false], 
+                '#7183FF', 
                 '#888888'
             ]);
-        });
-    </script>
+        }); 
+        </script>
 </body>
 
 </html>
