@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Jersey Energy Portal - FAQs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Green background of overall FAQ Page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #04A264;
+            color: #333;
+        }
+
+        /* Color for navbar */
+        header {
+            background-color: #0a2a1f; 
+            padding: 20px;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+        .navbar nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling for the "Data Maps" link */
+        nav a.data-maps-link {
+            background-color: #04A264; /* Green background */
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a.data-maps-link:hover {
+            background-color: #4CAF50; /* Lighter green on hover */
+            color: white;
+        }
+
+        /* FAQ Section styling */
+        .faq-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 30px;
+            width: 80%;
+            margin: 30px auto;
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+        }
+
+        .faq-item h3 {
+            font-size: 20px;
+            color: #0a2a1f;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .faq-item h3:hover {
+            color: #04A264;
+        }
+
+        .faq-item p {
+            font-size: 16px;
+            line-height: 1.5;
+            display: none; /* Initially hide the answer */
+        }
+
+        /* Adjust layout for smaller screens */
+        @media (max-width: 768px) {
+            .faq-container {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+        // Toggle FAQ answer visibility
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = document.querySelectorAll('.faq-item h3');
+            questions.forEach(question => {
+                question.addEventListener('click', () => {
+                    const answer = question.nextElementSibling;
+                    answer.style.display = answer.style.display === 'none' ? 'block' : 'none';
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <h1>New Jersey Energy Portal</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="resources.html">Resources</a>
+                <a href="faqs.html">FAQs</a>
+                <a href="About.html">About</a>
+                <a href="dashboard.html" class="data-maps-link">Data Maps</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- FAQ Section -->
+    <div class="faq-container">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3>What is the New Jersey Energy Portal?</h3>
+            <p>The New Jersey Energy Portal is a resource that provides information and data related to energy usage, resources, and initiatives in New Jersey.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>How do I access the data maps?</h3>
+            <p>You can access the data maps by clicking on the "Data Maps" link in the navigation bar. This will take you to a dashboard with interactive maps displaying energy data across New Jersey counties.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>Who can use this portal?</h3>
+            <p>The portal is designed for New Jersey residents, businesses, and policymakers who are interested in understanding and managing energy resources within the state.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>How often is the data updated?</h3>
+            <p>Data on the portal is updated periodically, based on the latest available resources from state energy agencies and research institutions.</p>
+        </div>
+    </div>
+
+</body>
+</html>
