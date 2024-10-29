@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Jersey Energy Portal - About Us</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Green background of overall About Page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #04A264;
+            color: #333;
+        }
+
+        /* Color for navbar */
+        header {
+            background-color: #0a2a1f; 
+            padding: 20px;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+        .navbar nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling for the "Data Maps" link */
+        nav a.data-maps-link {
+            background-color: #04A264;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a.data-maps-link:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* About Section styling */
+        .about-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 30px;
+            width: 80%;
+            margin: 30px auto;
+        }
+
+        .about-container h2 {
+            color: #0a2a1f;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+
+        /* Collapsible style similar to FAQ */
+        .about-item {
+            margin-bottom: 20px;
+        }
+
+        .about-item h3 {
+            font-size: 20px;
+            color: #0a2a1f;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        .about-item h3:hover {
+            color: #04A264;
+        }
+
+        .about-item p {
+            font-size: 16px;
+            line-height: 1.5;
+            display: none;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Adjust layout for smaller screens */
+        @media (max-width: 768px) {
+            .about-container {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+        // Toggle visibility of About section content
+        document.addEventListener("DOMContentLoaded", function() {
+            const sections = document.querySelectorAll('.about-item h3');
+            sections.forEach(section => {
+                section.addEventListener('click', () => {
+                    const content = section.nextElementSibling;
+                    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <h1>New Jersey Energy Portal</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="resources.html">Resources</a>
+                <a href="faqs.html">FAQs</a>
+                <a href="About.html">About</a>
+                <a href="dashboard.html" class="data-maps-link">Data Maps</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- About Section -->
+    <div class="about-container">
+        <h2>About the New Jersey Energy Portal</h2>
+        <p>The New Jersey Energy Portal was established to empower residents, businesses, and policymakers with the information needed to make informed decisions about energy usage, resources, and sustainable practices.</p>
+
+        <div class="about-item">
+            <h3>Our Mission</h3>
+            <p>Placeholder</p>
+        </div>
+
+        <div class="about-item">
+            <h3>What We Do</h3>
+            <p>Placeholder</p>
+        </div>
+
+        <div class="about-item">
+            <h3>Our Team</h3>
+            <p>Placeholder</p>
+        </div>
+    </div>
+
+</body>
+</html>
