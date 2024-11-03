@@ -18,7 +18,7 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: gill sans, sans-serif;
             background-color: #04A264;
         }
 
@@ -156,82 +156,94 @@
     </div>
 
     <!-- Mapbox JavaScript -->
-    <script> mapboxgl.accessToken = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
+    <script>
+        mapboxgl.accessToken
+            = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
+
         const map = new mapboxgl.Map({
             container: 'map',
+            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
             style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y',
-            center: [-74.4057, 40.0583],
+
+            center: [-74.67, 40.43], // Center on New Jersey
             zoom: 7
         });
 
+        let hoveredCountyId = null;
+
         map.on('load', () => {
-            map.addSource('counties', {
-                'type': 'vector',
-                'url': 'mapbox://jk13.7gcz4wom'
+            map.addSource('nj-counties', {
+                'type': 'geojson',
+                'data': 'https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson' // Replace with your GeoJSON data URL
             });
+
+            // The feature-state dependent fill-opacity expression will render the hover effect
+            // when a feature's hover state is set to true.   
 
             map.addLayer({
                 'id': 'county-fills',
                 'type': 'fill',
-                'source': 'counties',
-                'source-layer': 'NJ_Counties-8oy5x4',
+                'source': 'nj-counties',
+                'layout': {},
                 'paint': {
-                    'fill-color': '#888888',
-                    'fill-opacity': 0.4
+                    'fill-color': '#627BC1',
+                    'fill-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        1,
+                        0.5
+                    ]
                 }
             });
 
             map.addLayer({
                 'id': 'county-borders',
                 'type': 'line',
-                'source': 'counties',
-                'source-layer': 'NJ_Counties-8oy5x4',
+                'source':
+                    'nj-counties',
+                'layout': {},
                 'paint': {
-                    'line-color': '#333333',
-                    'line-width': 1
+                    'line-color': '#627BC1',
+                    'line-width': 2
                 }
             });
 
-            let hoveredCountyId = null;
+            // When the user moves their mouse over the county-fill layer, we'll update the
+            // feature state for the feature under the mouse.
             map.on('mousemove', 'county-fills', (e) => {
                 if (e.features.length > 0) {
-                    const newHoverId = e.features[0].id;
-                    console.log('Hovering over: ${newHoverId}');
-
-                    if (hoveredCountyId !== newHoverId) {
-                        if (hoveredCountyId !== null) {
-                            map.setFeatureState(
-                                { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
-                                { hover: false }
-                            );
-                        }
-                        hoveredCountyId = newHoverId;
+                    if (hoveredCountyId !== null) {
                         map.setFeatureState(
-                            { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
-                            { hover: true }
+                            { source: 'nj-counties', id: hoveredCountyId },
+                            { hover: false }
                         );
                     }
-                }
-            }); 
-            
-            map.on('mouseleave', 'county-fills', () => { 
-                if (hoveredCountyId !== null) { 
+                    hoveredCountyId = e.features[0].id;
                     map.setFeatureState(
-                        { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId }, 
+                        { source: 'nj-counties', id: hoveredCountyId },
+                        { hover: true }
+                    );
+                }
+            });
+
+            // When the mouse leaves the county-fill layer, update the feature state of the
+            // previously hovered feature.
+            map.on('mouseleave', 'county-fills', () => {
+                if (hoveredCountyId !== null) {
+                    map.setFeatureState(
+                        {
+                            source:
+                                'nj-counties', id: hoveredCountyId
+                        },
                         { hover: false }
-                    ); 
-                    console.log('Feature state cleared on leave for: ${hoverCountyID}');
-                    hoveredCountyId = null; 
-                } 
-            }); 
-            map.setPaintProperty('county-fills', 'fill-color', [
-                'case', 
-                ['boolean', ['feature-state', 'hover'], false], 
-                '#7183FF', 
-                '#888888'
-            ]);
-        }); 
-        </script>
+                    );
+                }
+                hoveredCountyId = null;
+            });
+        });
+    </script>
+
+
 </body>
 
 </html>
