@@ -18,48 +18,8 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: gill sans, sans-serif;
             background-color: #04A264;
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-
-        .left-filterbar,
-        .right-filterbar {
-            width: 10%;
-            overflow-y: auto;
-        }
-
-        .left-filterbar {
-            background-color: #04A264;
-            padding: 10px;
-        }
-
-        .right-filterbar {
-            background-color: #04A264;
-            padding: 10px;
-        }
-
-        .map-area {
-            flex: 1;
-            position: relative;
-        }
-
-
-        /* Back button arrow*/
-        .back-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            background-color: #04A264;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            text-decoration: none;
         }
 
         .container {
@@ -68,7 +28,6 @@
             height: 100vh;
         }
 
-        /* Title Bar */
         .top-sidebar {
             background-color: #04A264;
             color: white;
@@ -85,13 +44,11 @@
             margin: 0;
         }
 
-        /* Main content */
         .main-content {
             display: flex;
             flex: 1;
         }
 
-        /* Left Filter and Data square */
         .left-panel {
             width: 20%;
             background-color: white;
@@ -99,20 +56,17 @@
             overflow-y: auto;
         }
 
-        /* Floating Right Filter and Data square */
         .right-panel {
             width: 20%;
             background-color: white;
             padding: 20px;
             position: fixed;
             top: 80px;
-            /* Adjust this value to leave space for the top sidebar */
             right: 0;
             height: calc(100vh - 80px);
             overflow-y: auto;
         }
 
-        /* Map container */
         #map-container {
             flex: 1;
             position: relative;
@@ -121,6 +75,18 @@
         #map {
             width: 100%;
             height: 100%;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background-color: #04A264;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -138,8 +104,32 @@
         <div class="main-content">
             <!-- Left Panel -->
             <div class="left-panel">
-                <!-- Placeholder for data and filters -->
-                <p>Data and Filters will go here</p>
+                <h2>New Jersey</h2>
+                <label for="county-filter">County:</label>
+                <select id="county-filter">
+                    <option value="all">All</option>
+                    <option value="Atlantic">Atlantic</option>
+                    <option value="Bergen">Bergen</option>
+                    <option value="Burlington">Burlington</option>
+                    <option value="Camden">Camden</option>
+                    <option value="Cape May">Cape May</option>
+                    <option value="Cumberland">Cumberland</option>
+                    <option value="Essex">Essex</option>
+                    <option value="Gloucester">Gloucester</option>
+                    <option value="Hudson">Hudson</option>
+                    <option value="Hunterdon">Hunterdon</option>
+                    <option value="Mercer">Mercer</option>
+                    <option value="Middlesex">Middlesex</option>
+                    <option value="Monmouth">Monmouth</option>
+                    <option value="Morris">Morris</option>
+                    <option value="Ocean">Ocean</option>
+                    <option value="Passaic">Passaic</option>
+                    <option value="Salem">Salem</option>
+                    <option value="Somerset">Somerset</option>
+                    <option value="Sussex">Sussex</option>
+                    <option value="Union">Union</option>
+                    <option value="Warren">Warren</option>
+                </select>
             </div>
 
             <!-- Map Container -->
@@ -147,95 +137,132 @@
                 <div id="map"></div>
             </div>
 
-            <!-- Floating Right Panel -->
+            <!-- Right Panel -->
             <div class="right-panel">
-                <!-- Placeholder for data and filters -->
-                <p>More data and filters here</p>
+                <p>Select a county to see details.</p>
             </div>
         </div>
     </div>
 
     <!-- Mapbox JavaScript -->
     <script>
-        // Your Mapbox access token
-        mapboxgl.accessToken = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
+        mapboxgl.accessToken
+            = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
 
-        // Initialize the Mapbox map
         const map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y', // Map style
-            center: [-74.4057, 40.0583], // Center on New Jersey
-            zoom: 7 // Initial zoom level
+            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+            style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y',
+
+            center: [-74.67, 40.43], // Center on New Jersey
+            zoom: 7
         });
 
+
+        let hoveredCountyId = null;
+
+        // Load county data
         map.on('load', () => {
-            map.addSource('counties', {
-                'type': 'vector',
-                'url': 'mapbox://jk13.7gcz4wom' // Ensure this points to a valid and accessible vector tileset
+            map.addSource('nj-counties', {
+                'type': 'geojson',
+                'data': 'https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson'
             });
 
             map.addLayer({
                 'id': 'county-fills',
                 'type': 'fill',
-                'source': 'counties',
-                'source-layer': 'NJ_Counties-8oy5x4',
+                'source': 'nj-counties',
                 'paint': {
-                    'fill-color': '#888888',
-                    'fill-opacity': 0.4
+                    'fill-color': '#627BC1',
+                    'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5]
                 }
             });
 
             map.addLayer({
                 'id': 'county-borders',
                 'type': 'line',
-                'source': 'counties',
-                'source-layer': 'NJ_Counties-8oy5X4',
+                'source': 'nj-counties',
                 'paint': {
-                    'line-color': '#333333',
-                    'line-width': 1
+                    'line-color': '#627BC1',
+                    'line-width': 2
                 }
             });
 
-            let hoveredCountyId = null;
+            map.addLayer({
+                'id': 'county-labels',
+                'type': 'symbol',
+                'source': 'nj-counties',
+                'layout': {
+                    'text-field': ['get', 'COUNTY'], // Replace 'COUNTY' with the correct property for county names
+                    'text-size': 12
+                },
+                'paint': {
+                    'text-color': '#000000'
+                }
+            });
 
+            // Hover effect
             map.on('mousemove', 'county-fills', (e) => {
                 if (e.features.length > 0) {
-                    const newHoverId = e.features[0].id;
-
-                    if (hoveredCountyId !== newHoverId) {
-                        if (hoveredCountyId !== null) {
-                            map.setFeatureState(
-                                { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
-                                { hover: false }
-                            );
-                        }
-                        hoveredCountyId = newHoverId;
+                    if (hoveredCountyId !== null) {
                         map.setFeatureState(
-                            { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
-                            { hover: true }
+                            { source: 'nj-counties', id: hoveredCountyId },
+                            { hover: false }
                         );
                     }
+                    hoveredCountyId = e.features[0].id;
+                    map.setFeatureState(
+                        { source: 'nj-counties', id: hoveredCountyId },
+                        { hover: true }
+                    );
                 }
             });
 
             map.on('mouseleave', 'county-fills', () => {
                 if (hoveredCountyId !== null) {
                     map.setFeatureState(
-                        { source: 'counties', sourceLayer: 'NJ_Counties-8oy5x4', id: hoveredCountyId },
+                        { source: 'nj-counties', id: hoveredCountyId },
                         { hover: false }
                     );
-                    hoveredCountyId = null;
                 }
+                hoveredCountyId = null;
             });
 
-            map.setPaintProperty('county-fills', 'fill-color', [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                '#FF5733',
-                '#888888'
-            ]);
+            // Click event to select county on map and zoom in
+            map.on('click', 'county-fills', (e) => {
+                const countyName = e.features[0].properties.COUNTY; // Replace 'COUNTY' with the correct property
+                document.getElementById('county-filter').value = countyName;
+                updateRightPanel(countyName);
+
+                // Zoom into selected county
+                const [minLng, minLat, maxLng, maxLat] = e.features[0].geometry.bbox;
+                map.fitBounds([[minLng, minLat], [maxLng, maxLat]], {
+                    padding: 50
+                });
+            });
+
+            // Change event to select county from dropdown and zoom in
+            document.getElementById('county-filter').addEventListener('change', function () {
+                const selectedCounty = this.value;
+                if (selectedCounty !== "all") {
+                    // Find the county feature by name
+                    map.querySourceFeatures('nj-counties', { sourceLayer: 'nj-counties' }).forEach(feature => {
+                        if (feature.properties.COUNTY === selectedCounty) {
+                            const [minLng, minLat, maxLng, maxLat] = feature.geometry.bbox;
+                            map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 50 });
+                            updateRightPanel(selectedCounty);
+                        }
+                    });
+                }
+            });
         });
+
+        function updateRightPanel(countyName) {
+            const rightPanel = document.querySelector(".right-panel");
+            rightPanel.innerHTML = `<h2>${countyName}</h2><p>Details about ${countyName} county...</p>`;
+        }
     </script>
+
 </body>
 
 </html>
