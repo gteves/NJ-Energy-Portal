@@ -56,6 +56,28 @@
             overflow-y: auto;
         }
 
+        /* Left Filter box */
+        .filters-box {
+            background-color: #04A264;
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .filter-container label {
+            font-weight: bold;
+        }
+
+        .filter-container select {
+            width: 100%;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        
         .right-panel {
             width: 20%;
             background-color: white;
@@ -105,31 +127,50 @@
             <!-- Left Panel -->
             <div class="left-panel">
                 <h2>New Jersey</h2>
-                <label for="county-filter">County:</label>
-                <select id="county-filter">
-                    <option value="all">All</option>
-                    <option value="Atlantic">Atlantic</option>
-                    <option value="Bergen">Bergen</option>
-                    <option value="Burlington">Burlington</option>
-                    <option value="Camden">Camden</option>
-                    <option value="Cape May">Cape May</option>
-                    <option value="Cumberland">Cumberland</option>
-                    <option value="Essex">Essex</option>
-                    <option value="Gloucester">Gloucester</option>
-                    <option value="Hudson">Hudson</option>
-                    <option value="Hunterdon">Hunterdon</option>
-                    <option value="Mercer">Mercer</option>
-                    <option value="Middlesex">Middlesex</option>
-                    <option value="Monmouth">Monmouth</option>
-                    <option value="Morris">Morris</option>
-                    <option value="Ocean">Ocean</option>
-                    <option value="Passaic">Passaic</option>
-                    <option value="Salem">Salem</option>
-                    <option value="Somerset">Somerset</option>
-                    <option value="Sussex">Sussex</option>
-                    <option value="Union">Union</option>
-                    <option value="Warren">Warren</option>
-                </select>
+                <div class="filter-container">
+                    <label for="county-filter">County:</label>
+                    <select id="county-filter">
+                        <option value="all">All</option>
+                        <option value="Atlantic">Atlantic</option>
+                        <option value="Bergen">Bergen</option>
+                        <option value="Burlington">Burlington</option>
+                        <option value="Camden">Camden</option>
+                        <option value="Cape May">Cape May</option>
+                        <option value="Cumberland">Cumberland</option>
+                        <option value="Essex">Essex</option>
+                        <option value="Gloucester">Gloucester</option>
+                        <option value="Hudson">Hudson</option>
+                        <option value="Hunterdon">Hunterdon</option>
+                        <option value="Mercer">Mercer</option>
+                        <option value="Middlesex">Middlesex</option>
+                        <option value="Monmouth">Monmouth</option>
+                        <option value="Morris">Morris</option>
+                        <option value="Ocean">Ocean</option>
+                        <option value="Passaic">Passaic</option>
+                        <option value="Salem">Salem</option>
+                        <option value="Somerset">Somerset</option>
+                        <option value="Sussex">Sussex</option>
+                        <option value="Union">Union</option>
+                        <option value="Warren">Warren</option>
+                    </select>
+
+                    <label for="year-filter">Year:</label>
+                    <select id="year-filter">
+                        <option value="all">All</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <!-- Add more years if we need-->
+                    </select>
+
+                    <label for="income-level-filter">Income Level:</label>
+                    <select id="income-level-filter">
+                        <option value="all">All</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Map Container -->
@@ -151,17 +192,13 @@
 
         const map = new mapboxgl.Map({
             container: 'map',
-            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
             style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y',
-
             center: [-74.67, 40.43], // Center on New Jersey
             zoom: 7
         });
 
-
         let hoveredCountyId = null;
 
-        // Load county data
         map.on('load', () => {
             map.addSource('nj-counties', {
                 'type': 'geojson',
@@ -193,7 +230,7 @@
                 'type': 'symbol',
                 'source': 'nj-counties',
                 'layout': {
-                    'text-field': ['get', 'COUNTY'], // Replace 'COUNTY' with the correct property for county names
+                    'text-field': ['get', 'COUNTY'],
                     'text-size': 12
                 },
                 'paint': {
@@ -201,7 +238,6 @@
                 }
             });
 
-            // Hover effect
             map.on('mousemove', 'county-fills', (e) => {
                 if (e.features.length > 0) {
                     if (hoveredCountyId !== null) {
@@ -228,31 +264,16 @@
                 hoveredCountyId = null;
             });
 
-            // Click event to select county on map and zoom in
             map.on('click', 'county-fills', (e) => {
-                const countyName = e.features[0].properties.COUNTY; // Replace 'COUNTY' with the correct property
+                const countyName = e.features[0].properties.COUNTY;
                 document.getElementById('county-filter').value = countyName;
                 updateRightPanel(countyName);
-
-                // Zoom into selected county
-                const [minLng, minLat, maxLng, maxLat] = e.features[0].geometry.bbox;
-                map.fitBounds([[minLng, minLat], [maxLng, maxLat]], {
-                    padding: 50
-                });
             });
 
-            // Change event to select county from dropdown and zoom in
             document.getElementById('county-filter').addEventListener('change', function () {
                 const selectedCounty = this.value;
                 if (selectedCounty !== "all") {
-                    // Find the county feature by name
-                    map.querySourceFeatures('nj-counties', { sourceLayer: 'nj-counties' }).forEach(feature => {
-                        if (feature.properties.COUNTY === selectedCounty) {
-                            const [minLng, minLat, maxLng, maxLat] = feature.geometry.bbox;
-                            map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 50 });
-                            updateRightPanel(selectedCounty);
-                        }
-                    });
+                    updateRightPanel(selectedCounty);
                 }
             });
         });
