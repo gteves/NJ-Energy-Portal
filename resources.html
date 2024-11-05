@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Jersey Energy Portal - Resources</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Green background of overall Resources Page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #04A264;
+            color: #333;
+        }
+
+        /* Resources Section styling */
+        .resources-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 30px;
+            width: 80%;
+            margin: 30px auto;
+        }
+
+        .resources-container h2 {
+            color: #0a2a1f;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+
+        /* Collapsible style for resource categories */
+        .resource-item {
+            margin-bottom: 20px;
+        }
+
+        .resource-item h3 {
+            font-size: 20px;
+            color: #0a2a1f;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        .resource-item h3:hover {
+            color: #04A264;
+        }
+
+        .resource-item p {
+            font-size: 16px;
+            line-height: 1.5;
+            display: none;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Adjust layout for smaller screens */
+        @media (max-width: 768px) {
+            .resources-container {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+        // Toggle visibility of resource details
+        document.addEventListener("DOMContentLoaded", function() {
+            const sections = document.querySelectorAll('.resource-item h3');
+            sections.forEach(section => {
+                section.addEventListener('click', () => {
+                    const content = section.nextElementSibling;
+                    content.style.display = (content.style.display === 'block') ? 'none' : 'block';
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <!-- Resources Section -->
+    <div class="resources-container">
+        <h2>Resources</h2>
+
+        <!-- Resource Item 1 -->
+        <div class="resource-item">
+            <h3>Energy Data Reports</h3>
+            <p>Placeholder</p>
+        </div>
+
+        <!-- Resource Item 2 -->
+        <div class="resource-item">
+            <h3>Renewable Energy Programs</h3>
+            <p>Placeholder</p>
+        </div>
+
+        <!-- Resource Item 3 -->
+        <div class="resource-item">
+            <h3>Government Resources</h3>
+            <p>Placeholder</p>
+        </div>
+
+        <!-- Resource Item 4 -->
+        <div class="resource-item">
+            <h3>Educational Materials</h3>
+            <p>Placeholder</p>
+        </div>
+
+        <!-- Resource Item 5 -->
+        <div class="resource-item">
+            <h3>Community Initiatives</h3>
+            <p>Placeholder</p>
+        </div>
+
+    </div>
+
+</body>
+</html>
