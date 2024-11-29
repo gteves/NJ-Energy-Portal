@@ -9,6 +9,8 @@
     <!-- Mapbox CSS -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <!-- Use this for cool icons-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
         * {
@@ -55,8 +57,8 @@
             padding: 20px;
             overflow-y: auto;
         }
-
-        /* Left Filter box */
+        
+        /*Left filter box*/
         .filters-box {
             background-color: #04A264;
             padding: 20px;
@@ -110,6 +112,81 @@
             border-radius: 4px;
             text-decoration: none;
         }
+
+        /* Calculator */
+        .calculator-widget {     
+            position: fixed;
+            bottom: 10px;
+            right: 300px; /* Adjusted to move the positioning of the button */
+            background-color: #04A264;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            font-size: 24px; /* Icon size */
+        }   
+
+        /* Calculator pops for user interaction */
+        .calculator-popup {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 300px;
+            background-color: white;
+            color: black;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            z-index: 10;
+        }
+
+        .calculator-popup label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .calculator-popup input,
+        .calculator-popup select {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .calculator-popup button {
+            margin-top: 15px;
+            background-color: #04A264;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .calculator-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background-color: #f0f0f0;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px; /* Add horizontal spacing between buttons */
+            border-radius: 5px; /* Optional: Add rounded corners for better aesthetics */
+        }
+
+        .active-tab {
+            background-color: #04A264;
+            color: white;
+        }
+        /*End of Calculator widget*/
     </style>
 </head>
 
@@ -125,12 +202,15 @@
 
         <div class="main-content">
             <!-- Left Panel -->
+            <!-- These are for all the filters that will be used-->
             <div class="left-panel">
                 <h2>New Jersey</h2>
+
+                <!--First section filters-->
                 <div class="filter-container">
                     <label for="county-filter">County:</label>
                     <select id="county-filter">
-                        <option value="all">All</option>
+                        <option value="all">Select a County</option>
                         <option value="Atlantic">Atlantic</option>
                         <option value="Bergen">Bergen</option>
                         <option value="Burlington">Burlington</option>
@@ -156,19 +236,56 @@
 
                     <label for="year-filter">Year:</label>
                     <select id="year-filter">
-                        <option value="all">All</option>
+                        <option value="all">Select a Year</option>
+                        <option value="all">2010</option>
+                        <option value="all">2011</option>
+                        <option value="all">2012</option>
+                        <option value="all">2013</option>
+                        <option value="all">2014</option>
+                        <option value="all">2015</option>
+                        <option value="all">2016</option>
+                        <option value="all">2017</option>
+                        <option value="all">2018</option>
+                        <option value="all">2019</option>
+                        <option value="all">2020</option>
+                        <option value="all">2021</option>
                         <option value="2022">2022</option>
                         <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <!-- Add more years if we need-->
                     </select>
 
                     <label for="income-level-filter">Income Level:</label>
                     <select id="income-level-filter">
-                        <option value="all">All</option>
-                        <option value="low">Low</option>
+                        <option value="all">Select Income Level</option>
+                        <option value="low">High</option>
                         <option value="medium">Medium</option>
-                        <option value="high">High</option>
+                        <option value="high">Low</option>
+                    </select>
+
+                    <label for="energy-consumption-filter">Energy Consumption:</label>
+                    <select id="energy-consumption-filter">
+                        <option value="all">All</option>
+                        <option value="low">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">Low</option>
+                    </select>
+
+                    <label for="energy-burden-filter">Energy Burden:</label>
+                    <select id="energy-burden-filter">
+                        <option value="all">All</option>
+                        <option value="low">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">Low</option>
+                    </select>
+
+                    <label for="ethnicity-filter">Ethnicity:</label>
+                    <select id="ethnicity-filter">
+                        <option value="all">Select Ethnicity</option>
+                        <option value="low">White/Caucasian</option>
+                        <option value="medium">African American/Black</option>
+                        <option value="high">Hispanic/Latino</option>
+                        <option value="high">Asian</option>
+                        <option value="high">Native Hawaiian/Pacific Islander</option>
+                        <option value="high">Other</option>
                     </select>
                 </div>
             </div>
@@ -185,6 +302,48 @@
         </div>
     </div>
 
+    <!-- Calculator Widget Icon-->
+    <div class="calculator-widget" onclick="toggleCalculator()">
+        <i class="fas fa-calculator"></i> <!--The Calculator Icon from Font Awesome-->
+    </div>
+
+    <!-- Details for the calculator popup. Stuff to fill in -->
+    <div class="calculator-popup" id="calculator-popup">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <button id="efficiency-tab" class="calculator-tab active-tab" onclick="showTab('efficiency')">Energy Efficiency</button>
+            <button id="burden-tab" class="calculator-tab" onclick="showTab('burden')">Energy Burden</button>
+        </div>
+        <div id="efficiency-form" class="calculator-form">
+            <h3>Energy Efficiency Calculator</h3>
+            <label for="income-efficiency">Income:</label>
+            <input type="number" id="income-efficiency" placeholder="Enter your income">
+            <label for="household-size-efficiency">Household Size:</label>
+            <input type="number" id="household-size-efficiency" placeholder="Enter household size">
+            <label for="energy-type-efficiency">Energy Type:</label>
+            <select id="energy-type-efficiency">
+                <option value="electricity">Electricity</option>
+                <option value="gas">Gas</option>
+                <option value="renewable">Renewable</option>
+            </select>
+            <button onclick="calculateEnergy('efficiency')">Submit</button>
+            <div id="efficiency-result" style="margin-top: 15px; color: #04A264; font-weight: bold;"></div> <!-- Result display -->
+        </div>
+        <div id="burden-form" class="calculator-form" style="display: none;">
+            <h3>Energy Burden Calculator</h3>
+            <label for="income-burden">Income:</label>
+            <input type="number" id="income-burden" placeholder="Enter your income">
+            <label for="household-size-burden">Household Size:</label>
+            <input type="number" id="household-size-burden" placeholder="Enter household size">
+            <label for="energy-type-burden">Energy Type:</label>
+            <select id="energy-type-burden">
+                <option value="electricity">Electricity</option>
+                <option value="gas">Gas</option>
+                <option value="renewable">Renewable</option>
+            </select>
+            <button onclick="calculateEnergy('burden')">Submit</button>
+            <div id="burden-result" style="margin-top: 15px; color: #04A264; font-weight: bold;"></div> <!-- Result display -->
+    </div>
+
     <!-- Mapbox JavaScript -->
     <script>
         mapboxgl.accessToken
@@ -198,6 +357,7 @@
         });
 
         let hoveredCountyId = null;
+        let selectedCountyId = null;
 
         map.on('load', () => {
             map.addSource('nj-counties', {
@@ -210,8 +370,15 @@
                 'type': 'fill',
                 'source': 'nj-counties',
                 'paint': {
-                    'fill-color': '#627BC1',
-                    'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5]
+                    'fill-color': [
+                        'case',
+                        ['boolean', ['feature-state', 'selected'], false],
+                        '#04A264', //Green when selected
+                        ['boolean', ['feature-state', 'hover'], false],
+                        '#627BC1', //Blue when hovering
+                        '#d3d3d3' //Grey when not hovering or selected
+                    ],
+                    'fill-opacity': 1
                 }
             });
 
@@ -224,7 +391,8 @@
                     'line-width': 2
                 }
             });
-
+            
+            //Name of counties
             map.addLayer({
                 'id': 'county-labels',
                 'type': 'symbol',
@@ -240,22 +408,24 @@
 
             map.on('mousemove', 'county-fills', (e) => {
                 if (e.features.length > 0) {
-                    if (hoveredCountyId !== null) {
+                    if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
                         map.setFeatureState(
                             { source: 'nj-counties', id: hoveredCountyId },
                             { hover: false }
                         );
                     }
                     hoveredCountyId = e.features[0].id;
-                    map.setFeatureState(
-                        { source: 'nj-counties', id: hoveredCountyId },
-                        { hover: true }
-                    );
+                    if (hoveredCountyId !== selectedCountyId) {
+                        map.setFeatureState(
+                            { source: 'nj-counties', id: hoveredCountyId },
+                            { hover: true }
+                        );
+                    }
                 }
             });
 
             map.on('mouseleave', 'county-fills', () => {
-                if (hoveredCountyId !== null) {
+                if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
                     map.setFeatureState(
                         { source: 'nj-counties', id: hoveredCountyId },
                         { hover: false }
@@ -265,9 +435,33 @@
             });
 
             map.on('click', 'county-fills', (e) => {
+                if (selectedCountyId !== null) {
+                    // Reset the previously selected county
+                    map.setFeatureState(
+                        { source: 'nj-counties', id: selectedCountyId },
+                        { selected: false }
+                    );
+                }
+
+                // Set the newly selected county
+                selectedCountyId = e.features[0].id;
+                map.setFeatureState(
+                    { source: 'nj-counties', id: selectedCountyId },
+                    { selected: true }
+                );
+
                 const countyName = e.features[0].properties.COUNTY;
-                document.getElementById('county-filter').value = countyName;
+                //document.getElementById('county-filter').value = countyName;
                 updateRightPanel(countyName);
+
+                // Reset hover state if necessary
+                if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
+                    map.setFeatureState(
+                        { source: 'nj-counties', id: hoveredCountyId },
+                        { hover: false }
+                    );
+                }
+                hoveredCountyId = null;
             });
 
             document.getElementById('county-filter').addEventListener('change', function () {
@@ -282,6 +476,112 @@
             const rightPanel = document.querySelector(".right-panel");
             rightPanel.innerHTML = `<h2>${countyName}</h2><p>Details about ${countyName} county...</p>`;
         }
+
+        function toggleCalculator() {
+            const popup = document.getElementById('calculator-popup');
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function showTab(tab) {
+            // Hide all forms
+            document.querySelectorAll('.calculator-form').forEach(form => form.style.display = 'none');
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.calculator-tab').forEach(tabButton => tabButton.classList.remove('active-tab'));
+
+            // Show the selected form and activate its tab
+            document.getElementById(`${tab}-form`).style.display = 'block';
+            document.getElementById(`${tab}-tab`).classList.add('active-tab');
+        }
+
+        // Energy Efficiency will always load on default
+        document.addEventListener('DOMContentLoaded', () => {
+            showTab('efficiency');
+        });
+
+        function calculateEnergy() {
+            // Get input values
+            const income = document.getElementById(`income-${type}`).value;
+            const householdSize = document.getElementById(`household-size-${type}`).value;
+            const energyType = document.getElementById(`energy-type-${type}`).value;
+
+            // Example calculation (replace this with your actual logic)
+            const result = `Income: ${income}, Household Size: ${householdSize}, Energy Type: ${energyType}`;
+
+            // Display result in the appropriate result div
+            document.getElementById(`${type}-result`).textContent = `Calculation Result: ${result}`;
+            toggleCalculator();
+        }
+
+
+
+        //
+        
+        // Function to check if all filters are at their default values
+        function areFiltersDefault() {
+            const county = document.getElementById('county-filter').value;
+            const year = document.getElementById('year-filter').value;
+            const incomeLevel = document.getElementById('income-level-filter').value;
+            const energyConsumption = document.getElementById('energy-consumption-filter').value;
+            const energyBurden = document.getElementById('energy-burden-filter').value;
+            const ethnicity = document.getElementById('ethnicity-filter').value;
+
+            return (
+                county === "all" &&
+                year === "all" &&
+                incomeLevel === "all" &&
+                energyConsumption === "all" &&
+                energyBurden === "all" &&
+                ethnicity === "all"
+            );
+        }
+
+        // Function to update the right panel based on filters
+        function updateRightPanelFromFilters() {
+            const county = document.getElementById('county-filter').value;
+            const year = document.getElementById('year-filter').value;
+            const incomeLevel = document.getElementById('income-level-filter').value;
+            const energyConsumption = document.getElementById('energy-consumption-filter').value;
+            const energyBurden = document.getElementById('energy-burden-filter').value;
+            const ethnicity = document.getElementById('ethnicity-filter').value;
+
+            const rightPanel = document.querySelector('.right-panel');
+
+            // Display the welcome message if all filters are at their default values
+            if (areFiltersDefault()) {
+                rightPanel.innerHTML = `<h2>Welcome!</h2><p>Please fill in the filters to display information.</p>`;
+            } else {
+                // Display the user's selected choices
+                const message = `
+                    <h2>You selected:</h2>
+                    <ul>
+                        <li><strong>County:</strong> ${county !== "Select a County" ? county : "None"}</li>
+                        <li><strong>Year:</strong> ${year !== "Select a Year" ? year : "None"}</li>
+                        <li><strong>Income Level:</strong> ${incomeLevel !== "all" ? incomeLevel : "None"}</li>
+                        <li><strong>Energy Consumption:</strong> ${energyConsumption !== "all" ? energyConsumption : "None"}</li>
+                        <li><strong>Energy Burden:</strong> ${energyBurden !== "all" ? energyBurden : "None"}</li>
+                        <li><strong>Ethnicity:</strong> ${ethnicity !== "Select Ethnicity" ? ethnicity : "None"}</li>
+                    </ul>
+                `;
+                rightPanel.innerHTML = message;
+            }
+        }
+
+        // Add event listeners to all filters
+        document.getElementById('county-filter').addEventListener('change', updateRightPanelFromFilters);
+        document.getElementById('year-filter').addEventListener('change', updateRightPanelFromFilters);
+        document.getElementById('income-level-filter').addEventListener('change', updateRightPanelFromFilters);
+        document.getElementById('energy-consumption-filter').addEventListener('change', updateRightPanelFromFilters);
+        document.getElementById('energy-burden-filter').addEventListener('change', updateRightPanelFromFilters);
+        document.getElementById('ethnicity-filter').addEventListener('change', updateRightPanelFromFilters);
+
+        // Initialize the right panel with the welcome message on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRightPanelFromFilters();
+        });
+
+
+
     </script>
 
 </body>
