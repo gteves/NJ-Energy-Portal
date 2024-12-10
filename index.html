@@ -11,14 +11,13 @@
             box-sizing: border-box;
         }
         
-        /* Green background of overall Home Page*/
         body {
             font-family: Arial, sans-serif;
             background-color: #04A264;
             color: #333;
+            line-height: 1.6;
         }
 
-        /* Color for navbar */
         header {
             background-color: #0a2a1f; 
             padding: 20px;
@@ -47,9 +46,8 @@
             text-decoration: underline;
         }
 
-        /* Styling for the "Data Maps" link */
         nav a.data-maps-link {
-            background-color: #04A264; /* Green background */
+            background-color: #04A264;
             padding: 10px 20px;
             border-radius: 20px;
             color: white;
@@ -57,27 +55,26 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Hover effect for "Data Maps" link */
         nav a.data-maps-link:hover {
-            background-color: #4CAF50; /* Change to a lighter green on hover */
+            background-color: #4CAF50;
             color: white;
         }
 
-        /* Flex container to hold the two boxes with reduced space in between */
         .box-container {
             display: flex;
-            justify-content: space-around; /* Smaller space between the boxes */
+            justify-content: space-around;
             align-items: center;
             margin: 20px;
             padding: 20px;
+            gap: 20px; /* Added gap for better spacing */
         }
 
         .box {
             background-color: white;
             padding: 40px;
             border-radius: 30px;
-            width: 48%; /* Slightly increased width */
-            min-height: 625px; /* Ensure both boxes have the same height */
+            width: 48%;
+            min-height: 625px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -85,6 +82,9 @@
 
         .left-box {
             text-align: left;
+            background-color: white; /* Added white background */
+            border-radius: 30px; /* Match the border radius */
+            padding: 40px; /* Match the padding */
         }
 
         .left-box h2 {
@@ -95,18 +95,17 @@
 
         .left-box p {
             font-size: 18px;
-            line-height: 1.6;
+            line-height: 1.8; /* Increased line height for better readability */
             color: #555;
         }
 
         .right-box img {
             max-width: 100%;
             max-height: 100%;
-            object-fit: cover; /* Ensure the image fills the box without distortion */
+            object-fit: cover;
             border-radius: 15px;
         }
 
-        /* Adjust the layout on smaller screens */
         @media (max-width: 768px) {
             .box-container {
                 flex-direction: column;
@@ -134,11 +133,12 @@
         </div>
     </header>
 
-    <!-- Container for the two white boxes -->
     <div class="box-container">
-        <div class="left-box">
-            <h2>Empowering New Jersey with Clean Energy Insights</h2>
-            <p>Discover the latest in clean energy solutions and initiatives across New Jersey. From solar power to wind energy, we provide actionable insights, resources, and updates to help individuals and businesses contribute to a greener future. Explore how New Jersey is leading the charge in sustainable energy..</p>
+        <div class="box left-box">
+            <div>
+                <h2>Empowering New Jersey with Clean Energy Insights</h2>
+                <p>Discover the latest in clean energy solutions and initiatives across New Jersey. From solar power to wind energy, we provide actionable insights, resources, and updates to help individuals and businesses contribute to a greener future. Explore how New Jersey is leading the charge in sustainable energy.</p>
+            </div>
         </div>
 
         <div class="box right-box">
