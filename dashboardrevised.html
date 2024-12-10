@@ -1,0 +1,800 @@
+<!-- type into terminal before running: php -S 127.0.0.1:8000-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Jersey Energy Portal</title>
+
+    <!-- Mapbox CSS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+
+    <!-- Used for icons-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!---------------------------------------------------CSS Section------------------------------------------------------>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: gill sans, sans-serif;
+            background-color: #04A264;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .top-sidebar {
+            background-color: #0a2a1f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .top-sidebar h1 {
+            font-size: 18px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Back Button on Navbar */
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background-color: #0a2a1f;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+/* -------------------------------------------------- Left Filter Box Functions ----------------------------------------------*/
+        .left-panel {
+            position: absolute; /* Ensures it floats over the map */
+            top: 80px; /* Adjust to align below the navbar */
+            left: 20px; /* Keep it aligned to the left */
+            width: 20%; /* Adjust width as needed */
+            border-radius: 10px;
+            padding: 20px;
+            height: calc(100vh - 400px); /* Change height of the filter box */
+            z-index: 1; /* Higher than the map */
+            background-color: #04A264; /* Optional: Semi-transparent background for readability */
+            overflow-y: auto; /* Ensure content is scrollable */
+        }
+
+        /*Left filter box*/
+        .filters-box {
+            background-color: #04A264;
+            padding: 300px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .filter-container label {
+            font-weight: bold;
+        }
+
+        .filter-container select {
+            width: 100%;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+/* --------------------------------------------- End of Left Filter Box Functions -------------------------------------------- */
+
+/* --------------------------------------------- Green Drop down Right Panel Function ---------------------------------------- */
+        /* Drop down for when a user clicks on a county*/
+        .green-dropdown {
+            display: none;
+            position: absolute;
+            top: 80px; /* Adjust position from top*/
+            left: 86%;
+            transform: translateX(-50%);
+            background-color: #04A264;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px; /* Adjust width as needed */
+            max-height: 85vh; /* Adjusts the size of the green box*/
+            text-align: center;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        /* Optional: Style the scrollbar */
+        .green-dropdown::-webkit-scrollbar {
+            width: 8px; /* Width of the scrollbar */
+        }
+
+        .green-dropdown::-webkit-scrollbar-thumb {
+            background-color: #037c4d; /* Color of the scrollbar thumb */
+            border-radius: 10px; /* Rounded corners for the scrollbar thumb */
+        }
+
+        .green-dropdown::-webkit-scrollbar-track {
+            background-color: #e6f7ee; /* Background of the scrollbar track */
+        }
+
+        .green-dropdown.visible {
+            display: block; /* Show the dropdown */
+        }
+/* ----------------------------------------- End of Green Drop Down Right Panel ---------------------------------------------- */
+
+/* ------------------------------------------------- Map Functionalities ----------------------------------------------------- */
+        #map-container {
+            position: absolute; /* Position relative to the document flow */
+            top: 60px; /* Adjust based on the height of the navigation bar */
+            left: 0;
+            width: 100%; /* Full width */
+            height: calc(100vh - 80px); /* Subtract the height of the navbar from the viewport height */
+            z-index: 0; /* Ensure it stays behind other elements */
+        }
+
+        #map {
+            width: 100%;
+            height: 120%;
+        }
+/* ---------------------------------------------- End of Map Functionalities ------------------------------------------------- */
+
+
+/* ---------------------------------------------- Tabbed Filters on Left Panel ----------------------------------------------- */
+        /* Tab like Function for filters on the left side */
+        /* Actual button */
+        .filter-toggle-button {
+            position: fixed;
+            top: 16%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Filter box that shows when 'filters' is clicked */
+        .filter-tab {
+            position: fixed;
+            top: 170px; /* Moves the tab downward */
+            left: -300px; /* Hidden by default, adjust to match the width */
+            width: 300px; /* Set the desired width */
+            height: calc(100vh - 530px); /* Shrinks the height, leaving space at the top and bottom */
+            background-color: #04A264;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            transition: left 0.3s ease; /* Smooth slide effect */
+            z-index: 9;
+            overflow-y: auto; /* Makes the tab scrollable if content overflows */
+            border-top-left-radius: 8px; /* Optional: Rounded corners */
+            border-bottom-left-radius: 8px; /* Optional: Rounded corners */
+        }
+
+        /* Filter Tab when visible */
+        .filter-tab.visible {
+            left: 0; /* Slide into view */
+        }
+/* ------------------------------------------ End of Tabbed Filters on Left Panel ----------------------------------------------- */
+
+/* ---------------------------------------------------- Calculator Function ----------------------------------------------------- */
+        .calculator-widget {
+            position: fixed;
+            bottom: 10px;
+            right: 420px;
+            /* Adjusted to move the positioning of the button */
+            background-color: #04A264;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            font-size: 24px;
+            /* Icon size */
+        }
+
+        /* Calculator pops for user interaction */
+        .calculator-popup {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 410px;
+            background-color: white;
+            color: black;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            z-index: 10;
+        }
+
+        .calculator-popup label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .calculator-popup input,
+        .calculator-popup select {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .calculator-popup button {
+            margin-top: 15px;
+            background-color: #04A264;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .calculator-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background-color: #f0f0f0;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            /* Add horizontal spacing between buttons */
+            border-radius: 5px;
+            /* Optional: Add rounded corners for better aesthetics */
+        }
+
+        .active-tab {
+            background-color: #04A264;
+            color: white;
+        }
+
+        /* Tips section in calculator*/
+        .tips-box {
+            display: none;
+            position: fixed;
+            top: 20.5%;
+            right: 46%;
+            width: 80%;
+            max-width: 600px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            overflow-y: auto;
+            max-height: 70%;
+        }
+
+        .tips-content h3 {
+            font-size: 20px;
+            color: #04A264;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tips-content ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tips-content ul li {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #e6f7ee;
+            border-left: 4px solid #04A264;
+            border-radius: 5px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .tips-content ul li strong:first-of-type {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .tips-content ul li strong:not(:first-of-type) {
+            color: #04A264;
+            font-weight: normal;
+        }
+
+        .tips-content button {
+            background-color: #04A264;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .tips-content button:hover {
+            background-color: #037c4d;
+        }
+
+        .tips-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .tips-box::-webkit-scrollbar-thumb {
+            background-color: #04A264;
+            border-radius: 10px;
+        }
+/* ----------------------------------------------- End of Calculator widget ---------------------------------------------*/
+
+    </style>
+</head>
+
+<!-----------------------------------------------HTML Section--------------------------------------------------------->
+
+<body>
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">← Back to Home</a>
+
+    <div class="container">
+        <!-- Navbar -->
+        <div class="top-sidebar">
+            <h1>New Jersey Energy Portal</h1>
+        </div>
+
+        <!-- Filter Toggle Button -->
+        <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
+
+        <div class="filter-tab" id="filter-tab">
+            <!-- Left Panel -->
+            <!-- These are for all the filters that will be used-->
+            <!-- County Filters -->
+            <div class="filter-container">
+                <label for="county-filter">County:</label>
+                <select id="county-filter">
+                    <option value="all">Select a County</option>
+                    <option value="Atlantic">Atlantic</option>
+                    <option value="Bergen">Bergen</option>
+                    <option value="Burlington">Burlington</option>
+                    <option value="Camden">Camden</option>
+                    <option value="Cape May">Cape May</option>
+                    <option value="Cumberland">Cumberland</option>
+                    <option value="Essex">Essex</option>
+                    <option value="Gloucester">Gloucester</option>
+                    <option value="Hudson">Hudson</option>
+                    <option value="Hunterdon">Hunterdon</option>
+                    <option value="Mercer">Mercer</option>
+                    <option value="Middlesex">Middlesex</option>
+                    <option value="Monmouth">Monmouth</option>
+                    <option value="Morris">Morris</option>
+                    <option value="Ocean">Ocean</option>
+                    <option value="Passaic">Passaic</option>
+                    <option value="Salem">Salem</option>
+                    <option value="Somerset">Somerset</option>
+                    <option value="Sussex">Sussex</option>
+                    <option value="Union">Union</option>
+                    <option value="Warren">Warren</option>
+                </select>
+
+                <!--Creates a space between filters-->
+                <div style="margin: 20px 0;"></div>
+                
+                <!-- Year Filters -->
+                <label for="year-filter">Year:</label>
+                <select id="year-filter">
+                    <option value="all">Select a Year</option>
+                    <option value="2010">2010</option>
+                    <option value="2011">2011</option>
+                    <option value="2012">2012</option>
+                    <option value="2013">2013</option>
+                    <option value="2014">2014</option>
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                </select>
+
+                <!--Creates a space between filters-->
+                <div style="margin: 20px 0;"></div>
+
+                <!-- Income Filters -->
+                <label for="income-level-filter">Income Level:</label>
+                <select id="income-level-filter">
+                    <option value="all">Select Income Level</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+
+                <!--Creates a space between filters-->
+                <div style="margin: 20px 0;"></div>
+
+                <!-- Ethnicity Filters -->
+                <label for="ethnicity-filter">Ethnicity:</label>
+                <select id="ethnicity-filter">
+                    <option value="all">Select Ethnicity</option>
+                    <option value="white-caucasian">White/Caucasian</option>
+                    <option value="african">African American/Black</option>
+                    <option value="hispanic">Hispanic/Latino</option>
+                    <option value="high">Asian</option>
+                    <option value="high">Native Hawaiian/Pacific Islander</option>
+                    <option value="high">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Map Container -->
+            <div id="map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Widget Icon-->
+    <div class="calculator-widget" onclick="toggleCalculator()">
+        <i class="fas fa-calculator"></i>
+    </div>
+
+
+    <!--For the Calculator to pop up-->
+    <div class="calculator-popup" id="calculator-popup">
+        <h2 style="font-weight: bold; margin-bottom: 10px;">Calculate your Energy Burden</h2>
+        <label for="zip-code-input">Enter ZIP Code:</label>
+        <input type="text" id="zip-code-input" placeholder="Enter ZIP Code" />
+        <button id="calculate-btn">Calculate</button>
+        <div id="calculator-result" style="margin-top: 15px;"></div>
+    </div>
+
+    <!--Calculator Tips for lowering energy burden-->
+    <div class="tips-box" id="tips-box">
+        <div class="tips-content">
+            <h3>Tips to Lower Energy Burden</h3>
+            <ul>
+                <li><strong>Your energy burden is X%, which is higher than the state average of 2-3%.</strong> 
+                    Have you looked into programs like the <strong>Low-Income Home Energy Assistance Program (LIHEAP)</strong>? It can help with your energy costs and even pay for home weatherization to reduce future bills.</li>
+                <li><strong>Did you know reducing your energy burden doesn’t always mean big changes?</strong> 
+                    Small actions like sealing air leaks around windows and doors or adding insulation can make your home more energy-efficient, keeping heating and cooling costs down.</li>
+                <li><strong>Have you considered joining a community solar program?</strong> 
+                    This allows you to subscribe to a shared solar energy source without the cost of installing panels. It’s a great way to reduce your electricity bills and your carbon footprint.</li>
+                <li><strong>The energy burden in your area is above average, but there are tools to help.</strong> 
+                    The <strong>Comfort Partners Program</strong> provides free energy-saving upgrades for eligible households, helping reduce energy use and costs over the long term.</li>
+                <li><strong>High energy costs can feel overwhelming, but you don’t have to face them alone.</strong> 
+                    Contact your utility provider about <strong>budget billing plans</strong> or <strong>payment assistance programs</strong>, which can spread out costs and make bills more manageable.</li>
+                <li><strong>Did you know weatherization can significantly lower your energy burden?</strong> 
+                    Programs like the <strong>Weatherization Assistance Program (WAP)</strong> can provide free services to improve your home’s energy efficiency, such as adding insulation or repairing your heating system.</li>
+                <li><strong>Are you eligible for energy-efficient appliance rebates?</strong> 
+                    Replacing older appliances with <strong>ENERGY STAR-certified models</strong> can reduce your energy use, and rebates through the <strong>New Jersey Clean Energy Program</strong> make them more affordable.</li>
+            </ul>
+            <button onclick="closeTips()">Close</button>
+        </div>
+    </div>
+    
+<!----------------------------------------------------JavaScript Section------------------------------------->
+        <!-- Mapbox JavaScript -->
+        <script>
+            mapboxgl.accessToken = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
+
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y',
+                center: [-74.67, 40.43], // Center on New Jersey
+                zoom: 7
+            });
+
+            let hoveredCountyId = null;
+            let selectedCountyId = null;
+
+            //Loads the map into the website
+            map.on('load', () => {
+                map.addSource('nj-counties', {
+                    'type': 'geojson',
+                    'data': 'https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson'
+                });
+
+                map.addLayer({
+                    'id': 'county-fills',
+                    'type': 'fill',
+                    'source': 'nj-counties',
+                    'paint': {
+                        'fill-color': [
+                            'case',
+                            ['boolean', ['feature-state', 'selected'], false],
+                            '#04A264', //Green when selected
+                            ['boolean', ['feature-state', 'hover'], false],
+                            '#627BC1', //Blue when hovering
+                            '#d3d3d3' //Grey when not hovering or selected
+                        ],
+                        'fill-opacity': 1
+                    }
+                });
+
+                //Puts the county borders in between each county
+                map.addLayer({
+                    'id': 'county-borders',
+                    'type': 'line',
+                    'source': 'nj-counties',
+                    'paint': {
+                        'line-color': '#627BC1',
+                        'line-width': 2
+                    }
+                });
+
+                //Puts the names of counties
+                map.addLayer({
+                    'id': 'county-labels',
+                    'type': 'symbol',
+                    'source': 'nj-counties',
+                    'layout': {
+                        'text-field': ['get', 'COUNTY'],
+                        'text-size': 12
+                    },
+                    'paint': {
+                        'text-color': '#000000'
+                    }
+                });
+
+                //Produces a hover effect for when user hovers over the map
+                map.on('mousemove', 'county-fills', (e) => {
+                    if (e.features.length > 0) {
+                        if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
+                            map.setFeatureState({
+                                source: 'nj-counties',
+                                id: hoveredCountyId
+                            }, {
+                                hover: false
+                            });
+                        }
+                        hoveredCountyId = e.features[0].id;
+                        if (hoveredCountyId !== selectedCountyId) {
+                            map.setFeatureState({
+                                source: 'nj-counties',
+                                id: hoveredCountyId
+                            }, {
+                                hover: true
+                            });
+                        }
+                    }
+                });
+
+                //When the user isn't hovering over it anymore, it reset the color
+                map.on('mouseleave', 'county-fills', () => {
+                    if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
+                        map.setFeatureState({
+                            source: 'nj-counties',
+                            id: hoveredCountyId
+                        }, {
+                            hover: false
+                        });
+                    }
+                    hoveredCountyId = null;
+                });
+
+                //Highlights the county for when a new county is selected
+                map.on('click', 'county-fills', (e) => {
+                    if (selectedCountyId !== null) {
+                        // Reset the previously selected county
+                        map.setFeatureState({
+                            source: 'nj-counties',
+                            id: selectedCountyId
+                        }, {
+                            selected: false
+                        });
+                    }
+
+                    // Set the newly selected county
+                    selectedCountyId = e.features[0].id;
+                    map.setFeatureState({
+                        source: 'nj-counties',
+                        id: selectedCountyId
+                    }, {
+                        selected: true
+                    });
+
+                    const countyName = e.features[0].properties.COUNTY;
+                    updateRightPanel(countyName);
+
+                    // Reset hover state if necessary
+                    if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
+                        map.setFeatureState({
+                            source: 'nj-counties',
+                            id: hoveredCountyId
+                        }, {
+                            hover: false
+                        });
+                    }
+                    hoveredCountyId = null;
+                });
+
+                //Adds an even listener to listen to what county is being changed
+                document.getElementById('county-filter').addEventListener('change', function() {
+                    const selectedCounty = this.value;
+                    if (selectedCounty !== "all") {
+                        updateRightPanel(selectedCounty);
+                    }
+                });
+            });
+
+            //Updates the information displayed on the right green box
+            function updateRightPanel(countyName) {
+                // Fetch data for the selected county
+                fetch(`getdata.php?county=${countyName}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Calls the green dropdown that we established earlier
+                        let dropdown = document.querySelector('.green-dropdown');
+                        if (!dropdown) {
+                            dropdown = document.createElement('div');
+                            dropdown.className = 'green-dropdown';
+                            document.body.appendChild(dropdown);
+                        }
+
+                        // Build the table and display the data that was fetched
+                        let content = `<h2>${countyName}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                        content += `
+                            <tr>
+                                <th>Municipality</th>
+                                <th>Residential Electricity</th>
+                                <th>Residential Natural Gas</th>
+                            </tr>`;
+                        if (data.length) {
+                            data.forEach(row => {
+                                content += `
+                                <tr>
+                                    <td>${row["Municipality"]}</td>
+                                    <td>${row["Residential Electricity"]} kWh</td>
+                                    <td>${row["Residential Natural Gas"]} Therms</td>
+                                </tr>`;
+                            });
+                        } else {
+                            content += `<tr><td colspan="2">No data available for this county.</td></tr>`;
+                        }
+                        content += `</table>`;
+
+                        // Display the content in the green dropdown
+                        dropdown.innerHTML = content;
+                        dropdown.classList.add('visible');
+                    })
+
+                    //For error handling when data isn't being fetched
+                    .catch(error => {
+                        console.error("Error fetching data:", error);
+                    });
+            }
+
+            //Deals with the calculator pop up function
+            function toggleCalculator() {
+                const popup = document.getElementById('calculator-popup');
+                popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            }
+
+            //for tab function on filters
+            function toggleFilter() {
+                const filterTab = document.getElementById('filter-tab');
+                if (filterTab.classList.contains('visible')) {
+                    filterTab.classList.remove('visible');
+                } else {
+                    filterTab.classList.add('visible');
+                }
+            }
+
+            //Adds an even listener for the calculator for when user inputs a zip code
+            document.getElementById('calculate-btn').addEventListener('click', function () {
+                const zipCode = document.getElementById('zip-code-input').value.trim(); // Get the ZIP code input
+
+                //Error handles for when user doesnt enter a zip code
+                if (zipCode === '') {
+                    document.getElementById('calculator-result').innerHTML = '<p style="color:red;">Please enter a ZIP Code.</p>';
+                    return;
+                }
+
+                // Fetches the data within the database in regards to what we are asking for through php file
+                // In this case, we are fetching County Name, Energy Burden Pct Income
+                fetch(`getzip.php?zip_code=${zipCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const county = data.data['County Name'];
+                            const burden = data.data['Energy Burden Pct Income'];
+
+                            let statusTitle;
+                            let statusMessage;
+                            let tipsLink = '';
+
+                            if (burden > 3) {
+                                //Overburden
+                                statusTitle = `<p style="color:red;"><strong>Overburdened</strong></p>`;
+                                statusMessage = `<p>There is an overburden in energy in the ${county} area. It is ${burden}%, which is above the state average.</p>`;
+                                //If it is overburden, this tips box will pop up for the user
+                                tipsLink = `<p style="cursor: pointer; color: #04A264;" onclick="showTips()"><< Tips for Lowering Energy Burden</p>`;
+                            } else {
+                                //Under Burden
+                                statusTitle = `<p style="color:green;"><strong>Below State Average</strong></p>`;
+                                statusMessage = `<p>The energy burden in the ${county} area is ${burden}%, which is less than the state average.</p>`;
+                            }
+
+                            //Displays State Average Energy Burden of New Jersey
+                            const stateAverageMessage = `<p style="color:gray; font-style: italic; text-align: center;">*The New Jersey State Average is 3%*</p>`;
+
+                            // Display the county, burden, and the new format
+                            document.getElementById('calculator-result').innerHTML = `
+                                <p><strong>County:</strong> ${county}</p>
+                                <p><strong>Energy Burden:</strong> ${burden}%</p>
+                                <div style="margin-top: 15px;"></div>
+                                ${statusTitle}
+                                ${statusMessage}
+                                <div style="margin-top: 15px;"></div>
+                                ${stateAverageMessage}
+                                <div style="margin-top: 15px;"></div>
+                                ${tipsLink}
+                            `;
+
+                            //For when the result for calculator doesnt display anything or submissions fail
+                        } else {
+                            document.getElementById('calculator-result').innerHTML = `
+                                <p style="color:red;">${data.message}</p>
+                            `;
+                        }
+                    })
+                    
+                    //For Error handling when Data cant be fetched from the database
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        document.getElementById('calculator-result').innerHTML = `
+                            <p style="color:red;">An error occurred. Please try again later.</p>
+                        `;
+                    });
+            });
+
+            // JavaScript functions to handle Tips Box
+            function showTips() {
+                document.getElementById('tips-box').style.display = 'block';
+            }
+
+            //Close the tips box from the calculator
+            function closeTips() {
+                document.getElementById('tips-box').style.display = 'none';
+            }
+        
+        </script>
+
+</body>
+
+</html>
