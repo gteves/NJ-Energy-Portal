@@ -61,6 +61,51 @@
             border-radius: 5px;
         }
 
+                /* Color for navbar */
+                header {
+            background-color: #0a2a1f; 
+            padding: 20px;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+        .navbar nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling for the "Data Maps" link */
+        nav a.data-maps-link {
+            background-color: #04A264; /* Green background */
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Hover effect for "Data Maps" link */
+        nav a.data-maps-link:hover {
+            background-color: #4CAF50; /* Change to a lighter green on hover */
+            color: white;
+        }
+
         /* Adjust layout for smaller screens */
         @media (max-width: 768px) {
             .resources-container {
@@ -83,6 +128,18 @@
     </script>
 </head>
 <body>
+    <header>
+        <div class="navbar">
+            <h1>New Jersey Energy Portal</h1>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="resources.html">Resources</a>
+                <a href="faqs.html">FAQs</a>
+                <a href="About.html">About</a>
+                <a href="dashboardrevised.html" class="data-maps-link">Data Maps</a>
+            </nav>
+        </div>
+    </header>
 
     <!-- Resources Section -->
     <div class="resources-container">
