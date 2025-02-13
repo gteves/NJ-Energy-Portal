@@ -200,6 +200,57 @@
         .filter-tab.visible {
             left: 0; /* Slide into view */
         }
+
+
+        /* Tab like Function for Maps on the left side */
+        /* Actual button */
+        .maps-toggle-button {
+            position: fixed;
+            top: 10.5%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Maps drop down function so we can switch from one map to another */
+        .maps-dropdown {
+            display: none;
+            position: absolute;
+            top: 8.5%; /* adjusts where the popup is going to be */
+            left: 85px;
+            background-color: #0a2a1f;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+            width: 150px;
+        }
+
+        /* Buttons inside the dropdown */
+        .dropdown-btn {
+            background-color: #04A264;
+            color: white;
+            width: 130px;
+            height: 50px; /* Makes it square-like */
+            border: none;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #037c4d;
+        }
+
+    
 /* ------------------------------------------ End of Tabbed Filters on Left Panel ----------------------------------------------- */
 
 /* ---------------------------------------------------- Calculator Function ----------------------------------------------------- */
@@ -375,6 +426,15 @@
             <h1>New Jersey Energy Portal</h1>
         </div>
 
+        <!-- Maps Toggle Button -->
+        <button class="maps-toggle-button" onclick="toggleMaps()">Maps</button>
+
+        <!-- Maps Dropdown Menu -->
+        <div id="maps-dropdown" class="maps-dropdown">
+            <button class="dropdown-btn">County Level</button>
+            <button class="dropdown-btn" onclick="redirecttonewmap()">Municipal Level</button>
+        </div>
+
         <!-- Filter Toggle Button -->
         <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
 
@@ -434,30 +494,6 @@
 
                 <!--Creates a space between filters-->
                 <div style="margin: 20px 0;"></div>
-
-                <!-- Income Filters -->
-                <label for="income-level-filter">Income Level:</label>
-                <select id="income-level-filter">
-                    <option value="all">Select Income Level</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                </select>
-
-                <!--Creates a space between filters-->
-                <div style="margin: 20px 0;"></div>
-
-                <!-- Ethnicity Filters -->
-                <label for="ethnicity-filter">Ethnicity:</label>
-                <select id="ethnicity-filter">
-                    <option value="all">Select Ethnicity</option>
-                    <option value="white-caucasian">White/Caucasian</option>
-                    <option value="african">African American/Black</option>
-                    <option value="hispanic">Hispanic/Latino</option>
-                    <option value="high">Asian</option>
-                    <option value="high">Native Hawaiian/Pacific Islander</option>
-                    <option value="high">Other</option>
-                    </select>
                 </div>
             </div>
 
@@ -713,6 +749,28 @@
                 } else {
                     filterTab.classList.add('visible');
                 }
+            }
+
+            //for Maps filter
+            function toggleMaps() {
+                var dropdown = document.getElementById("maps-dropdown");
+                // Toggle visibility
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+
+            // Close the dropdown when clicking outside
+            document.addEventListener("click", function (event) {
+                var dropdown = document.getElementById("maps-dropdown");
+                var mapsButton = document.querySelector(".maps-toggle-button");
+
+                if (!dropdown.contains(event.target) && !mapsButton.contains(event.target)) {
+                    dropdown.style.display = "none";
+                }
+            });
+            
+            //When Municipal level is clicked, this redirects it to the other map
+            function redirectToNewMap() {
+                window.location.href = "municipalmap.html";
             }
 
             //Adds an even listener for the calculator for when user inputs a zip code
