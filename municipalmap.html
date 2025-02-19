@@ -1,0 +1,95 @@
+<!-- Token: pk.eyJ1IjoidGV2ZXNnMSIsImEiOiJjbTczZnhrdXIwbDA5MnNvb3Vwa3RpMzZzIn0.u6xrlzfDJ8JYK7OH8eUqIw-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Map Screen</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .map-container {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            margin: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background-color: #04A264;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background-color: #037c4d;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map" class="map-container"></div>
+
+    <a href="dashboardrevised.html" class="back-button">&larr; Back to County Map</a>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoidGV2ZXNnMSIsImEiOiJjbTczZnhrdXIwbDA5MnNvb3Vwa3RpMzZzIn0.u6xrlzfDJ8JYK7OH8eUqIw';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-74.4057, 40.0583], // Centering on New Jersey
+            zoom: 7
+        });
+
+        map.on('load', function() {
+            console.log("Map loaded, adding county borders...");
+            map.addSource('nj-counties', {
+                type: 'geojson',
+                data: 'https://raw.githubusercontent.com/gteves/NJ-Energy-Portal/main/nj_counties.geojson' // Replace with your actual GitHub Raw URL
+            });
+
+            map.addLayer({
+                id: 'nj-county-borders',
+                type: 'line',
+                source: 'nj-counties',
+                layout: {
+                    'visibility': 'visible'
+                },
+                paint: {
+                    'line-color': '#ff0000',
+                    'line-width': 2
+                }
+            });
+
+            console.log("County borders layer added.");
+        });
+    </script>
+</body>
+</html>
