@@ -111,14 +111,14 @@
             display: none;
             position: absolute;
             top: 80px; /* Adjust position from top*/
-            left: 86%;
+            left: 82%;
             transform: translateX(-50%);
             background-color: #04A264;
             color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            width: 400px; /* Adjust width as needed */
+            width: 500px; /* Adjust width of green box */
             max-height: 85vh; /* Adjusts the size of the green box*/
             text-align: center;
             z-index: 1000;
@@ -230,6 +230,54 @@
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
             z-index: 15;
             width: 150px;
+        }
+
+        /* Buttons inside the dropdown */
+        .dropdown-btn {
+            background-color: #04A264;
+            color: white;
+            width: 130px;
+            height: 50px; /* Makes it square-like */
+            border: none;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #037c4d;
+        }
+
+        /* Tenure Filter */
+        /* Actual button */
+        .tenure-toggle-button {
+            position: fixed;
+            top: 21%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Maps drop down function so we can switch from one map to another */
+        .tenure-dropdown {
+            display: none;
+            position: absolute;
+            top: 8.5%; /* adjusts where the popup is going to be */
+            left: 85px;
+            background-color: #04A264;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+            width: 210px;
         }
 
         /* Buttons inside the dropdown */
@@ -432,8 +480,69 @@
         <!-- Maps Dropdown Menu -->
         <div id="maps-dropdown" class="maps-dropdown">
             <button class="dropdown-btn">County Level</button>
-            <button class="dropdown-btn" onclick="redirecttonewmap()">Municipal Level</button>
+            <button class="dropdown-btn" onclick="redirectToMunicipalMap()">Municipal Level</button>
         </div>
+
+        <!--Tenure Button-->
+        <button class="tenure-toggle-button" onclick="toggleTenure()">Tenure</button>
+
+        <!-- Tenure Dropdown Menu -->
+        <div id="tenure-dropdown" class="tenure-dropdown">
+            <label for="year-select">Select Year (2010 - 2023):</label>
+            <select id="year-select" onchange="updateTenureRightPanel()">
+                <option value="All">All</option>
+                <option value="2010">2010</option>
+                <option value="2011">2011</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+            </select>
+            <br>
+        
+            <label for="tenure-county-filter">Select County:</label><br>
+            <select id="tenure-county-filter" onchange="updateTenureRightPanel()">
+                <option value="all">Select a County</option>
+                <option value="Atlantic County">Atlantic</option>
+                <option value="Bergen County">Bergen</option>
+                <option value="Burlington County">Burlington</option>
+                <option value="Camden County">Camden</option>
+                <option value="Cape May County">Cape May</option>
+                <option value="Cumberland County">Cumberland</option>
+                <option value="Essex County">Essex</option>
+                <option value="Gloucester County">Gloucester</option>
+                <option value="Hudson County">Hudson</option>
+                <option value="Hunterdon County">Hunterdon</option>
+                <option value="Mercer County">Mercer</option>
+                <option value="Middlesex County">Middlesex</option>
+                <option value="Monmouth County">Monmouth</option>
+                <option value="Morris County">Morris</option>
+                <option value="Ocean County">Ocean</option>
+                <option value="Passaic County">Passaic</option>
+                <option value="Salem County">Salem</option>
+                <option value="Somerset County">Somerset</option>
+                <option value="Sussex County">Sussex</option>
+                <option value="Union County">Union</option>
+                <option value="Warren County">Warren</option>
+            </select>
+            <br>
+        
+            <label for="tenure-filter">Select Tenure Type:</label><br>
+            <select id="tenure-filter"onchange="updateTenureRightPanel()">
+                <option value="all">All</option>
+                <option value="owner">Owner occupied</option>
+                <option value="renter">Renter occupied</option>
+            </select>
+        </div>
+
 
         <!-- Filter Toggle Button -->
         <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
@@ -769,9 +878,25 @@
             });
             
             //When Municipal level is clicked, this redirects it to the other map
-            function redirectToNewMap() {
+            function redirectToMunicipalMap() {
                 window.location.href = "municipalmap.html";
             }
+
+            //When clicking tenure feature
+            function toggleTenure() {
+                var dropdown = document.getElementById("tenure-dropdown");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+
+            document.addEventListener("click", function (event) {
+                var dropdown = document.getElementById("tenure-dropdown");
+                var tenureButton = document.querySelector(".tenure-toggle-button");
+
+                if (!dropdown.contains(event.target) && !tenureButton.contains(event.target)) {
+                    dropdown.style.display = "none";
+                }
+            });
+
 
             //Adds an even listener for the calculator for when user inputs a zip code
             document.getElementById('calculate-btn').addEventListener('click', function () {
@@ -849,6 +974,93 @@
             //Close the tips box from the calculator
             function closeTips() {
                 document.getElementById('tips-box').style.display = 'none';
+            }
+            
+            //Tenure
+            function updateTenureRightPanel() {
+                // Get selected values from dropdowns
+                const year = document.getElementById('year-select').value;
+                const county = document.getElementById('tenure-county-filter').value;
+                const tenureType = document.getElementById('tenure-filter').value;
+                console.log(tenureType);
+
+                // Build query parameters dynamically
+                const params = new URLSearchParams();
+                if (year !== "All") params.append("year", year);
+                if (county !== "all") params.append("county", county);
+                if (tenureType !== "all") {
+                    if (tenureType === "owner") {
+                        params.append("ownerOccupied", "1"); // Assuming 1 means occupied
+                    } else if (tenureType === "renter") {
+                        params.append("renterOccupied", "1"); // Assuming 1 means occupied
+                    }
+                }
+
+                // Fetch data with all filters applied
+                fetch(`gettenure.php?${params.toString()}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Calls the green dropdown that we established earlier
+                        let dropdown = document.querySelector('.green-dropdown');
+                        if (!dropdown) {
+                            dropdown = document.createElement('div');
+                            dropdown.className = 'green-dropdown';
+                            document.body.appendChild(dropdown);
+                        }
+
+                        // Build the table and display the data that was fetched
+                        let content = `<h2>${data[0]?.County || 'No County Selected'}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                            if (tenureType == "owner") {
+                                content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>Owner Occupied</th>
+                                    </tr>`;
+                            } else {
+                                content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>Renter Occupied</th>
+                                    </tr>`;
+                            }
+                    
+
+                        if (data.length) {
+                            data.forEach(row => {
+                                if (tenureType == "owner") {
+                                    content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${row["Owner occupied"]}</td>
+                                        </tr>`;
+                                } else {
+                                    content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${row["Renter occupied"]}</td>
+                                        </tr>`;
+                                }
+                            });
+                        } else {
+                            content += `<tr><td colspan="5">No data available for the selected filters.</td></tr>`;
+                        }
+                        content += `</table>`;
+
+                        // Display the content in the green dropdown
+                        dropdown.innerHTML = content;
+                        dropdown.classList.add('visible');
+                    })
+                    .catch(error => {
+                        console.error("Error fetching data:", error);
+                    });
             }
         
         </script>
