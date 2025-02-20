@@ -1,95 +1,913 @@
 <!-- Token: pk.eyJ1IjoidGV2ZXNnMSIsImEiOiJjbTczZnhrdXIwbDA5MnNvb3Vwa3RpMzZzIn0.u6xrlzfDJ8JYK7OH8eUqIw-->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Map Screen</title>
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <title>New Jersey Energy Portal</title>
+
+    <!-- Mapbox CSS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+
+    <!-- Parse for CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <!-- Used for icons-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!---------------------------------------------------CSS Section------------------------------------------------------>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: gill sans, sans-serif;
+            background-color: #04A264;
+        }
+
+        .container {
             display: flex;
             flex-direction: column;
+            height: 100vh;
+        }
+
+        .top-sidebar {
+            background-color: #0a2a1f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
         }
 
-        h1 {
-            color: #333;
-        }
-
-        .map-container {
-            width: 100vw;
-            height: 100vh;
-            border: none;
+        .top-sidebar h1 {
+            font-size: 18px;
+            text-transform: uppercase;
             margin: 0;
-            position: absolute;
-            top: 0;
-            left: 0;
         }
 
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Back Button on Navbar */
         .back-button {
             position: absolute;
             top: 10px;
             left: 10px;
-            padding: 10px 20px;
+            z-index: 10;
+            background-color: #0a2a1f;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        /* -------------------------------------------------- Left Filter Box Functions ----------------------------------------------*/
+        .left-panel {
+            position: absolute;
+            /* Ensures it floats over the map */
+            top: 80px;
+            /* Adjust to align below the navbar */
+            left: 20px;
+            /* Keep it aligned to the left */
+            width: 20%;
+            /* Adjust width as needed */
+            border-radius: 10px;
+            padding: 20px;
+            height: calc(100vh - 400px);
+            /* Change height of the filter box */
+            z-index: 1;
+            /* Higher than the map */
+            background-color: #04A264;
+            /* Optional: Semi-transparent background for readability */
+            overflow-y: auto;
+            /* Ensure content is scrollable */
+        }
+
+        /*Left filter box*/
+        .filters-box {
+            background-color: #04A264;
+            padding: 300px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .filter-container label {
+            font-weight: bold;
+        }
+
+        .filter-container select {
+            width: 100%;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        /* --------------------------------------------- End of Left Filter Box Functions -------------------------------------------- */
+
+        /* --------------------------------------------- Green Drop down Right Panel Function ---------------------------------------- */
+        /* Drop down for when a user clicks on a county*/
+        .green-dropdown {
+            display: none;
+            position: absolute;
+            top: 80px;
+            /* Adjust position from top*/
+            left: 86%;
+            transform: translateX(-50%);
             background-color: #04A264;
             color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            /* Adjust width as needed */
+            max-height: 85vh;
+            /* Adjusts the size of the green box*/
+            text-align: center;
             z-index: 1000;
+            overflow-y: auto;
         }
 
-        .back-button:hover {
+        /* Optional: Style the scrollbar */
+        .green-dropdown::-webkit-scrollbar {
+            width: 8px;
+            /* Width of the scrollbar */
+        }
+
+        .green-dropdown::-webkit-scrollbar-thumb {
+            background-color: #037c4d;
+            /* Color of the scrollbar thumb */
+            border-radius: 10px;
+            /* Rounded corners for the scrollbar thumb */
+        }
+
+        .green-dropdown::-webkit-scrollbar-track {
+            background-color: #e6f7ee;
+            /* Background of the scrollbar track */
+        }
+
+        .green-dropdown.visible {
+            display: block;
+            /* Show the dropdown */
+        }
+
+        /* ----------------------------------------- End of Green Drop Down Right Panel ---------------------------------------------- */
+
+        /* ------------------------------------------------- Map Functionalities ----------------------------------------------------- */
+        #map-container {
+            position: absolute;
+            /* Position relative to the document flow */
+            top: 60px;
+            /* Adjust based on the height of the navigation bar */
+            left: 0;
+            width: 100%;
+            /* Full width */
+            height: calc(100vh - 80px);
+            /* Subtract the height of the navbar from the viewport height */
+            z-index: 0;
+            /* Ensure it stays behind other elements */
+        }
+
+        #map {
+            width: 100%;
+            height: 120%;
+        }
+
+        /* ---------------------------------------------- End of Map Functionalities ------------------------------------------------- */
+
+
+        /* ---------------------------------------------- Tabbed Filters on Left Panel ----------------------------------------------- */
+        /* Tab like Function for filters on the left side */
+        /* Actual button */
+        .filter-toggle-button {
+            position: fixed;
+            top: 16%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Filter box that shows when 'filters' is clicked */
+        .filter-tab {
+            position: fixed;
+            top: 170px;
+            /* Moves the tab downward */
+            left: -300px;
+            /* Hidden by default, adjust to match the width */
+            width: 300px;
+            /* Set the desired width */
+            height: calc(100vh - 530px);
+            /* Shrinks the height, leaving space at the top and bottom */
+            background-color: #04A264;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            transition: left 0.3s ease;
+            /* Smooth slide effect */
+            z-index: 9;
+            overflow-y: auto;
+            /* Makes the tab scrollable if content overflows */
+            border-top-left-radius: 8px;
+            /* Optional: Rounded corners */
+            border-bottom-left-radius: 8px;
+            /* Optional: Rounded corners */
+        }
+
+        /* Filter Tab when visible */
+        .filter-tab.visible {
+            left: 0;
+            /* Slide into view */
+        }
+
+
+        /* Tab like Function for Maps on the left side */
+        /* Actual button */
+        .maps-toggle-button {
+            position: fixed;
+            top: 10.5%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Maps drop down function so we can switch from one map to another */
+        .maps-dropdown {
+            display: none;
+            position: absolute;
+            top: 8.5%;
+            /* adjusts where the popup is going to be */
+            left: 85px;
+            background-color: #0a2a1f;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+            width: 150px;
+        }
+
+        /* Buttons inside the dropdown */
+        .dropdown-btn {
+            background-color: #04A264;
+            color: white;
+            width: 130px;
+            height: 50px;
+            /* Makes it square-like */
+            border: none;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .dropdown-btn:hover {
             background-color: #037c4d;
         }
+
+
+        /* ------------------------------------------ End of Tabbed Filters on Left Panel ----------------------------------------------- */
+
+        /* ---------------------------------------------------- Calculator Function ----------------------------------------------------- */
+        .calculator-widget {
+            position: fixed;
+            bottom: 10px;
+            right: 420px;
+            /* Adjusted to move the positioning of the button */
+            background-color: #04A264;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            font-size: 24px;
+            /* Icon size */
+        }
+
+        /* Calculator pops for user interaction */
+        .calculator-popup {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 410px;
+            background-color: white;
+            color: black;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            z-index: 10;
+        }
+
+        .calculator-popup label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .calculator-popup input,
+        .calculator-popup select {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .calculator-popup button {
+            margin-top: 15px;
+            background-color: #04A264;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .calculator-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background-color: #f0f0f0;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            /* Add horizontal spacing between buttons */
+            border-radius: 5px;
+            /* Optional: Add rounded corners for better aesthetics */
+        }
+
+        .active-tab {
+            background-color: #04A264;
+            color: white;
+        }
+
+        /* Tips section in calculator*/
+        .tips-box {
+            display: none;
+            position: fixed;
+            top: 20.5%;
+            right: 46%;
+            width: 80%;
+            max-width: 600px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            overflow-y: auto;
+            max-height: 70%;
+        }
+
+        .tips-content h3 {
+            font-size: 20px;
+            color: #04A264;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tips-content ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tips-content ul li {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #e6f7ee;
+            border-left: 4px solid #04A264;
+            border-radius: 5px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .tips-content ul li strong:first-of-type {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .tips-content ul li strong:not(:first-of-type) {
+            color: #04A264;
+            font-weight: normal;
+        }
+
+        .tips-content button {
+            background-color: #04A264;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .tips-content button:hover {
+            background-color: #037c4d;
+        }
+
+        .tips-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .tips-box::-webkit-scrollbar-thumb {
+            background-color: #04A264;
+            border-radius: 10px;
+        }
+
+        /* ----------------------------------------------- End of Calculator widget ---------------------------------------------*/
     </style>
 </head>
+
+<!-----------------------------------------------HTML Section--------------------------------------------------------->
+
 <body>
+    <!-- Back Button -->
+    <a href="dashboardrevised.html" class="back-button">← Back County Level</a>
 
-    <div id="map" class="map-container"></div>
+    <div class="container">
+        <!-- Navbar -->
+        <div class="top-sidebar">
+            <h1>New Jersey Energy Portal</h1>
+        </div>
 
-    <a href="dashboardrevised.html" class="back-button">&larr; Back to County Map</a>
+        <!-- Filter Toggle Button -->
+        <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
 
-    <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoidGV2ZXNnMSIsImEiOiJjbTczZnhrdXIwbDA5MnNvb3Vwa3RpMzZzIn0.u6xrlzfDJ8JYK7OH8eUqIw';
-        const map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [-74.4057, 40.0583], // Centering on New Jersey
-            zoom: 7
-        });
+        <div class="filter-tab" id="filter-tab">
+            <!-- Left Panel -->
+            <!-- These are for all the filters that will be used-->
+            <!-- County Filters -->
+            <div class="filter-container">
+                <label for="county-filter">County:</label>
+                <select id="county-filter">
+                    <option value="all">Select a County</option>
+                    <option value="ATLANTIC">Atlantic</option>
+                    <option value="BERGEN">Bergen</option>
+                    <option value="BURLINGTON">Burlington</option>
+                    <option value="CAMDEN">Camden</option>
+                    <option value="CAPE MAY">Cape May</option>
+                    <option value="CUMBERLAND">Cumberland</option>
+                    <option value="ESSEX">Essex</option>
+                    <option value="GLOUCESTER">Gloucester</option>
+                    <option value="HUDSON">Hudson</option>
+                    <option value="HUNTERDON">Hunterdon</option>
+                    <option value="MERCER">Mercer</option>
+                    <option value="MIDDLESEX">Middlesex</option>
+                    <option value="MONMOUTH">Monmouth</option>
+                    <option value="MORRIS">Morris</option>
+                    <option value="OCEAN">Ocean</option>
+                    <option value="PASSAIC">Passaic</option>
+                    <option value="SALEM">Salem</option>
+                    <option value="SOMERSET">Somerset</option>
+                    <option value="SUSSEX">Sussex</option>
+                    <option value="UNION">Union</option>
+                    <option value="WARREN">Warren</option>
+                </select>
 
-        map.on('load', function() {
-            console.log("Map loaded, adding county borders...");
-            map.addSource('nj-counties', {
-                type: 'geojson',
-                data: 'https://raw.githubusercontent.com/gteves/NJ-Energy-Portal/main/nj_counties.geojson' // Replace with your actual GitHub Raw URL
+                <!--Creates a space between filters-->
+                <div style="margin: 20px 0;"></div>
+
+                <!-- Year Filters -->
+                <label for="year-filter">Year:</label>
+                <select id="year-filter">
+                    <option value="all">Select a Year</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                </select>
+
+                <!--Creates a space between filters-->
+                <div style="margin: 20px 0;"></div>
+
+                <!-- Fuel Type -->
+                <label for="fuel-type-filter">Fuel Type:</label>
+                <select id="fuel-type-filter">
+                    <option value="all">Select a Fuel Type</option>
+                    <option value="electricity">Electricity</option>
+                    <option value="naturalGas">Natural Gas</option>
+                </select>
+
+                <!-- Creates a space between filters-->
+                <div style="margin: 20px 0;"></div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Calculator Widget Icon-->
+        <div class="calculator-widget" onclick="toggleCalculator()">
+            <i class="fas fa-calculator"></i>
+        </div>
+
+
+        <!--For the Calculator to pop up-->
+        <div class="calculator-popup" id="calculator-popup">
+            <h2 style="font-weight: bold; margin-bottom: 10px;">Calculate your Energy Burden</h2>
+            <label for="zip-code-input">Enter ZIP Code:</label>
+            <input type="text" id="zip-code-input" placeholder="Enter ZIP Code" />
+            <button id="calculate-btn">Calculate</button>
+            <div id="calculator-result" style="margin-top: 15px;"></div>
+        </div>
+
+        <!--Calculator Tips for lowering energy burden-->
+        <div class="tips-box" id="tips-box">
+            <div class="tips-content">
+                <h3>Tips to Lower Energy Burden</h3>
+                <ul>
+                    <li><strong>Your energy burden is X%, which is higher than the state average of 2-3%.</strong>
+                        Have you looked into programs like the <strong>Low-Income Home Energy Assistance Program
+                            (LIHEAP)</strong>? It can help with your energy costs and even pay for home weatherization
+                        to
+                        reduce future bills.</li>
+                    <li><strong>Did you know reducing your energy burden doesn’t always mean big changes?</strong>
+                        Small actions like sealing air leaks around windows and doors or adding insulation can make your
+                        home more energy-efficient, keeping heating and cooling costs down.</li>
+                    <li><strong>Have you considered joining a community solar program?</strong>
+                        This allows you to subscribe to a shared solar energy source without the cost of installing
+                        panels.
+                        It’s a great way to reduce your electricity bills and your carbon footprint.</li>
+                    <li><strong>The energy burden in your area is above average, but there are tools to help.</strong>
+                        The <strong>Comfort Partners Program</strong> provides free energy-saving upgrades for eligible
+                        households, helping reduce energy use and costs over the long term.</li>
+                    <li><strong>High energy costs can feel overwhelming, but you don’t have to face them alone.</strong>
+                        Contact your utility provider about <strong>budget billing plans</strong> or <strong>payment
+                            assistance programs</strong>, which can spread out costs and make bills more manageable.
+                    </li>
+                    <li><strong>Did you know weatherization can significantly lower your energy burden?</strong>
+                        Programs like the <strong>Weatherization Assistance Program (WAP)</strong> can provide free
+                        services
+                        to improve your home’s energy efficiency, such as adding insulation or repairing your heating
+                        system.</li>
+                    <li><strong>Are you eligible for energy-efficient appliance rebates?</strong>
+                        Replacing older appliances with <strong>ENERGY STAR-certified models</strong> can reduce your
+                        energy
+                        use, and rebates through the <strong>New Jersey Clean Energy Program</strong> make them more
+                        affordable.</li>
+                </ul>
+                <button onclick="closeTips()">Close</button>
+            </div>
+        </div>
+
+        <!----------------------------------------------------JavaScript Section------------------------------------->
+        <!-- Mapbox -->
+        <script>
+            mapboxgl.accessToken = 'pk.eyJ1IjoidGV2ZXNnMSIsImEiOiJjbTczZnhrdXIwbDA5MnNvb3Vwa3RpMzZzIn0.u6xrlzfDJ8JYK7OH8eUqIw';
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [-74.4057, 40.0583], // Centering on New Jersey
+                zoom: 7
             });
 
-            map.addLayer({
-                id: 'nj-county-borders',
-                type: 'line',
-                source: 'nj-counties',
-                layout: {
-                    'visibility': 'visible'
-                },
-                paint: {
-                    'line-color': '#ff0000',
-                    'line-width': 2
+            let hoveredMunicipalId = null;
+            let selectedMunicipalId = null;
+
+            map.on('load', function () {
+                console.log("Map loaded, adding county borders...");
+                map.addSource('nj-counties', {
+                    type: 'geojson',
+                    data: 'https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson'
+                });
+
+                map.addLayer({
+                    id: 'nj-county-borders',
+                    type: 'line',
+                    source: 'nj-counties',
+                    layout: {
+                        'visibility': 'visible'
+                    },
+                    paint: {
+                        'line-color': '#0000FF',
+                        'line-width': 2
+                    }
+                });
+
+                console.log("County borders layer added.");
+
+
+                console.log("Map loaded, adding municipalities...");
+                map.addSource('nj-municipalities', {
+                    'type': 'geojson',
+                    'data': 'https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson'
+                });
+                map.addLayer({
+                    'id': 'municipal-fills',
+                    'type': 'fill',
+                    'source': 'nj-municipalities',
+                    'paint': {
+                        'fill-color': [
+                            'case',
+                            ['boolean', ['feature-state', 'selected'], false],
+                            '#04A264',
+                            ['boolean', ['feature-state', 'hover'], false],
+                            '#627BC1',
+                            '#D3D3D3'
+                        ],
+                        'fill-opacity': .75
+                    }
+                });
+
+                //municipality border
+                map.addLayer({
+                    'id': 'municipal-borders',
+                    'type': 'line',
+                    'source': 'nj-municipalities',
+                    'paint': {
+                        'line-color': '#627BC1',
+                        'line-width': .5
+                    }
+                });
+
+                //hover 
+                map.on('mousemove', 'municipal-fills', (e) => {
+                    if (e.features.length > 0) {
+                        if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
+                            map.setFeatureState({
+                                source: 'nj-municipalities',
+                                id: hoveredMunicipalId
+                            }, {
+                                hover: false
+                            });
+                        }
+                        hoveredMunicipalId = e.features[0].id;
+                        if (hoveredMunicipalId !== selectedMunicipalId) {
+                            map.setFeatureState({
+                                source: 'nj-municipalities',
+                                id: hoveredMunicipalId
+                            }, {
+                                hover: true
+                            });
+                        }
+                    }
+                });
+
+                //hover reset
+                map.on('mouseleave', 'municipal-fills', () => {
+                    if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
+                        map.setFeatureState({
+                            source: 'nj-municipalities',
+                            id: hoveredMunicipalId
+                        }, {
+                            hover: false
+                        });
+                    }
+                    hoveredMunicipalId = null;
+                });
+
+                //new highlight
+                map.on('click', 'municipal-fills', (e) => {
+                    if (selectedMunicipalId !== null) {
+                        map.setFeatureState({
+                            source: 'nj-municipalities',
+                            id: selectedMunicipalId
+                        }, {
+                            selected: false
+                        });
+                    }
+                    selectedMunicipalId = e.features[0].id;
+                    map.setFeatureState({
+                        source: 'nj-municipalities',
+                        id: selectedMunicipalId
+                    }, {
+                        selected: true
+                    });
+
+                    //reset hover
+                    if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
+                        map.setFeatureState({
+                            source: 'nj-municipalities',
+                            id: hoveredMunicipalId
+                        }, {
+                            hover: false
+                        });
+                    }
+                    hoveredMunicipalId = null;
+                });
+
+                //event listener for county filter with zoom functionality
+                document.getElementById('county-filter').addEventListener('change', function () {
+                    const selectedCounty = this.value;
+                    if (selectedCounty !== "all") {
+                        zoomToCounty(selectedCounty);
+                        updateRightPanel(selectedCounty);
+                    } else {
+                        // If "all" is selected, zoom back to the default NJ view
+                        map.flyTo({
+                            center: [-74.4057, 40.0583],
+                            zoom: 7
+                        });
+                    }
+                });
+
+                //zoom function
+                function zoomToCounty(countyName) {
+                    const query = `https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=COUNTY%20%3D%20%27${countyName}%27&f=geojson`;
+                    fetch(query)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.features.length > 0) {
+                                const bounds = new mapboxgl.LngLatBounds();
+                                data.features.forEach(feature => {
+                                    if (feature.geometry.type === 'Polygon') {
+                                        feature.geometry.coordinates.forEach(ring => {
+                                            ring.forEach(coord => bounds.extend(coord));
+                                        });
+                                    } else if (feature.geometry.type === 'MultiPolygon') {
+                                        feature.geometry.coordinates.forEach(polygon => {
+                                            polygon.forEach(ring => {
+                                                ring.forEach(coord => bounds.extend(coord));
+                                            });
+                                        });
+                                    }
+                                });
+                                map.fitBounds(bounds, {
+                                    padding: 50,
+                                    maxZoom: 12
+                                });
+                            } else {
+                                console.error("No data found for county:", countyName);
+                                alert("No data found for the selected county.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching county data:", error);
+                            alert("An error occurred while fetching county data.");
+                        });
                 }
+
+                //choropleth for utility level data
+
+                function updateChoropleth() {
+                    const propertyName = getCurrentDataProperty();
+                    const maxValue = getMaxValueForCurrentSelection();
+
+                    if (map.getLayer('municipality-choropleth')) {
+                        if (maxValue > 0) {
+                            map.setPaintProperty('municipality-choropleth', 'fill-color', [
+                                'steps',
+                                ['get', propertyName],
+                                'blue',
+                                10, 'red',
+                                50, 'yellow',
+                                100, 'green'
+                            ]);
+                        } else {
+                            // Handle the case where maxValue is 0 to avoid the error
+                            map.setPaintProperty('municipality-choropleth', 'fill-color', 'blue');
+                        }
+                    }
+                }
+
+                function getCurrentDataProperty() {
+                    const selectedYear = document.getElementById('year-filter')?.value || "2022"; // Default year if undefined
+                    const selectFuelType = document.getElementById('fuel-type-filter')?.value || "electricity"; // Default fuel type if undefined
+                    return `${selectFuelType}_${selectedYear}`;
+                }
+
+                function getMaxValueForCurrentSelection() {
+                    const source = map.getSource('nj-municipalities-data');
+                    if (!source || !source._data) {
+                        console.warn("Data source not ready yet.");
+                        return 0; // Default to 0 if data isn't available
+                    }
+
+                    const features = source._data.features;
+                    let maxValue = 0;
+                    const propertyName = getCurrentDataProperty();
+
+                    features.forEach(feature => {
+                        const value = feature.properties[propertyName] || 0;
+                        if (value > maxValue) {
+                            maxValue = value;
+                        }
+                    });
+                    return maxValue;
+                }
+
+                fetch('https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson')
+                    .then(response => response.json())
+                    .then(municipalitiesData => {
+                        return fetch('https://raw.githubusercontent.com/gteves/NJ-Energy-Portal/refs/heads/main/Municipal%20Level%20Utility%20Data%20-%20Municipal%20Level%20Utility%20Data.csv')
+                            .then(response => response.text())
+                            .then(csvData => {
+                                // Parse CSV data and convert the Municipality field to uppercase
+                                const energyDataParsed = Papa.parse(csvData, { header: true, dynamicTyping: true }).data;
+                                municipalitiesData.features.forEach(municipality => {
+                                    const municipalityName = municipality.properties.MUN; // Use "MUN" here
+                                    if (municipalityName) {  // Ensure the property exists
+                                        const normalizedMunicipalityName = municipalityName.trim().toUpperCase(); // Normalize to uppercase
+                                       //console.log("GeoJSON Municipality:", normalizedMunicipalityName);
+
+                                        energyDataParsed.forEach(row => {
+                                            const csvMunicipalityName = row.Municipality.trim().toUpperCase(); // Normalize CSV name to uppercase
+                                            //console.log("CSV Municipality:", csvMunicipalityName);  // Log the CSV name
+                                        });
+
+                                        const matchingRow = energyDataParsed.find(row => {
+                                            const csvMunicipalityName = row.Municipality.trim().toUpperCase(); // Normalize CSV name to uppercase
+                                            return csvMunicipalityName === normalizedMunicipalityName;
+                                        });
+
+                                        if (matchingRow) {
+                                            for (let year = 2016; year <= 2022; year++) {
+                                                municipality.properties[`electricity${year}`] = matchingRow[`Total Electricity (kWh)`];
+                                                municipality.properties[`naturalGas${year}`] = matchingRow[`Total Natural Gas (Therms)`];
+                                            }
+                                            municipality.properties.electricUtility = matchingRow['Electric Utility'];
+                                            municipality.properties.gasUtility = matchingRow['Natural Gas Utility'];
+                                        } else {
+                                            console.warn("No matching data found for municipality:", municipalityName);
+                                            for (let year = 2016; year <= 2022; year++) {
+                                                municipality.properties[`electricity${year}`] = 0;
+                                                municipality.properties[`naturalGas${year}`] = 0;
+                                            }
+                                            municipality.properties.electricUtility = "Unknown";
+                                            municipality.properties.gasUtility = "Unknown";
+                                        }
+                                    } else {
+                                        console.warn("Missing municipality name for feature:", municipality);
+                                    }
+                                });
+
+                                map.addSource('nj-municipalities-data', {
+                                    'type': 'geojson',
+                                    'data': municipalitiesData
+                                });
+
+                                map.addLayer({
+                                    id: 'municipality-choropleth',
+                                    type: 'fill',
+                                    source: 'nj-municipalities-data',
+                                    paint: {
+                                        'fill-color': [
+                                            'step',
+                                            ['get', getCurrentDataProperty()],
+                                            'blue',    // Default color
+                                            10, 'red',  // Color for values >= 10
+                                            50, 'yellow', // Color for values >= 50
+                                            100, 'green'  // Color for values >= 100
+                                        ],
+                                        'fill-opacity': 0.75
+                                    }
+                                });
+
+                                document.getElementById('year-filter').addEventListener('change', updateChoropleth);
+                                document.getElementById('fuel-type-filter').addEventListener('change', updateChoropleth);
+
+                                updateChoropleth();
+                            })
+                            .catch(error => console.error("Failed to load CSV data:", error));
+                    })
+                    .catch(error => console.error("Failed to load municipality data:", error));
+
             });
 
-            console.log("County borders layer added.");
-        });
-    </script>
+            //tab function on filters
+            function toggleFilter() {
+                const filterTab = document.getElementById('filter-tab');
+                filterTab.classList.toggle('visible');
+            }
+        </script>
 </body>
+
 </html>
