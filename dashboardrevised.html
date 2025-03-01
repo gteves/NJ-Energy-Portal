@@ -148,7 +148,7 @@
         #map-container {
             position: absolute; /* Position relative to the document flow */
             top: 60px; /* Adjust based on the height of the navigation bar */
-            left: 0;
+            left: 0%;
             width: 100%; /* Full width */
             height: calc(100vh - 80px); /* Subtract the height of the navbar from the viewport height */
             z-index: 0; /* Ensure it stays behind other elements */
@@ -181,10 +181,10 @@
         /* Filter box that shows when 'filters' is clicked */
         .filter-tab {
             position: fixed;
-            top: 170px; /* Moves the tab downward */
+            top: 200px; /* Moves the tab downward */
             left: -300px; /* Hidden by default, adjust to match the width */
             width: 300px; /* Set the desired width */
-            height: calc(100vh - 530px); /* Shrinks the height, leaving space at the top and bottom */
+            height: calc(100vh - 675spx); /* Shrinks the height, leaving space at the top and bottom */
             background-color: #04A264;
             color: white;
             padding: 20px;
@@ -200,7 +200,6 @@
         .filter-tab.visible {
             left: 0; /* Slide into view */
         }
-
 
         /* Tab like Function for Maps on the left side */
         /* Actual button */
@@ -538,9 +537,14 @@
             <label for="tenure-filter">Select Tenure Type:</label><br>
             <select id="tenure-filter"onchange="updateTenureRightPanel()">
                 <option value="all">All</option>
-                <option value="owner">Owner occupied</option>
-                <option value="renter">Renter occupied</option>
+                <option value="owner">Owner Occupied</option>
+                <option value="renter">Renter Occupied</option>
             </select>
+
+            <!-- Reset Button Inside Tenure Filter -->
+            <button id="reset-tenure-filters" style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
+                Reset Filters
+            </button>
         </div>
 
 
@@ -579,7 +583,7 @@
                 </select>
 
                 <!--Creates a space between filters-->
-                <div style="margin: 20px 0;"></div>
+                <div style="margin: 10px 0;"></div>
                 
                 <!-- Year Filters -->
                 <label for="year-filter">Year:</label>
@@ -602,7 +606,7 @@
                 </select>
 
                 <!--Creates a space between filters-->
-                <div style="margin: 20px 0;"></div>
+                <div style="margin: 10px 0;"></div>
                 </div>
             </div>
 
@@ -660,8 +664,8 @@
             const map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y',
-                center: [-74.67, 40.43], // Center on New Jersey
-                zoom: 7
+                center: [-74.40, 39.90], // Center on New Jersey
+                zoom: 7.15
             });
 
             let hoveredCountyId = null;
@@ -669,25 +673,32 @@
 
             //Loads the map into the website
             map.on('load', () => {
+                /*
                 map.addSource('nj-counties', {
                     'type': 'geojson',
                     'data': 'https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson'
                 });
+                */
 
+                // raw link: https://raw.githubusercontent.com/gteves/NJ-Energy-Portal/main/NJCounties.geojson
+                /*
+                map.addSource('nj-counties', {
+                    'type': 'geojson',
+                    'data': 'https://raw.githubusercontent.com/gteves/NJ-Energy-Portal/main/NJCounties.geojson'
+                });
+                */
+                map.addSource('nj-counties', {
+                    'type': 'geojson',
+                    'data': 'NJCounties_Tenure.geojson'
+                });
+                
                 map.addLayer({
-                    'id': 'county-fills',
+                    'id': 'county-tenure-choropleth',
                     'type': 'fill',
                     'source': 'nj-counties',
                     'paint': {
-                        'fill-color': [
-                            'case',
-                            ['boolean', ['feature-state', 'selected'], false],
-                            '#04A264', //Green when selected
-                            ['boolean', ['feature-state', 'hover'], false],
-                            '#627BC1', //Blue when hovering
-                            '#d3d3d3' //Grey when not hovering or selected
-                        ],
-                        'fill-opacity': 1
+                        'fill-color': '#FFFFFF',  // Default white color
+                        'fill-opacity': 0.8
                     }
                 });
 
@@ -897,6 +908,23 @@
                 }
             });
 
+            document.getElementById("reset-tenure-filters").addEventListener("click", function () {
+                // Reset tenure filters to default values
+                document.getElementById('year-select').value = "All";
+                document.getElementById('tenure-county-filter').value = "all";
+                document.getElementById('tenure-filter').value = "all";
+
+                // Hide the green dropdown (results panel)
+                let dropdown = document.querySelector('.green-dropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('visible');
+                }
+
+                // Reset map choropleth to white
+                map.setPaintProperty('county-tenure-choropleth', 'fill-color', '#FFFFFF');
+            });
+
+
 
             //Adds an even listener for the calculator for when user inputs a zip code
             document.getElementById('calculate-btn').addEventListener('click', function () {
@@ -996,10 +1024,83 @@
                     }
                 }
 
+                // Highlight the county on the map
+                if (county !== "all") {
+                    map.querySourceFeatures('nj-counties', {
+                        sourceLayer: 'county-fills'
+                    }).forEach((feature) => {
+                        if (feature.properties.COUNTY === county) {
+                            if (selectedCountyId !== null) {
+                                map.setFeatureState({
+                                    source: 'nj-counties',
+                                    id: selectedCountyId
+                                }, {
+                                    selected: false
+                                });
+                            }
+                            selectedCountyId = feature.id;
+                            map.setFeatureState({
+                                source: 'nj-counties',
+                                id: selectedCountyId
+                            }, {
+                                selected: true
+                            });
+                        }
+                    });
+                }
+
                 // Fetch data with all filters applied
                 fetch(`gettenure.php?${params.toString()}`)
                     .then(response => response.json())
                     .then(data => {
+                        let minVal = Infinity;
+                        let maxVal = -Infinity;
+
+                        // First, check if we have data
+                        if (data.length === 0) {
+                            console.warn("No data available for the selected filters.");
+                            map.setPaintProperty('county-tenure-choropleth', 'fill-color', '#FFFFFF');
+                            return;
+                        }
+
+                        // Process the data for choropleth
+                        data.forEach(row => {
+                            const county = row["County"];
+                            const totalUnits = row["Total"] || 0; // Use 0 if missing
+
+                            // Track min/max values for scaling
+                            if (totalUnits < minVal) minVal = totalUnits;
+                            if (totalUnits > maxVal) maxVal = totalUnits;
+
+                            // Set feature state for this county
+                            map.setFeatureState({
+                                source: 'nj-counties',
+                                id: county
+                            }, {
+                                total_units: totalUnits
+                            });
+                        });
+
+                        // Prevent bad scaling if all values are the same
+                        if (minVal === maxVal) {
+                            map.setPaintProperty('county-tenure-choropleth', 'fill-color', '#74c476');
+                            return;
+                        }
+
+                        // Apply choropleth color scaling dynamically
+                        map.setPaintProperty('county-tenure-choropleth', 'fill-color', [
+                            'interpolate',
+                            ['linear'],
+                            ['coalesce', ['get', 'total_units'], 0], // Handle missing values
+                            minVal, '#f7fcf0',
+                            (minVal + maxVal) / 3, '#c7e9c0',
+                            (minVal + maxVal) * 2 / 3, '#74c476',
+                            maxVal, '#00441b'
+                        ]);
+
+                        console.log(`Updated choropleth for year: ${year}`);
+
+
                         // Calls the green dropdown that we established earlier
                         let dropdown = document.querySelector('.green-dropdown');
                         if (!dropdown) {
@@ -1008,44 +1109,136 @@
                             document.body.appendChild(dropdown);
                         }
 
+                        // Determine filtering conditions
+                        const onlyYearSelected = year !== "All" && county === "all" && tenureType === "all";
+                        const onlyCountySelected = year === "All" && county !== "all" && tenureType === "all";
+                        const onlyTenureSelected = year === "All" && county === "all" && tenureType !== "all";
+                        const countyAndTenureSelected = year === "All" && county !== "all" && tenureType !== "all";
+                        const yearAndCountySelected = year !== "All" && county !== "all" && tenureType === "all";
+                        const yearAndTenureSelected = year !== "All" && county !== "all" && tenureType === "all";
+                        const allFiltersSelected = year !== "All" && county !== "all" && tenureType !== "all";
+
                         // Build the table and display the data that was fetched
                         let content = `<h2>${data[0]?.County || 'No County Selected'}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
-                            if (tenureType == "owner") {
+                            if (onlyYearSelected) {
+                                // Show only Year, County, and Total when only the Year is selected
+                                content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                    </tr>`;
+                            } else if (onlyCountySelected) {
+                                // Show every year and total for the selected County
+                                content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                    </tr>`;
+                            } else if (onlyTenureSelected) {
+                                // Show all records where the selected tenure type is present
+                                content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>${tenureType === "owner" ? "Owner Occupied" : "Renter Occupied"}</th>
+                                    </tr>`;
+                            } else if (countyAndTenureSelected) {
+                                // Show all Years, County, Total, and the selected tenure type for the County
+                                content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>${tenureType === "owner" ? "Owner Occupied" : "Renter Occupied"}</th>
+                                    </tr>`;
+                            } else if (yearAndCountySelected) {
+                                // Show Year, County, Total, Owner Occupied, and Renter Occupied when Year + County are selected
                                 content += `
                                     <tr>
                                         <th>Year</th>
                                         <th>County</th>
                                         <th>Total</th>
                                         <th>Owner Occupied</th>
+                                        <th>Renter Occupied</th>
                                     </tr>`;
-                            } else {
+                            } else if (onlyYearAndTenureSelected) {
+                                //Show Year, Counties, Owner Occupied, and Renter Occupied when Year + Tenure Type are selected
+                                content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>${tenureType === "owner" ? row["Owner Occupied"] : row["Renter Occupied"]}</th>
+                                    </tr>`;
+                            } else if (allFiltersSelected) {
+                                // Show Year, County, Total, and ONLY the selected tenure type (Owner or Renter Occupied)
                                 content += `
                                     <tr>
                                         <th>Year</th>
                                         <th>County</th>
                                         <th>Total</th>
-                                        <th>Renter Occupied</th>
+                                        <th>${tenureType === "owner" ? "Owner Occupied" : "Renter Occupied"}</th>
                                     </tr>`;
                             }
-                    
 
                         if (data.length) {
                             data.forEach(row => {
-                                if (tenureType == "owner") {
+                                if (onlyYearSelected) {
+                                    content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                        </tr>`;
+                                } else if (onlyCountySelected) {
+                                    content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                        </tr>`;
+                                } else if (onlyTenureSelected) {
+                                    content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${tenureType === "owner" ? row["Owner occupied"] : row["Renter occupied"]}</td>
+                                        </tr>`;
+                                } else if (countyAndTenureSelected) {
+                                    content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${tenureType === "owner" ? row["Owner occupied"] : row["Renter occupied"]}</td>
+                                        </tr>`;
+                                } else if (yearAndCountySelected) {
                                     content += `
                                         <tr>
                                             <td>${row["Year"]}</td>
                                             <td>${row["County"]}</td>
                                             <td>${row["Total"]}</td>
                                             <td>${row["Owner occupied"]}</td>
+                                            <td>${row["Renter occupied"]}</td>
                                         </tr>`;
-                                } else {
+                                } else if (onlyYearAndTenureSelected) {
+                                    content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Owner occupied"]}</td>
+                                            <td>${row["Renter occupied"]}</td>
+                                        </tr>`;
+                                } else if (allFiltersSelected) {
                                     content += `
                                         <tr>
                                             <td>${row["Year"]}</td>
                                             <td>${row["County"]}</td>
                                             <td>${row["Total"]}</td>
-                                            <td>${row["Renter occupied"]}</td>
+                                            <td>${tenureType === "owner" ? row["Owner occupied"] : row["Renter occupied"]}</td>
                                         </tr>`;
                                 }
                             });
@@ -1054,6 +1247,40 @@
                         }
                         content += `</table>`;
 
+                        dropdown.innerHTML = content;
+                        dropdown.classList.add('visible');
+
+                        // Reset to white if no data found
+                        if (data.length === 0) {
+                            map.setPaintProperty('county-tenure-choropleth', 'fill-color', '#FFFFFF');
+                            return;
+                        }
+
+                        // Update map choropleth based on tenure data
+                        data.forEach(row => {
+                            const countyName = row["County"];
+                            const tenureValue = row["Owner occupied"] || row["Renter occupied"] || 0;
+
+                            map.setFeatureState({
+                                source: 'nj-counties',
+                                id: countyName
+                            }, {
+                                tenure_value: tenureValue
+                            });
+                        });
+
+                        // Apply new color scale
+                        map.setPaintProperty('county-tenure-choropleth', 'fill-color', [
+                            'interpolate',
+                            ['linear'],
+                            ['get', 'tenure_value'],
+                            0, '#f7fcf0',
+                            25, '#c7e9c0',
+                            50, '#74c476',
+                            75, '#238b45',
+                            100, '#00441b'
+                        ]);
+            
                         // Display the content in the green dropdown
                         dropdown.innerHTML = content;
                         dropdown.classList.add('visible');
