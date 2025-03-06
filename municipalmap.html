@@ -11,8 +11,6 @@
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
 
-    <!-- Parse for CSV -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
     <!-- Used for icons-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -123,15 +121,15 @@
             position: absolute;
             top: 80px;
             /* Adjust position from top*/
-            left: 86%;
+            left: 82%;
             transform: translateX(-50%);
             background-color: #04A264;
             color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            width: 400px;
-            /* Adjust width as needed */
+            width: 500px;
+            /* Adjust width of green box */
             max-height: 85vh;
             /* Adjusts the size of the green box*/
             text-align: center;
@@ -170,7 +168,7 @@
             /* Position relative to the document flow */
             top: 60px;
             /* Adjust based on the height of the navigation bar */
-            left: 0;
+            left: 0%;
             width: 100%;
             /* Full width */
             height: calc(100vh - 80px);
@@ -207,13 +205,13 @@
         /* Filter box that shows when 'filters' is clicked */
         .filter-tab {
             position: fixed;
-            top: 170px;
+            top: 200px;
             /* Moves the tab downward */
             left: -300px;
             /* Hidden by default, adjust to match the width */
             width: 300px;
             /* Set the desired width */
-            height: calc(100vh - 530px);
+            height: calc(100vh - 675spx);
             /* Shrinks the height, leaving space at the top and bottom */
             background-color: #04A264;
             color: white;
@@ -235,7 +233,6 @@
             left: 0;
             /* Slide into view */
         }
-
 
         /* Tab like Function for Maps on the left side */
         /* Actual button */
@@ -287,9 +284,58 @@
             background-color: #037c4d;
         }
 
+        /* Utility Filter */
+        /* Actual button */
+        .utility-toggle-button {
+            position: fixed;
+            top: 21%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Maps drop down function so we can switch from one map to another */
+        .utility-dropdown {
+            display: none;
+            position: absolute;
+            top: 8.5%;
+            /* adjusts where the popup is going to be */
+            left: 85px;
+            background-color: #04A264;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+            width: 210px;
+        }
+
+        /* Buttons inside the dropdown */
+        .dropdown-btn {
+            background-color: #04A264;
+            color: white;
+            width: 130px;
+            height: 50px;
+            /* Makes it square-like */
+            border: none;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #037c4d;
+        }
+
 
         /* ------------------------------------------ End of Tabbed Filters on Left Panel ----------------------------------------------- */
-
         /* ---------------------------------------------------- Calculator Function ----------------------------------------------------- */
         .calculator-widget {
             position: fixed;
@@ -448,6 +494,41 @@
         }
 
         /* ----------------------------------------------- End of Calculator widget ---------------------------------------------*/
+
+        /* ----------------------------------------------- Legend Function ------------------------------------------------------ */
+        /* Legend for the map */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            font-family: Arial, sans-serif;
+        }
+
+        .legend h4 {
+            margin: 0 0 5px;
+            font-size: 14px;
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .legend span {
+            width: 10px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 5px;
+            border: 1px solid #000;
+        }
+
+        /* ----------------------------------------------- End of Legend Function ------------------------------------------------- */
     </style>
 </head>
 
@@ -462,7 +543,6 @@
         <div class="top-sidebar">
             <h1>New Jersey Energy Portal</h1>
         </div>
-
         <!-- Filter Toggle Button -->
         <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
 
@@ -498,35 +578,78 @@
                 </select>
 
                 <!--Creates a space between filters-->
-                <div style="margin: 20px 0;"></div>
+                <div style="margin: 10px 0;"></div>
 
-                <!-- Year Filters -->
-                <label for="year-filter">Year:</label>
-                <select id="year-filter">
-                    <option value="all">Select a Year</option>
-                    <option value="2016">2016</option>
-                    <option value="2017">2017</option>
-                    <option value="2018">2018</option>
-                    <option value="2019">2019</option>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                </select>
-
-                <!--Creates a space between filters-->
-                <div style="margin: 20px 0;"></div>
-
-                <!-- Fuel Type -->
-                <label for="fuel-type-filter">Fuel Type:</label>
-                <select id="fuel-type-filter">
-                    <option value="all">Select a Fuel Type</option>
-                    <option value="electricity">Electricity</option>
-                    <option value="naturalGas">Natural Gas</option>
-                </select>
+                <!-- Add button to turn on overburdened communities-->
+                <button id="toggleOBC"
+                    style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
+                    Show Overburdened Communities</button>
 
                 <!-- Creates a space between filters-->
-                <div style="margin: 20px 0;"></div>
+                <div style="margin: 10px 0;"></div>
             </div>
+        </div>
+        <!-- Utility -->
+        <button class="utility-toggle-button" onclick="toggleUtility()">Utility</button>
+
+        <!-- Utility Dropdown Menu -->
+        <div id="utility-dropdown" class="utility-dropdown">
+            <button id="toggleUtilityLayer"
+                style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
+                Toggle Utility Layer </button>
+            <br>
+            <label for="year-select"> Select Year:<br> </label>
+            <select id="year-select" onchange="updateUtilityRightPanel()">
+                <option value="all">Select a Year</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+            </select>
+            <br>
+
+            <label for="utility-county-filter">Select County:</label>
+            <select id="utility-county-filter" onchange="updateUtilityRightPanel()">
+                <option value="all">Select a County</option>
+                <option value="Atlantic County">Atlantic</option>
+                <option value="Bergen County">Bergen</option>
+                <option value="Burlington County">Burlington</option>
+                <option value="Camden County">Camden</option>
+                <option value="Cape May County">Cape May</option>
+                <option value="Cumberland County">Cumberland</option>
+                <option value="Essex County">Essex</option>
+                <option value="Gloucester County">Gloucester</option>
+                <option value="Hudson County">Hudson</option>
+                <option value="Hunterdon County">Hunterdon</option>
+                <option value="Mercer County">Mercer</option>
+                <option value="Middlesex County">Middlesex</option>
+                <option value="Monmouth County">Monmouth</option>
+                <option value="Morris County">Morris</option>
+                <option value="Ocean County">Ocean</option>
+                <option value="Passaic County">Passaic</option>
+                <option value="Salem County">Salem</option>
+                <option value="Somerset County">Somerset</option>
+                <option value="Sussex County">Sussex</option>
+                <option value="Union County">Union</option>
+                <option value="Warren County">Warren</option>
+            </select>
+            <br>
+
+            <label for="fuel-type-select">Select Fuel Type:</label>
+            <select id="fuel-type-select" onchange="updateUtilityRightPanel()">
+                <option value="all">Select a Fuel Type</option>
+                <option value="electricity">Electricity</option>
+                <option value="naturalGas">Natural Gas</option>
+            </select>
+
+            <!-- Reset Button -->
+            <button id="reset-utility-filters"
+                style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
+                Reset Filters
+            </button>
         </div>
 
         <!-- Map Container -->
@@ -543,11 +666,16 @@
         <!--For the Calculator to pop up-->
         <div class="calculator-popup" id="calculator-popup">
             <h2 style="font-weight: bold; margin-bottom: 10px;">Calculate your Energy Burden</h2>
-            <label for="zip-code-input">Enter ZIP Code:</label>
-            <input type="text" id="zip-code-input" placeholder="Enter ZIP Code" />
+
+            <label for="income-input">Enter your annual gross income: </label>
+            <input type="text" id="income-input" placeholder="Enter Gross Income" />
+            <br>
+            <label for="energy-output">Enter your annual utilities expenses: </label>
+            <input type="text" id="energy-output" placeholder="Enter Annual Utility Expenditure" />
             <button id="calculate-btn">Calculate</button>
             <div id="calculator-result" style="margin-top: 15px;"></div>
         </div>
+
 
         <!--Calculator Tips for lowering energy burden-->
         <div class="tips-box" id="tips-box">
@@ -588,6 +716,19 @@
             </div>
         </div>
 
+        <!-- Legend -->
+        <div id="legend" class="legend">
+            <h4>Burden Factor Key</h4>
+            <div><span style="background-color: #126830;"></span> Low Income </div>
+            <div><span style="background-color: #C7E9C0;"></span> Minority </div>
+            <div><span style="background-color: #095626;"></span> Limited English </div>
+            <div><span style="background-color: #F7FCF0;"></span> Low Income and Minority </div>
+            <div><span style="background-color: #00441B;"></span> Adjacent </div>
+            <div><span style="background-color: #238B45;"></span> Low Income and Limited English </div>
+            <div><span style="background-color: #4CA85E;"></span> Minority and Limited English </div>
+            <div><span style="background-color: #74c476;"></span> Low Income, Minority, and Limited English </div>
+        </div>
+
         <!----------------------------------------------------JavaScript Section------------------------------------->
         <!-- Mapbox -->
         <script>
@@ -602,6 +743,7 @@
             let hoveredMunicipalId = null;
             let selectedMunicipalId = null;
 
+            //loads the map into the website 
             map.on('load', function () {
                 console.log("Map loaded, adding county borders...");
                 map.addSource('nj-counties', {
@@ -625,6 +767,7 @@
                 console.log("County borders layer added.");
 
 
+                //adds the municipalities
                 console.log("Map loaded, adding municipalities...");
                 map.addSource('nj-municipalities', {
                     'type': 'geojson',
@@ -647,6 +790,18 @@
                     }
                 });
 
+                map.addLayer({
+                    'id': 'municipal-utility-choropleth',
+                    'type': 'fill',
+                    'source': 'nj-municipalities',
+                    'paint': {
+                        'fill-color': '#FFFFFF',  // Set default fill color
+                        'fill-opacity': 0,
+                        'fill-outline-color': '#FFFFFF' // Corrected property for polygon borders
+                    }
+                });
+
+
                 //municipality border
                 map.addLayer({
                     'id': 'municipal-borders',
@@ -659,254 +814,713 @@
                 });
 
                 //hover 
-                map.on('mousemove', 'municipal-fills', (e) => {
-                    if (e.features.length > 0) {
-                        if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
-                            map.setFeatureState({
-                                source: 'nj-municipalities',
-                                id: hoveredMunicipalId
-                            }, {
-                                hover: false
-                            });
-                        }
-                        hoveredMunicipalId = e.features[0].id;
-                        if (hoveredMunicipalId !== selectedMunicipalId) {
-                            map.setFeatureState({
-                                source: 'nj-municipalities',
-                                id: hoveredMunicipalId
-                            }, {
-                                hover: true
-                            });
-                        }
-                    }
-                });
+                //map.on('mousemove', 'municipal-fills', (e) => {
+                //    if (e.features.length > 0) {
+                //        if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
+                //            map.setFeatureState({
+                //                source: 'nj-municipalities',
+                //                id: hoveredMunicipalId
+                //            }, {
+                //                hover: false
+                //            });
+                //        }
+                //        hoveredMunicipalId = e.features[0].id;
+                //        if (hoveredMunicipalId !== selectedMunicipalId) {
+                //            map.setFeatureState({
+                //                source: 'nj-municipalities',
+                //                id: hoveredMunicipalId
+                //            }, {
+                //                hover: true
+                //            });
+                //        }
+                //    }
+                //});
 
                 //hover reset
-                map.on('mouseleave', 'municipal-fills', () => {
-                    if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
-                        map.setFeatureState({
-                            source: 'nj-municipalities',
-                            id: hoveredMunicipalId
-                        }, {
-                            hover: false
-                        });
-                    }
-                    hoveredMunicipalId = null;
-                });
+                //map.on('mouseleave', 'municipal-fills', () => {
+                //    if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
+                //        map.setFeatureState({
+                //            source: 'nj-municipalities',
+                //            id: hoveredMunicipalId
+                //        }, {
+                //            hover: false
+                //        });
+                //    }
+                //    hoveredMunicipalId = null;
+                //});
 
                 //new highlight
-                map.on('click', 'municipal-fills', (e) => {
-                    if (selectedMunicipalId !== null) {
-                        map.setFeatureState({
-                            source: 'nj-municipalities',
-                            id: selectedMunicipalId
-                        }, {
-                            selected: false
-                        });
-                    }
-                    selectedMunicipalId = e.features[0].id;
-                    map.setFeatureState({
-                        source: 'nj-municipalities',
-                        id: selectedMunicipalId
-                    }, {
-                        selected: true
-                    });
+                //map.on('click', 'municipal-fills', (e) => {
+                //    if (selectedMunicipalId !== null) {
+                //        map.setFeatureState({
+                //            source: 'nj-municipalities',
+                //            id: selectedMunicipalId
+                //        }, {
+                //            selected: false
+                //        });
+                //    }
+                //    selectedMunicipalId = e.features[0].id;
+                //    map.setFeatureState({
+                //        source: 'nj-municipalities',
+                //        id: selectedMunicipalId
+                //    }, {
+                //        selected: true
+                //    });
 
-                    //reset hover
-                    if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
-                        map.setFeatureState({
-                            source: 'nj-municipalities',
-                            id: hoveredMunicipalId
-                        }, {
-                            hover: false
-                        });
-                    }
-                    hoveredMunicipalId = null;
-                });
+                //  const countyName = e.features[0].properties.COUNTY;
+                //  updateRightPanel(countyName);
 
-                //event listener for county filter with zoom functionality
-                document.getElementById('county-filter').addEventListener('change', function () {
-                    const selectedCounty = this.value;
-                    if (selectedCounty !== "all") {
-                        zoomToCounty(selectedCounty);
-                        updateRightPanel(selectedCounty);
-                    } else {
-                        // If "all" is selected, zoom back to the default NJ view
-                        map.flyTo({
-                            center: [-74.4057, 40.0583],
-                            zoom: 7
-                        });
-                    }
-                });
+                //reset hover
+                // if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
+                //    map.setFeatureState({
+                //        source: 'nj-municipalities',
+                //        id: hoveredMunicipalId
+                //    }, {
+                //        hover: false
+                //    });
+                // }
+                // hoveredMunicipalId = null;
+                // });
+            });
 
-                //zoom function
-                function zoomToCounty(countyName) {
-                    const query = `https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=COUNTY%20%3D%20%27${countyName}%27&f=geojson`;
-                    fetch(query)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.features.length > 0) {
-                                const bounds = new mapboxgl.LngLatBounds();
-                                data.features.forEach(feature => {
-                                    if (feature.geometry.type === 'Polygon') {
-                                        feature.geometry.coordinates.forEach(ring => {
+            //zoom function
+            function zoomToCounty(countyName) {
+                const query = `https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=COUNTY%20%3D%20%27${countyName}%27&f=geojson`;
+                fetch(query)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.features.length > 0) {
+                            const bounds = new mapboxgl.LngLatBounds();
+                            data.features.forEach(feature => {
+                                if (feature.geometry.type === 'Polygon') {
+                                    feature.geometry.coordinates.forEach(ring => {
+                                        ring.forEach(coord => bounds.extend(coord));
+                                    });
+                                } else if (feature.geometry.type === 'MultiPolygon') {
+                                    feature.geometry.coordinates.forEach(polygon => {
+                                        polygon.forEach(ring => {
                                             ring.forEach(coord => bounds.extend(coord));
                                         });
-                                    } else if (feature.geometry.type === 'MultiPolygon') {
-                                        feature.geometry.coordinates.forEach(polygon => {
-                                            polygon.forEach(ring => {
-                                                ring.forEach(coord => bounds.extend(coord));
-                                            });
-                                        });
-                                    }
-                                });
-                                map.fitBounds(bounds, {
-                                    padding: 50,
-                                    maxZoom: 12
-                                });
-                            } else {
-                                console.error("No data found for county:", countyName);
-                                alert("No data found for the selected county.");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error fetching county data:", error);
-                            alert("An error occurred while fetching county data.");
-                        });
-                }
-
-                //choropleth for utility level data
-
-                function updateChoropleth() {
-                    const propertyName = getCurrentDataProperty();
-                    const maxValue = getMaxValueForCurrentSelection();
-
-                    if (map.getLayer('municipality-choropleth')) {
-                        if (maxValue > 0) {
-                            map.setPaintProperty('municipality-choropleth', 'fill-color', [
-                                'steps',
-                                ['get', propertyName],
-                                'blue',
-                                10, 'red',
-                                50, 'yellow',
-                                100, 'green'
-                            ]);
+                                    });
+                                }
+                            });
+                            map.fitBounds(bounds, {
+                                padding: 50,
+                                maxZoom: 12
+                            });
                         } else {
-                            // Handle the case where maxValue is 0 to avoid the error
-                            map.setPaintProperty('municipality-choropleth', 'fill-color', 'blue');
+                            console.error("No data found for county:", countyName);
+                            alert("No data found for the selected county.");
                         }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching county data:", error);
+                        alert("An error occurred while fetching county data.");
+                    });
+            }
+
+            //function to add municipality labels
+            function addMunicipalityLabels(countyName) {
+                const municipalityQuery = `https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/2/query?outFields=*&where=COUNTY%20%3D%20%27${countyName}%27&f=geojson`;
+
+                fetch(municipalityQuery)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Municipality Data:", data); // Debugging
+
+                        if (data.features.length > 0) {
+                            console.log("Sample Feature:", data.features[0].properties); // Check property names
+
+                            // Remove old layer if it exists
+                            if (map.getSource('municipalities')) {
+                                map.removeLayer('municipality-labels');
+                                map.removeSource('municipalities');
+                            }
+
+                            // Add new source
+                            map.addSource('municipalities', {
+                                type: 'geojson',
+                                data: data
+                            });
+
+                            console.log("Adding Municipality Labels Layer...");
+
+                            // Add new label layer
+                            map.addLayer({
+                                id: 'municipality-labels',
+                                type: 'symbol',
+                                source: 'municipalities',
+                                layout: {
+                                    'text-field': ['get', 'MUNICIPALITY'], // Change if necessary
+                                    'text-size': 12,
+                                    'text-anchor': 'center'
+                                },
+                                paint: {
+                                    'text-color': '#000000',
+                                    'text-halo-color': '#ffffff',
+                                    'text-halo-width': 1.5
+                                }
+                            });
+
+                            console.log("Municipality Labels Successfully Added");
+
+                        } else {
+                            console.error("No municipality data found for county:", countyName);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching municipality data:", error);
+                    });
+            }
+
+            //event listener for county filter with zoom functionality
+            document.getElementById('county-filter').addEventListener('change', function () {
+                const selectedCounty = this.value;
+                if (selectedCounty !== "all") {
+                    zoomToCounty(selectedCounty);
+                    updateRightPanel(selectedCounty);
+                } else {
+                    // If "all" is selected, zoom back to the default NJ view
+                    map.flyTo({
+                        center: [-74.4057, 40.0583],
+                        zoom: 7
+                    });
+                }
+            });
+
+
+            // Define the ArcGIS Feature Service URL
+            const obcUrl = "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Overburdened_Communities_under_the_New_Jersey_Environmental_Justice_Law/FeatureServer/19/query?where=1%3D1&outFields=POVUNIVERSE,POPUNDER2XPOV,LOW_INCOME_PCT,TOTALPOP,NONHISPWHITE,TOTALMINORITY,MINORITY_PCT,TOTHH,TOTLANGUAGEISO,PCTLINGUAGEISO,OVERBURDENED_COMMUNITY_CRITERI,BG_TRIBAL,COUNTY,NAME,SPLIT_BG,SPLIT_MUN&outSR=4326&f=geojson";
+
+            // Function to fetch all results
+            async function fetchAllResults() {
+                const results = [];
+                let offset = 0;
+                const limit = 1000; // Maximum number of features returned per query
+
+                // Keep fetching until all results are obtained
+                while (true) {
+                    const url = `${obcUrl}&resultOffset=${offset}&resultRecordCount=${limit}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.features.length === 0) {
+                        break; // No more results to fetch
                     }
+
+                    results.push(...data.features); // Add fetched features to the results array
+                    offset += limit; // Increment the offset for the next query
                 }
 
-                function getCurrentDataProperty() {
-                    const selectedYear = document.getElementById('year-filter')?.value || "2022"; // Default year if undefined
-                    const selectFuelType = document.getElementById('fuel-type-filter')?.value || "electricity"; // Default fuel type if undefined
-                    return `${selectFuelType}_${selectedYear}`;
-                }
+                return results;
+            }
 
-                function getMaxValueForCurrentSelection() {
-                    const source = map.getSource('nj-municipalities-data');
-                    if (!source || !source._data) {
-                        console.warn("Data source not ready yet.");
-                        return 0; // Default to 0 if data isn't available
-                    }
+            // Function to add the overburdened communities layer
+            async function addOverburdenedLayer() {
+                try {
+                    const data = await fetchAllResults();
 
-                    const features = source._data.features;
-                    let maxValue = 0;
-                    const propertyName = getCurrentDataProperty();
-
-                    features.forEach(feature => {
-                        const value = feature.properties[propertyName] || 0;
-                        if (value > maxValue) {
-                            maxValue = value;
+                    map.addSource('overburdened-communities', {
+                        type: 'geojson',
+                        data: {
+                            type: 'FeatureCollection',
+                            features: data
                         }
                     });
-                    return maxValue;
+
+                    map.addLayer({
+                        id: 'overburdened-layer',
+                        type: 'fill',
+                        source: 'overburdened-communities',
+                        paint: {
+                            'fill-color': [
+                                'case',
+                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Low Income and Minority'], '#F7FCF0',
+                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Minority'], '#C7E9C0',
+                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Low Income, Minority, and Limited English'], '#74C476',
+                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Low Income and Limited English'], '#238B45',
+                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Low Income'], '#126830',
+                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Limited English'], '#095626',
+                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Minority and Limited English'], '#4CA85E',
+                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Adjacent'], '#00441B',
+                                '#000000'
+                            ],
+                            'fill-opacity': 0.75
+                        }
+                    });
+
+                    // Add popup on hover
+                    map.on('click', 'overburdened-layer', (e) => {
+                        const properties = e.features[0].properties;
+                        new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML(
+                                `<strong>Municipality:</strong> ${properties.NAME}<br>
+                    <strong>County:</strong> ${properties.COUNTY}<br>
+                    <strong>Burden Factors:</strong> ${properties.OVERBURDENED_COMMUNITY_CRITERI}`
+                            )
+                            .addTo(map);
+                    });
+
+                    // Change cursor on hover
+                    map.on('mouseenter', 'overburdened-layer', () => {
+                        map.getCanvas().style.cursor = 'pointer';
+                    });
+
+                    map.on('mouseleave', 'overburdened-layer', () => {
+                        map.getCanvas().style.cursor = '';
+                    });
+                } catch (error) {
+                    console.error("Error loading Overburdened Communities data:", error);
                 }
+            }
 
-                fetch('https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson')
-                    .then(response => response.json())
-                    .then(municipalitiesData => {
-                        return fetch('https://raw.githubusercontent.com/gteves/NJ-Energy-Portal/refs/heads/main/Municipal%20Level%20Utility%20Data%20-%20Municipal%20Level%20Utility%20Data.csv')
-                            .then(response => response.text())
-                            .then(csvData => {
-                                // Parse CSV data and convert the Municipality field to uppercase
-                                const energyDataParsed = Papa.parse(csvData, { header: true, dynamicTyping: true }).data;
-                                municipalitiesData.features.forEach(municipality => {
-                                    const municipalityName = municipality.properties.MUN; // Use "MUN" here
-                                    if (municipalityName) {  // Ensure the property exists
-                                        const normalizedMunicipalityName = municipalityName.trim().toUpperCase(); // Normalize to uppercase
-                                       //console.log("GeoJSON Municipality:", normalizedMunicipalityName);
-
-                                        energyDataParsed.forEach(row => {
-                                            const csvMunicipalityName = row.Municipality.trim().toUpperCase(); // Normalize CSV name to uppercase
-                                            //console.log("CSV Municipality:", csvMunicipalityName);  // Log the CSV name
-                                        });
-
-                                        const matchingRow = energyDataParsed.find(row => {
-                                            const csvMunicipalityName = row.Municipality.trim().toUpperCase(); // Normalize CSV name to uppercase
-                                            return csvMunicipalityName === normalizedMunicipalityName;
-                                        });
-
-                                        if (matchingRow) {
-                                            for (let year = 2016; year <= 2022; year++) {
-                                                municipality.properties[`electricity${year}`] = matchingRow[`Total Electricity (kWh)`];
-                                                municipality.properties[`naturalGas${year}`] = matchingRow[`Total Natural Gas (Therms)`];
-                                            }
-                                            municipality.properties.electricUtility = matchingRow['Electric Utility'];
-                                            municipality.properties.gasUtility = matchingRow['Natural Gas Utility'];
-                                        } else {
-                                            console.warn("No matching data found for municipality:", municipalityName);
-                                            for (let year = 2016; year <= 2022; year++) {
-                                                municipality.properties[`electricity${year}`] = 0;
-                                                municipality.properties[`naturalGas${year}`] = 0;
-                                            }
-                                            municipality.properties.electricUtility = "Unknown";
-                                            municipality.properties.gasUtility = "Unknown";
-                                        }
-                                    } else {
-                                        console.warn("Missing municipality name for feature:", municipality);
-                                    }
-                                });
-
-                                map.addSource('nj-municipalities-data', {
-                                    'type': 'geojson',
-                                    'data': municipalitiesData
-                                });
-
-                                map.addLayer({
-                                    id: 'municipality-choropleth',
-                                    type: 'fill',
-                                    source: 'nj-municipalities-data',
-                                    paint: {
-                                        'fill-color': [
-                                            'step',
-                                            ['get', getCurrentDataProperty()],
-                                            'blue',    // Default color
-                                            10, 'red',  // Color for values >= 10
-                                            50, 'yellow', // Color for values >= 50
-                                            100, 'green'  // Color for values >= 100
-                                        ],
-                                        'fill-opacity': 0.75
-                                    }
-                                });
-
-                                document.getElementById('year-filter').addEventListener('change', updateChoropleth);
-                                document.getElementById('fuel-type-filter').addEventListener('change', updateChoropleth);
-
-                                updateChoropleth();
-                            })
-                            .catch(error => console.error("Failed to load CSV data:", error));
-                    })
-                    .catch(error => console.error("Failed to load municipality data:", error));
-
+            document.getElementById('toggleOBC').addEventListener('click', function () {
+                if (map.getLayer('overburdened-layer')) {
+                    map.removeLayer('overburdened-layer');
+                    map.removeSource('overburdened-communities');
+                } else {
+                    addOverburdenedLayer();
+                }
             });
+
+
+
+            //updates the information displayed on the right green box 
+            function updateRightPanel(countyName) {
+                //fetch data for the selected county
+                fetch(`getdata_all.php?county=${countyName}`)
+                    .then(response => response.json())
+                    .then(data => {
+
+                        console.log("Fetched Data: ", data);
+                        //calls the green dropdown that we established earlier
+                        let dropdown = document.querySelector('.green-dropdown');
+                        if (!dropdown) {
+                            dropdown = document.createElement('div');
+                            dropdown.className = 'green-dropdown';
+                            document.body.appendChild(dropdown);
+                        }
+
+                        //build the table and display the data that was fetched
+                        let content = `<h2>${countyName}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                        content += `
+                            <tr>
+                                <th>Municipality</th>
+                                <th>County</th>
+                                <th>Residential Electricity</th>
+                                <th>Residential Natural Gas</th>
+                            </tr>`;
+                        if (data.length) {
+                            data.forEach(row => {
+                                content += `
+                                <tr>
+                                    <td>${row["Municipality"]}</td>
+                                    <td>${row["County"]}</td>
+                                    <td>${row["Residential Electricity"]} kWh</td>
+                                    <td>${row["Residential Natural Gas"]} Therms</td>
+                                </tr>`;
+                            });
+                        } else {
+                            content += `<tr><td colspan="2">No data available for this county.</td></tr>`;
+                        }
+                        content += `</table>`;
+
+                        //display the content in the green dropdown
+                        dropdown.innerHTML = content;
+                        dropdown.classList.add('visible');
+                    })
+
+                    //for error handling when data isn't being fetched
+                    .catch(error => {
+                        console.error("Error fetching data:", error);
+                    });
+            }
+
+            //calculator pop up function
+            function toggleCalculator() {
+                const popup = document.getElementById('calculator-popup');
+                popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            }
 
             //tab function on filters
             function toggleFilter() {
                 const filterTab = document.getElementById('filter-tab');
-                filterTab.classList.toggle('visible');
+                if (filterTab.classList.contains('visible')) {
+                    filterTab.classList.remove('visible');
+                } else {
+                    filterTab.classList.add('visible');
+                }
             }
+
+            //toggle utility layer visibility 
+            document.getElementById('toggleUtilityLayer').addEventListener('click', function () {
+                let currentOpacity = map.getPaintProperty('municipal-utility-choropleth', 'fill-opacity');
+                let newOpacity = currentOpacity === 0 ? 0.75 : 0;
+                map.setPaintProperty('municipal-utility-choropleth', 'fill-opacity', newOpacity);
+            });
+
+            //when clicking utility 
+            function toggleUtility() {
+                var dropdown = document.getElementById("utility-dropdown");
+                //toggle visibility
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+
+            document.getElementById('reset-utility-filters').addEventListener('click', function () {
+                //reset filters
+                document.getElementById('year-select').value = 'all';
+                document.getElementById('utility-county-filter').value = 'all';
+                document.getElementById('fuel-type-select').value = 'all';
+                updateUtilityRightPanel();
+
+                //hide right panel
+                let dropdown = document.querySelector('.green-dropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('visible');
+                }
+
+                //reset map choropleth 
+                map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#FFFFFF');
+            });
+
+
+            // Event listener for the calculate button
+            document.getElementById('calculate-btn').addEventListener('click', function () {
+                // Get user input for income and utility expenses
+                const income = parseFloat(document.getElementById('income-input').value);
+                const energyOutput = parseFloat(document.getElementById('energy-output').value);
+
+                // Check if the input is valid
+                if (isNaN(income) || income <= 0 || isNaN(energyOutput) || energyOutput < 0) {
+                    document.getElementById('calculator-result').innerHTML = `
+                            <p style="color:red;">Please enter valid income and utility expense values.</p>
+                        `;
+                    return;
+                }
+
+                // Calculate the energy burden percentage
+                const energyBurden = (energyOutput / income) * 100;
+
+                // Determine the result message based on the energy burden
+                let statusTitle;
+                let statusMessage;
+                let tipsLink = '';
+
+                if (energyBurden > 6) {
+                    // Overburden (greater than 6%)
+                    statusTitle = `<p style="color:red;"><strong>Overburdened</strong></p>`;
+                    statusMessage = `<p>Your energy burden is ${energyBurden.toFixed(2)}%, which is above the threshold of 6%.</p>`;
+                    // Show the tips link
+                    tipsLink = `<p style="cursor: pointer; color: #04A264;" onclick="showTips()"><< Tips for Lowering Energy Burden</p>`;
+                } else {
+                    // Below 6% (not overburdened)
+                    statusTitle = `<p style="color:green;"><strong>Below Threshold</strong></p>`;
+                    statusMessage = `<p>Your energy burden is ${energyBurden.toFixed(2)}%, which is below the 6% threshold.</p>`;
+                }
+
+                // Display the energy burden result
+                document.getElementById('calculator-result').innerHTML = `
+                    <p><strong>Energy Burden:</strong> ${energyBurden.toFixed(2)}%</p>
+                    <div style="margin-top: 15px;"></div>
+                    ${statusTitle}
+                    ${statusMessage}
+                    <div style="margin-top: 15px;"></div>
+                    ${tipsLink}
+                `;
+            });
+
+            // JavaScript functions to handle the tips box
+            function showTips() {
+                document.getElementById('tips-box').style.display = 'block';
+            }
+
+            // Close the tips box
+            function closeTips() {
+                document.getElementById('tips-box').style.display = 'none';
+            }
+
+            // Toggle the visibility of the calculator popup
+            function toggleCalculator() {
+                const popup = document.getElementById('calculator-popup');
+                popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            }
+
+
+            //utility
+            function updateUtilityRightPanel() {
+                const year = document.getElementById('year-select').value;
+                const county = document.getElementById('utility-county-filter').value;
+                const fuelType = document.getElementById('fuel-type-select').value;
+                console.log(fuelType);
+
+                const params = new URLSearchParams();
+                if (year !== "all") params.append("year", year);
+                if (county !== "all") params.append("county", county);
+                if (fuelType !== "all") {
+                    if (fuelType === "electricity") {
+                        params.append("electricity", 1);
+                    } else if (fuelType === "naturalGas") {
+                        params.append("naturalGas", 1);
+                    }
+                }
+
+            }
+
+            //highlight the county on the map
+            if (county !== "all") {
+                map.querySourceFeatures('nj-counties', {
+                    sourceLayer: 'county-fills'
+                }).forEach((feature) => {
+                    if (feature.properties.COUNTY === county) {
+                        if (selectedCountyId !== null) {
+                            map.setFeatureState({
+                                source: 'nj-counties',
+                                id: selectedCountyId
+                            }, {
+                                selected: false
+                            });
+                        }
+                        selectedCountyId = feature.id;
+                        map.setFeatureState({
+                            source: 'nj-counties',
+                            id: selectedCountyId
+                        }, {
+                            selected: true
+                        });
+                    }
+                });
+            }
+
+            //get data 
+            fetch(`getdata_all.php?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    let minVal = Infinity;
+                    let maxVal = -Infinity;
+
+                    //check for data
+                    if (data.length === 0) {
+                        console.warn("No data found for the selected filters.");
+                        map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#FFFFFF');
+                        return;
+                    }
+
+
+                    data.forEach(row => {
+                        const municipality = row["Municipality"];
+                        const utilityValue = fuelType === "electricity" ? row["residentialElectricity"] : row["residentialNaturalGas"];
+
+                        if (utilityValue < minVal) minVal = utilityValue;
+                        if (utilityValue > maxVal) maxVal = utilityValue;
+
+                        map.setFeatureState({
+                            source: 'nj-municipalities',
+                            id: municipality
+                        }, {
+                            utilityValue: utilityValue
+                        });
+                    });
+
+
+                    if (minVal === maxVal) {
+                        map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#74c476');
+                        return;
+                    }
+
+                    //color scaling
+                    map.setPaintProperty('municipal-utility-choropleth', 'fill-color', [
+                        'interpolate',
+                        ['linear'],
+                        ['coalesce', ['get', 'utilityValue'], 0], // Handle missing values
+                        minVal, '#f7fcf0',
+                        (minVal + maxVal) / 3, '#c7e9c0',
+                        (minVal + maxVal) * 2 / 3, '#74c476',
+                        maxVal, '#00441b'
+                    ]);
+
+                    console.log(`Updated choropleth for year: ${year} and fuel type: ${fuelType}`);
+
+                    //right dropdown
+                    let dropdown = document.querySelector('.green-dropdown');
+                    if (!dropdown) {
+                        dropdown = document.createElement('div');
+                        dropdown.className = 'green-dropdown';
+                        document.body.appendChild(dropdown);
+                    }
+
+                    //determine filtering conditions
+                    const onlyYearSelected = year !== "all" && county === "all" && fuelType === "all";
+                    const onlyCountySelected = year === "all" && county !== "all" && fuelType === "all";
+                    const onlyFuelTypeSelected = year === "all" && county === "all" && fuelType !== "all";
+                    const yearAndCountySelected = year !== "all" && county !== "all" && fuelType === "all";
+                    const yearAndFuelTypeSelected = year !== "all" && county === "all" && fuelType !== "all";
+                    const countyAndFuelTypeSelected = year === "all" && county !== "all" && fuelType !== "all";
+                    const allFiltersSelected = year !== "all" && county !== "all" && fuelType !== "all";
+
+                    //build the table and display the data that was fetched
+                    let content = `<h2>${data[0]?.County || 'No County Selcted'}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                    if (onlyYearSelected) {
+                        //show only year, county and total when year is selected
+                        content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                    </tr>`;
+                    } else if (onlyCountySelected) {
+                        //show every year and total for the selected county
+                        content +=
+                            `<tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
+                                    </tr>`;
+                    } else if (countyAndFuelTypeSelected) {
+                        //show all years, county, total, and selected utilty 
+                        content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
+                                    </tr>`;
+                    } else if (yearAndCountySelected) {
+                        //show year, county, total, and selected utility
+                        content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>Electricity</th>
+                                        <th>Natural Gas</th>
+                                    </tr>`;
+                    } else if (onlyYearAndUtilitySelected) {
+                        //show year, county, total, and selected utility
+                        content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
+                                    </tr>`;
+                    } else if (allFiltersSelected) {
+                        //show year, county, total and only the selected utility type
+                        content += `
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>County</th>
+                                        <th>Total</th>
+                                        <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
+                                    </tr>`;
+                    }
+                    if (data.length) {
+                        data.forEach(row => {
+                            if (onlyYearSelected) {
+                                content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                        </tr>`;
+                            } else if (onlyCountySelected) {
+                                content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                        </tr>`;
+                            } else if (onlyFuelTypeSelected) {
+                                content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${fuelType === "electricity" ? row["Electricity"] : row["Natural Gas"]}</td>
+                                        </tr>`;
+                            } else if (countyAndFuelTypeSelected) {
+                                content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${fuelType === "electricity" ? row["Electricity"] : row["Natural Gas"]}</td>
+                                        </tr>`;
+                            } else if (yearAndCountySelected) {
+                                content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${row["Electricity"]}</td>
+                                            <td>${row["Natural Gas"]}</td>
+                                        </tr>`;
+                            } else if (onlyYearAndUtilitySelected) {
+                                content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${fuelType === "electricity" ? row["Electricity"] : row["Natural Gas"]}</td>
+                                        </tr>`;
+                            } else if (allFiltersSelected) {
+                                content += `
+                                        <tr>
+                                            <td>${row["Year"]}</td>
+                                            <td>${row["County"]}</td>
+                                            <td>${row["Total"]}</td>
+                                            <td>${fuelType === "electricity" ? row["Electricity"] : row["Natural Gas"]}</td>
+                                        </tr>`;
+                            }
+                        });
+                    } else {
+                        content += `<tr><td colspan="5">No data available for the selected filters.</td></tr>`;
+                    }
+                    content += `</table>`;
+
+                    dropdown.innerHTML = content;
+                    dropdown.classList.add('visible');
+
+                    //reset if no data found
+                    if (data.length === 0) {
+                        map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#FFFFFF');
+                        return;
+                    }
+
+                    //update map choropleth with utility data
+                    data.forEach(row => {
+                        const municipality = row["Municipality"];
+                        const utilityValue = row["Electricity"] || row["Natural Gas"] || 0;
+
+                        map.setFeatureState({
+                            source: 'nj-municipalities',
+                            id: municipality
+                        }, {
+                            utilityValue: utilityValue
+                        });
+                    });
+
+                    //new color scale
+                    map.setPaintProperty('municipal-utility-choropleth', 'fill-color', [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'utilityValue'],
+                        0, '#f7fcf0',
+                        25, '#c7e9c0',
+                        50, '#74c476',
+                        75, '#238b45',
+                        100, '#00441b'
+                    ]);
+
+                    //display the content in the green dropdown
+                    dropdown.innerHTML = content;
+                    dropdown.classList.add('visible');
+                })
+                .catch(error => {
+                    console.error("Error fetching utility data:", error);
+                });
+
         </script>
 </body>
 
