@@ -8,9 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Jersey Energy Portal</title>
 
-    <!-- Mapbox CSS -->
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- Used for icons-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -111,17 +111,17 @@
             display: none;
             position: absolute;
             top: 80px; /* Adjust position from top*/
-            left: 82%;
+            left: 79%;
             transform: translateX(-50%);
             background-color: #04A264;
             color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            width: 500px; /* Adjust width of green box */
+            width: 600px; /* Adjust width of green box */
             max-height: 85vh; /* Adjusts the size of the green box*/
             text-align: center;
-            z-index: 1000;
+            z-index: 1001;
             overflow-y: auto;
         }
 
@@ -158,6 +158,30 @@
             width: 100%;
             height: 120%;
         }
+
+        /* Tenure Choropleth Legend */
+        .info.legend {
+            background: white;
+            padding: 6px 10px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        .info.legend i {
+            width: 25px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.85;
+        }
+
+        .leaflet-bottom.leaflet-left .info.legend {
+            left: 10px;    /* move horizontally */
+            bottom: 125px;  /* move vertically */
+        }
+
+
 /* ---------------------------------------------- End of Map Functionalities ------------------------------------------------- */
 
 
@@ -265,8 +289,53 @@
             z-index: 10;
         }
 
-        /* Maps drop down function so we can switch from one map to another */
         .tenure-dropdown {
+            display: none;
+            position: absolute;
+            top: 8.5%; /* adjusts where the popup is going to be */
+            left: 85px;
+            background-color: #04A264;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+            width: 210px;
+        }
+
+        /* Buttons inside the dropdown */
+        .dropdown-btn {
+            background-color: #04A264;
+            color: white;
+            width: 130px;
+            height: 50px; /* Makes it square-like */
+            border: none;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #037c4d;
+        }
+
+        /* Heating Filter */
+        .heating-toggle-button {
+            position: fixed;
+            top: 26%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .heating-dropdown {
             display: none;
             position: absolute;
             top: 8.5%; /* adjusts where the popup is going to be */
@@ -547,6 +616,77 @@
             </button>
         </div>
 
+        <!-- Heating Filter Button -->
+        <button class="heating-toggle-button" onclick="toggleHeating()">Heating</button>
+
+        <!-- Heating Dropdown Menu -->
+        <div id="heating-dropdown" class="heating-dropdown">
+            <label for="year-select">Select Year:</label>
+            <select id="heating-year-select" onchange="updateHeatingRightPanel()">
+                <option value="All">All</option>
+                <option value="2010">2010</option>
+                <option value="2011">2011</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+            </select>
+            <br>
+
+            <label for="heating-county">Select County:</label>
+            <select id="heating-county" onchange="updateHeatingRightPanel()">
+                <option value="all">Select a County</option>
+                <option value="Atlantic County">Atlantic</option>
+                <option value="Bergen County">Bergen</option>
+                <option value="Burlington County">Burlington</option>
+                <option value="Camden County">Camden</option>
+                <option value="Cape May County">Cape May</option>
+                <option value="Cumberland County">Cumberland</option>
+                <option value="Essex County">Essex</option>
+                <option value="Gloucester County">Gloucester</option>
+                <option value="Hudson County">Hudson</option>
+                <option value="Hunterdon County">Hunterdon</option>
+                <option value="Mercer County">Mercer</option>
+                <option value="Middlesex County">Middlesex</option>
+                <option value="Monmouth County">Monmouth</option>
+                <option value="Morris County">Morris</option>
+                <option value="Ocean County">Ocean</option>
+                <option value="Passaic County">Passaic</option>
+                <option value="Salem County">Salem</option>
+                <option value="Somerset County">Somerset</option>
+                <option value="Sussex County">Sussex</option>
+                <option value="Union County">Union</option>
+                <option value="Warren County">Warren</option>
+            </select>
+            <br>
+
+            <label for="heating-type">Select Heating Type:</label>
+            <select id="heating-type" onchange="updateHeatingRightPanel()">
+                <option value="all">All</option>
+                <option value="Bottled_LP_gas">Bottled, Tank, or LP Gas</option>
+                <option value="Coal_or_coke">Coal or Coke</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Fuel_oil_kerosene">Fuel Oil, Kerosene, etc.</option>
+                <option value="No_fuel_used">No Fuel Used</option>
+                <option value="Other_fuel">Other Fuel</option>
+                <option value="Solar_energy">Solar Energy</option>
+                <option value="Utility_gas">Utility Gas</option>
+                <option value="Wood">Wood</option>
+            </select>
+
+            <!-- Reset Button Inside Heating Filter -->
+            <button id="reset-heating-filters" style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
+                Reset Filters
+            </button>
+        </div>
 
         <!-- Filter Toggle Button -->
         <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
@@ -657,147 +797,94 @@
     </div>
     
 <!----------------------------------------------------JavaScript Section------------------------------------->
-        <!-- Mapbox JavaScript -->
+        <!-- Leaflet JavaScript -->
         <script>
-            mapboxgl.accessToken = 'pk.eyJ1IjoiamsxMyIsImEiOiJjbTJxaXV5bTMxMmc5MmpxM3Fkajk5bHRyIn0.Jb5c4G3hOdHr-IFLyyG02g';
+            function getColor(d) {
+                return d > 300000 ? '#800026' : // Dark red
+                    d > 200000 ? '#BD0026' : // Red
+                    d > 125000 ? '#E31A1C' : // Orange-Red
+                    d > 75000 ? '#FD8D3C' : // Orange
+                    d > 40000 ? '#FEB24C' : // Light Orange
+                                '#FFEDA0'; // Pale Yellow
+            }
 
-            const map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/jk13/cm2sauzus00cy01pc7jg1a78y',
-                center: [-74.40, 39.90], // Center on New Jersey
-                zoom: 7.15
-            });
+            const map = L.map('map').setView([39.90, -74.40], 7);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            let geojsonLayer;
+
+            fetch('NJCounties_Tenure.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    geojsonLayer = L.geoJSON(data, {
+                        style: {
+                            color: '#627BC1',
+                            weight: 2,
+                            fillColor: 'transparent',
+                            fillOpacity: 0
+                        },
+                        onEachFeature: function (feature, layer) {
+                            // Tooltip for the county name
+                            layer.bindTooltip(feature.properties.COUNTY, {
+                                permanent: false,
+                                direction: 'top',
+                                offset: [0, -10],
+                                opacity: 0.9,
+                                className: 'county-tooltip'
+                            });
+
+                            // Hover behavior
+                            layer.on({
+                                mouseover: function () {
+                                    layer.setStyle({
+                                        fillOpacity: 0.9,
+                                        color: '#00441b', // darker border on hover
+                                        weight: 3
+                                    });
+                                    layer.openTooltip();
+                                },
+                                mouseout: function () {
+                                    layer.setStyle({
+                                        fillOpacity: layer.options.originalFillOpacity || 0.6,
+                                        color: '#627BC1', // reset border
+                                        weight: 2
+                                    });
+                                    layer.closeTooltip();
+                                }
+                            });
+                           //layer.on('click', () => {
+                           //     const countyName = feature.properties.COUNTY;
+                           //     updateRightPanel(countyName);
+                           // });
+                        }
+                    }).addTo(map);
+
+                    const legend = L.control({ position: 'bottomleft' });
+
+                    legend.onAdd = function (map) {
+                        const div = L.DomUtil.create('div', 'info legend');
+                        div.id = 'tenure-legend';  // <-- unique ID for toggling
+                        div.style.display = 'none'; // hidden by default
+
+                        const grades = [0, 25000, 40000, 75000, 125000, 200000, 300000];
+                        for (let i = 0; i < grades.length; i++) {
+                            div.innerHTML +=
+                                '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                        }
+                        return div;
+                    };
+
+                    legend.addTo(map);
+                });
+
 
             let hoveredCountyId = null;
             let selectedCountyId = null;
-
-            //Loads the map into the website
-            map.on('load', () => {
-                /*
-                map.addSource('nj-counties', {
-                    'type': 'geojson',
-                    'data': 'https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson'
-                });
-                */
-
-                // raw link: https://raw.githubusercontent.com/gteves/NJ-Energy-Portal/main/NJCounties.geojson
-                /*
-                map.addSource('nj-counties', {
-                    'type': 'geojson',
-                    'data': 'https://raw.githubusercontent.com/gteves/NJ-Energy-Portal/main/NJCounties.geojson'
-                });
-                */
-                map.addSource('nj-counties', {
-                    'type': 'geojson',
-                    'data': 'NJCounties_Tenure.geojson'
-                });
-                
-                map.addLayer({
-                    'id': 'county-tenure-choropleth',
-                    'type': 'fill',
-                    'source': 'nj-counties',
-                    'paint': {
-                        'fill-color': '#FFFFFF',  // Default white color
-                        'fill-opacity': 0.8
-                    }
-                });
-
-                //Puts the county borders in between each county
-                map.addLayer({
-                    'id': 'county-borders',
-                    'type': 'line',
-                    'source': 'nj-counties',
-                    'paint': {
-                        'line-color': '#627BC1',
-                        'line-width': 2
-                    }
-                });
-
-                //Puts the names of counties
-                map.addLayer({
-                    'id': 'county-labels',
-                    'type': 'symbol',
-                    'source': 'nj-counties',
-                    'layout': {
-                        'text-field': ['get', 'COUNTY'],
-                        'text-size': 12
-                    },
-                    'paint': {
-                        'text-color': '#000000'
-                    }
-                });
-
-                //Produces a hover effect for when user hovers over the map
-                map.on('mousemove', 'county-fills', (e) => {
-                    if (e.features.length > 0) {
-                        if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
-                            map.setFeatureState({
-                                source: 'nj-counties',
-                                id: hoveredCountyId
-                            }, {
-                                hover: false
-                            });
-                        }
-                        hoveredCountyId = e.features[0].id;
-                        if (hoveredCountyId !== selectedCountyId) {
-                            map.setFeatureState({
-                                source: 'nj-counties',
-                                id: hoveredCountyId
-                            }, {
-                                hover: true
-                            });
-                        }
-                    }
-                });
-
-                //When the user isn't hovering over it anymore, it reset the color
-                map.on('mouseleave', 'county-fills', () => {
-                    if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
-                        map.setFeatureState({
-                            source: 'nj-counties',
-                            id: hoveredCountyId
-                        }, {
-                            hover: false
-                        });
-                    }
-                    hoveredCountyId = null;
-                });
-
-                //Highlights the county for when a new county is selected
-                map.on('click', 'county-fills', (e) => {
-                    if (selectedCountyId !== null) {
-                        // Reset the previously selected county
-                        map.setFeatureState({
-                            source: 'nj-counties',
-                            id: selectedCountyId
-                        }, {
-                            selected: false
-                        });
-                    }
-
-                    // Set the newly selected county
-                    selectedCountyId = e.features[0].id;
-                    map.setFeatureState({
-                        source: 'nj-counties',
-                        id: selectedCountyId
-                    }, {
-                        selected: true
-                    });
-
-                    const countyName = e.features[0].properties.COUNTY;
-                    updateRightPanel(countyName);
-
-                    // Reset hover state if necessary
-                    if (hoveredCountyId !== null && hoveredCountyId !== selectedCountyId) {
-                        map.setFeatureState({
-                            source: 'nj-counties',
-                            id: hoveredCountyId
-                        }, {
-                            hover: false
-                        });
-                    }
-                    hoveredCountyId = null;
-                });
 
                 //Adds an even listener to listen to what county is being changed
                 document.getElementById('county-filter').addEventListener('change', function() {
@@ -806,7 +893,6 @@
                         updateRightPanel(selectedCounty);
                     }
                 });
-            });
 
             //Updates the information displayed on the right green box
             function updateRightPanel(countyName) {
@@ -878,6 +964,12 @@
                 dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
             }
 
+            //For Heating filter to show up
+            function toggleHeating() {
+                var dropdown = document.getElementById("heating-dropdown");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+
             // Close the dropdown when clicking outside
             document.addEventListener("click", function (event) {
                 var dropdown = document.getElementById("maps-dropdown");
@@ -896,7 +988,12 @@
             //When clicking tenure feature
             function toggleTenure() {
                 var dropdown = document.getElementById("tenure-dropdown");
-                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+                var legend = document.getElementById("tenure-legend");
+
+                const isVisible = dropdown.style.display === "block";
+                
+                dropdown.style.display = isVisible ? "none" : "block";
+                legend.style.display = isVisible ? "none" : "block"; // toggle legend visibility too
             }
 
             document.addEventListener("click", function (event) {
@@ -919,9 +1016,6 @@
                 if (dropdown) {
                     dropdown.classList.remove('visible');
                 }
-
-                // Reset map choropleth to white
-                map.setPaintProperty('county-tenure-choropleth', 'fill-color', '#FFFFFF');
             });
 
 
@@ -1024,82 +1118,53 @@
                     }
                 }
 
-                // Highlight the county on the map
-                if (county !== "all") {
-                    map.querySourceFeatures('nj-counties', {
-                        sourceLayer: 'county-fills'
-                    }).forEach((feature) => {
-                        if (feature.properties.COUNTY === county) {
-                            if (selectedCountyId !== null) {
-                                map.setFeatureState({
-                                    source: 'nj-counties',
-                                    id: selectedCountyId
-                                }, {
-                                    selected: false
-                                });
-                            }
-                            selectedCountyId = feature.id;
-                            map.setFeatureState({
-                                source: 'nj-counties',
-                                id: selectedCountyId
-                            }, {
-                                selected: true
-                            });
-                        }
-                    });
-                }
-
                 // Fetch data with all filters applied
                 fetch(`gettenure.php?${params.toString()}`)
                     .then(response => response.json())
                     .then(data => {
-                        let minVal = Infinity;
-                        let maxVal = -Infinity;
-
-                        // First, check if we have data
-                        if (data.length === 0) {
-                            console.warn("No data available for the selected filters.");
-                            map.setPaintProperty('county-tenure-choropleth', 'fill-color', '#FFFFFF');
-                            return;
-                        }
-
-                        // Process the data for choropleth
-                        data.forEach(row => {
-                            const county = row["County"];
-                            const totalUnits = row["Total"] || 0; // Use 0 if missing
-
-                            // Track min/max values for scaling
-                            if (totalUnits < minVal) minVal = totalUnits;
-                            if (totalUnits > maxVal) maxVal = totalUnits;
-
-                            // Set feature state for this county
-                            map.setFeatureState({
-                                source: 'nj-counties',
-                                id: county
-                            }, {
-                                total_units: totalUnits
+                        // Reset styles
+                        geojsonLayer.eachLayer(function(layer) {
+                            layer.setStyle({
+                                fillColor: 'transparent',
+                                fillOpacity: 0,
+                                color: '#627BC1',
+                                weight: 2
                             });
                         });
 
-                        // Prevent bad scaling if all values are the same
-                        if (minVal === maxVal) {
-                            map.setPaintProperty('county-tenure-choropleth', 'fill-color', '#74c476');
-                            return;
-                        }
+                        // Apply choropleth coloring based on tenure data
+                        // Dynamically select which tenure value to base the choropleth on
+                        data.forEach(row => {
+                            if (row.County === "New Jersey") return; //skip statewide row
+                            geojsonLayer.eachLayer(function(layer) {
+                                const mapCounty = layer.feature.properties.COUNTY.toLowerCase().trim();
+                                const matchedRow = data.find(row => 
+                                    row.County.toLowerCase().replace(' county', '').trim() === mapCounty
+                                );
 
-                        // Apply choropleth color scaling dynamically
-                        map.setPaintProperty('county-tenure-choropleth', 'fill-color', [
-                            'interpolate',
-                            ['linear'],
-                            ['coalesce', ['get', 'total_units'], 0], // Handle missing values
-                            minVal, '#f7fcf0',
-                            (minVal + maxVal) / 3, '#c7e9c0',
-                            (minVal + maxVal) * 2 / 3, '#74c476',
-                            maxVal, '#00441b'
-                        ]);
+                                if (matchedRow.County.toLowerCase() !== 'new jersey') {
+                                    const rawValue = tenureType === 'owner'
+                                        ? matchedRow["Owner occupied"]
+                                        : (tenureType === 'renter' ? matchedRow["Renter occupied"] : matchedRow["Total"]);
 
-                        console.log(`Updated choropleth for year: ${year}`);
+                                    const value = parseInt(rawValue.replace(/,/g, ''), 10); // remove commas and parse as int
+                                    
+                                    //Choropleth debugging purposes
+                                    console.log(`County: ${mapCounty}, Raw: ${rawValue}, Parsed: ${value}, Color: ${getColor(value)}`);
 
+                                    layer.setStyle({
+                                        fillColor: getColor(value || 0),
+                                        fillOpacity: 0.85,
+                                        color: '#00441b',
+                                        weight: 2
+                                    });
+                                    layer.options.originalFillOpacity = 0.85;
+                                } else {
+                                    //Choropleth Debugging purposes
+                                    console.warn(`NO MATCH: ${mapCounty} not found`);
+                                }
+                            });
+                        });
 
                         // Calls the green dropdown that we established earlier
                         let dropdown = document.querySelector('.green-dropdown');
@@ -1115,7 +1180,7 @@
                         const onlyTenureSelected = year === "All" && county === "all" && tenureType !== "all";
                         const countyAndTenureSelected = year === "All" && county !== "all" && tenureType !== "all";
                         const yearAndCountySelected = year !== "All" && county !== "all" && tenureType === "all";
-                        const yearAndTenureSelected = year !== "All" && county !== "all" && tenureType === "all";
+                        const yearAndTenureSelected = year !== "All" && county === "all" && tenureType !== "all";
                         const allFiltersSelected = year !== "All" && county !== "all" && tenureType !== "all";
 
                         // Build the table and display the data that was fetched
@@ -1164,13 +1229,14 @@
                                         <th>Owner Occupied</th>
                                         <th>Renter Occupied</th>
                                     </tr>`;
-                            } else if (onlyYearAndTenureSelected) {
+                            } else if (yearAndTenureSelected) {
                                 //Show Year, Counties, Owner Occupied, and Renter Occupied when Year + Tenure Type are selected
                                 content += `
                                     <tr>
                                         <th>Year</th>
                                         <th>County</th>
-                                        <th>${tenureType === "owner" ? row["Owner Occupied"] : row["Renter Occupied"]}</th>
+                                        <th>Total</th>
+                                        <th>${tenureType === "owner" ? "Owner Occupied": "Renter Occupied"}</th>
                                     </tr>`;
                             } else if (allFiltersSelected) {
                                 // Show Year, County, Total, and ONLY the selected tenure type (Owner or Renter Occupied)
@@ -1224,7 +1290,7 @@
                                             <td>${row["Owner occupied"]}</td>
                                             <td>${row["Renter occupied"]}</td>
                                         </tr>`;
-                                } else if (onlyYearAndTenureSelected) {
+                                } else if (yearAndTenureSelected) {
                                     content += `
                                         <tr>
                                             <td>${row["Year"]}</td>
@@ -1249,47 +1315,85 @@
 
                         dropdown.innerHTML = content;
                         dropdown.classList.add('visible');
-
-                        // Reset to white if no data found
-                        if (data.length === 0) {
-                            map.setPaintProperty('county-tenure-choropleth', 'fill-color', '#FFFFFF');
-                            return;
-                        }
-
-                        // Update map choropleth based on tenure data
-                        data.forEach(row => {
-                            const countyName = row["County"];
-                            const tenureValue = row["Owner occupied"] || row["Renter occupied"] || 0;
-
-                            map.setFeatureState({
-                                source: 'nj-counties',
-                                id: countyName
-                            }, {
-                                tenure_value: tenureValue
-                            });
-                        });
-
-                        // Apply new color scale
-                        map.setPaintProperty('county-tenure-choropleth', 'fill-color', [
-                            'interpolate',
-                            ['linear'],
-                            ['get', 'tenure_value'],
-                            0, '#f7fcf0',
-                            25, '#c7e9c0',
-                            50, '#74c476',
-                            75, '#238b45',
-                            100, '#00441b'
-                        ]);
-            
-                        // Display the content in the green dropdown
-                        dropdown.innerHTML = content;
-                        dropdown.classList.add('visible');
                     })
                     .catch(error => {
                         console.error("Error fetching data:", error);
                     });
             }
-        
+
+            // Function to toggle the Heating filter dropdown
+            function toggleHeating() {
+                var dropdown = document.getElementById("heating-dropdown");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+
+            // Function to update the right panel based on Heating filter selection
+            function updateHeatingRightPanel() {
+                const year = document.getElementById('heating-year-select').value;
+                const county = document.getElementById('heating-county').value;
+                const heatingType = document.getElementById('heating-type').value;
+
+                const heatingTypeNames = {
+                    "Bottled_LP_gas": "Bottled, Tank, or LP Gas",
+                    "Coal_or_coke": "Coal or Coke",
+                    "Electricity": "Electricity",
+                    "Fuel_oil_kerosene": "Fuel Oil, Kerosene, etc.",
+                    "No_fuel_used": "No Fuel Used",
+                    "Other_fuel": "Other Fuel",
+                    "Solar_energy": "Solar Energy",
+                    "Utility_gas": "Utility Gas",
+                    "Wood": "Wood"
+                };
+
+                let displayedHeatingType = heatingType !== "all" ? (heatingTypeNames[heatingType] || heatingType) : null;
+
+                const params = new URLSearchParams();
+                if (year !== "All") params.append("year", year);
+                if (county !== "all") params.append("county", county);
+                if (heatingType !== "all") params.append("heatingType", heatingType);
+
+                fetch(`getheating.php?${params.toString()}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let dropdown = document.querySelector('.green-dropdown');
+                        if (!dropdown) {
+                            dropdown = document.createElement('div');
+                            dropdown.className = 'green-dropdown';
+                            document.body.appendChild(dropdown);
+                        }
+
+                        let content = `<h2>${data[0]?.County || 'No County Selected'}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                        content += `<tr>
+                            <th>Year</th>
+                            <th>County</th>
+                            <th>Total Heating Units</th>
+                            ${displayedHeatingType ? `<th>${displayedHeatingType}</th>` : ""}
+                        </tr>`;
+
+                        if (data.length) {
+                            data.forEach(row => {
+                                content += `
+                                    <tr>
+                                        <td>${row["Year"]}</td>
+                                        <td>${row["County"]}</td>
+                                        <td>${row["Total"]}</td>
+                                        ${displayedHeatingType ? `<td>${row[heatingType]}</td>` : ""}
+                                    </tr>`;
+                            });
+                        } else {
+                            content += `<tr><td colspan="${displayedHeatingType ? 4 : 3}">No data found.</td></tr>`;
+                        }
+
+                        content += `</table>`;
+
+                        dropdown.innerHTML = content;
+                        dropdown.classList.add('visible');
+                    })
+
+                    .catch(error => {
+                        console.error("Error fetching data:", error);
+                    });
+            }
         </script>
 
 </body>
