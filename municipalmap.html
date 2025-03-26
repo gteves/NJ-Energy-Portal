@@ -583,7 +583,7 @@
                 <!-- Add button to turn on overburdened communities-->
                 <button id="toggleOBC"
                     style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
-                    Show Overburdened Communities</button>
+                    Toggle Overburdened Communities</button>
 
                 <!-- Creates a space between filters-->
                 <div style="margin: 10px 0;"></div>
@@ -682,18 +682,18 @@
             <div class="tips-content">
                 <h3>Tips to Lower Energy Burden</h3>
                 <ul>
-                    <li><strong>Your energy burden is X%, which is higher than the state average of 2-3%.</strong>
+                    <li id="energy-burden-message">
+                        <strong>Your energy burden is X%, which is higher than the state average of 2-3%.</strong>
                         Have you looked into programs like the <strong>Low-Income Home Energy Assistance Program
-                            (LIHEAP)</strong>? It can help with your energy costs and even pay for home weatherization
-                        to
-                        reduce future bills.</li>
+                            (LIHEAP)</strong>?
+                        It can help with your energy costs and even pay for home weatherization to reduce future bills.
+                    </li>
                     <li><strong>Did you know reducing your energy burden doesn’t always mean big changes?</strong>
                         Small actions like sealing air leaks around windows and doors or adding insulation can make your
                         home more energy-efficient, keeping heating and cooling costs down.</li>
                     <li><strong>Have you considered joining a community solar program?</strong>
                         This allows you to subscribe to a shared solar energy source without the cost of installing
-                        panels.
-                        It’s a great way to reduce your electricity bills and your carbon footprint.</li>
+                        panels. It’s a great way to reduce your electricity bills and your carbon footprint.</li>
                     <li><strong>The energy burden in your area is above average, but there are tools to help.</strong>
                         The <strong>Comfort Partners Program</strong> provides free energy-saving upgrades for eligible
                         households, helping reduce energy use and costs over the long term.</li>
@@ -1194,8 +1194,8 @@
                 // Check if the input is valid
                 if (isNaN(income) || income <= 0 || isNaN(energyOutput) || energyOutput < 0) {
                     document.getElementById('calculator-result').innerHTML = `
-                            <p style="color:red;">Please enter valid income and utility expense values.</p>
-                        `;
+            <p style="color:red;">Please enter valid income and utility expense values.</p>
+        `;
                     return;
                 }
 
@@ -1207,16 +1207,16 @@
                 let statusMessage;
                 let tipsLink = '';
 
-                if (energyBurden > 6) {
-                    // Overburden (greater than 6%)
+                if (energyBurden > 3) {
+                    // Overburden (greater than 3%)
                     statusTitle = `<p style="color:red;"><strong>Overburdened</strong></p>`;
-                    statusMessage = `<p>Your energy burden is ${energyBurden.toFixed(2)}%, which is above the threshold of 6%.</p>`;
+                    statusMessage = `<p>Your energy burden is ${energyBurden.toFixed(2)}%, which is above the threshold of 3%.</p>`;
                     // Show the tips link
                     tipsLink = `<p style="cursor: pointer; color: #04A264;" onclick="showTips()"><< Tips for Lowering Energy Burden</p>`;
                 } else {
-                    // Below 6% (not overburdened)
+                    // Below 3% (not overburdened)
                     statusTitle = `<p style="color:green;"><strong>Below Threshold</strong></p>`;
-                    statusMessage = `<p>Your energy burden is ${energyBurden.toFixed(2)}%, which is below the 6% threshold.</p>`;
+                    statusMessage = `<p>Your energy burden is ${energyBurden.toFixed(2)}%, which is below the 3% threshold.</p>`;
                 }
 
                 // Display the energy burden result
@@ -1227,8 +1227,14 @@
                     ${statusMessage}
                     <div style="margin-top: 15px;"></div>
                     ${tipsLink}
-                `;
+                    `;
+
+                // Update the energy burden message in the list item
+                document.getElementById('energy-burden-message').innerHTML = `
+                    <strong>Your energy burden is ${energyBurden.toFixed(2)}%, which is higher than the state average of 2-3%.</strong>
+                    `;
             });
+
 
             // JavaScript functions to handle the tips box
             function showTips() {
@@ -1378,7 +1384,7 @@
                                         <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
                                     </tr>`;
                     } else if (countyAndFuelTypeSelected) {
-                        //show all years, county, total, and selected utilty 
+                        //show all years, county, total, and selected utility 
                         content += `
                                     <tr>
                                         <th>Year</th>
@@ -1396,7 +1402,7 @@
                                         <th>Electricity</th>
                                         <th>Natural Gas</th>
                                     </tr>`;
-                    } else if (onlyYearAndUtilitySelected) {
+                    } else if (yearAndFuelTypeSelected) {
                         //show year, county, total, and selected utility
                         content += `
                                     <tr>
@@ -1456,7 +1462,7 @@
                                             <td>${row["Electricity"]}</td>
                                             <td>${row["Natural Gas"]}</td>
                                         </tr>`;
-                            } else if (onlyYearAndUtilitySelected) {
+                            } else if (yearAndFuelTypeSelected) {
                                 content += `
                                         <tr>
                                             <td>${row["Year"]}</td>
