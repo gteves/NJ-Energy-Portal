@@ -1,31 +1,25 @@
 <?php
-
-error_log("PHP error logging is working.");
-
 // Open the SQLite database
 $db = new PDO('sqlite:Energy.sqlite3');
 
-// Filter the data
+// Filters
+$year = 'all';
 $county = 'all';
 $municipality = 'all';
-$year = 'all';
 $residentialElectricity = 'all';
 $residentialNaturalGas = 'all';
 $limit = 'all';
 
-error_log("Searching for municipality: " . $municipality);
-error_log("SQL Query Params: " . json_encode($params));
+if (isset($_GET['year'])) { 
+    $year = $_GET['year'];
+}
 
 if (isset($_GET['county'])) {
     $county = $_GET['county'];
 }
 
-if (isset($_GET['Municipality'])) {
-    $municipality = $_GET['Municipality'];
-}
-
-if (isset($_GET['year'])) {
-    $year = $_GET['year'];
+if (isset($_GET['municipality'])) {
+    $municipality = $_GET['municipality'];
 }
 
 if (isset($_GET['residentialElectricity'])) {
@@ -40,18 +34,23 @@ if (isset($_GET['limit'])) {
     $limit = $_GET['limit'];
 }
 
-//Build Query
-$query = 'SELECT * FROM "Municipal_Level_Utility_Data"';
+// Build query
+$query = 'SELECT "Municipality", "County", "Year", "Residential Electricity", "Natural Gas Utility", "Residential Natural Gas" FROM "Municipal Level Utility Data - Municipal Level Utility Data"';
 $conditions = [];
 $params = [];
 
+if ($year !== 'all') { 
+    $conditions[] = '"Year" = :year';
+    $params[':year'] = $year;
+}
+
 if ($county !== 'all') {
-    $conditions[] = 'UPPER("County") = UPPER(:county)';
+    $conditions[] = 'LOWER("County") = LOWER(:county)';
     $params[':county'] = $county;
 }
 
 if ($municipality !== 'all') {
-    $conditions[] = 'UPPER("Municipality") = UPPER(:municipality)';
+    $conditions[] = 'LOWER("Municipality") = LOWER(:municipality)';
     $params[':municipality'] = $municipality;
 }
 
@@ -65,7 +64,6 @@ if ($residentialNaturalGas !== 'all') {
     $params[':residentialNaturalGas'] = $residentialNaturalGas;
 }
 
-// Make the final query
 if (!empty($conditions)) {
     $query .= ' WHERE ' . implode(' AND ', $conditions);
 }
@@ -75,17 +73,23 @@ if ($limit !== 'all') {
     $params[':limit'] = $limit;
 }
 
-// Prepare the statement
+// Prepare and execute
 $statement = $db->prepare($query);
 
-// Execute the statement
-$statement->execute($params);
+// If limit is used, bind as integer
+if ($limit !== 'all') {
+    $statement->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    unset($params[':limit']);
+}
 
-// // Fetch all rows as an associative array
+// Bind all other parameters
+foreach ($params as $key => $value) {
+    $statement->bindValue($key, $value);
+}
+
+$statement->execute();
+
+// Return JSON
 $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
-
 echo json_encode($rows);
-
-
-
 ?>
