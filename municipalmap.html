@@ -790,14 +790,19 @@
                     }
                 });
 
-                map.addLayer({
-                    'id': 'municipal-utility-choropleth',
-                    'type': 'fill',
-                    'source': 'nj-municipalities',
-                    'paint': {
-                        'fill-color': '#FFFFFF',  // Set default fill color
-                        'fill-opacity': 0,
-                        'fill-outline-color': '#FFFFFF' // Corrected property for polygon borders
+
+                map.on('load', function() {
+                    if (!map.getLayer('municipal-utility-choropleth')) {
+                        map.addLayer({
+                            'id': 'municipal-utility-choropleth',
+                            'type': 'fill',
+                            'source': 'nj-municipalities',
+                            'paint': {
+                                'fill-color': '#888888',
+                                'fill-opacity': 0.4
+                            }
+                        });
+                        console.log('Layer added: municipal-utility-choropleth');
                     }
                 });
 
@@ -812,75 +817,6 @@
                         'line-width': .5
                     }
                 });
-
-                //hover 
-                //map.on('mousemove', 'municipal-fills', (e) => {
-                //    if (e.features.length > 0) {
-                //        if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
-                //            map.setFeatureState({
-                //                source: 'nj-municipalities',
-                //                id: hoveredMunicipalId
-                //            }, {
-                //                hover: false
-                //            });
-                //        }
-                //        hoveredMunicipalId = e.features[0].id;
-                //        if (hoveredMunicipalId !== selectedMunicipalId) {
-                //            map.setFeatureState({
-                //                source: 'nj-municipalities',
-                //                id: hoveredMunicipalId
-                //            }, {
-                //                hover: true
-                //            });
-                //        }
-                //    }
-                //});
-
-                //hover reset
-                //map.on('mouseleave', 'municipal-fills', () => {
-                //    if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
-                //        map.setFeatureState({
-                //            source: 'nj-municipalities',
-                //            id: hoveredMunicipalId
-                //        }, {
-                //            hover: false
-                //        });
-                //    }
-                //    hoveredMunicipalId = null;
-                //});
-
-                //new highlight
-                //map.on('click', 'municipal-fills', (e) => {
-                //    if (selectedMunicipalId !== null) {
-                //        map.setFeatureState({
-                //            source: 'nj-municipalities',
-                //            id: selectedMunicipalId
-                //        }, {
-                //            selected: false
-                //        });
-                //    }
-                //    selectedMunicipalId = e.features[0].id;
-                //    map.setFeatureState({
-                //        source: 'nj-municipalities',
-                //        id: selectedMunicipalId
-                //    }, {
-                //        selected: true
-                //    });
-
-                //  const countyName = e.features[0].properties.COUNTY;
-                //  updateRightPanel(countyName);
-
-                //reset hover
-                // if (hoveredMunicipalId !== null && hoveredMunicipalId !== selectedMunicipalId) {
-                //    map.setFeatureState({
-                //        source: 'nj-municipalities',
-                //        id: hoveredMunicipalId
-                //    }, {
-                //        hover: false
-                //    });
-                // }
-                // hoveredMunicipalId = null;
-                // });
             });
 
             //zoom function
@@ -1086,56 +1022,6 @@
 
 
 
-            //updates the information displayed on the right green box 
-            function updateRightPanel(countyName) {
-                //fetch data for the selected county
-                fetch(`getdata_all.php?county=${countyName}`)
-                    .then(response => response.json())
-                    .then(data => {
-
-                        console.log("Fetched Data: ", data);
-                        //calls the green dropdown that we established earlier
-                        let dropdown = document.querySelector('.green-dropdown');
-                        if (!dropdown) {
-                            dropdown = document.createElement('div');
-                            dropdown.className = 'green-dropdown';
-                            document.body.appendChild(dropdown);
-                        }
-
-                        //build the table and display the data that was fetched
-                        let content = `<h2>${countyName}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
-                        content += `
-                            <tr>
-                                <th>Municipality</th>
-                                <th>County</th>
-                                <th>Residential Electricity</th>
-                                <th>Residential Natural Gas</th>
-                            </tr>`;
-                        if (data.length) {
-                            data.forEach(row => {
-                                content += `
-                                <tr>
-                                    <td>${row["Municipality"]}</td>
-                                    <td>${row["County"]}</td>
-                                    <td>${row["Residential Electricity"]} kWh</td>
-                                    <td>${row["Residential Natural Gas"]} Therms</td>
-                                </tr>`;
-                            });
-                        } else {
-                            content += `<tr><td colspan="2">No data available for this county.</td></tr>`;
-                        }
-                        content += `</table>`;
-
-                        //display the content in the green dropdown
-                        dropdown.innerHTML = content;
-                        dropdown.classList.add('visible');
-                    })
-
-                    //for error handling when data isn't being fetched
-                    .catch(error => {
-                        console.error("Error fetching data:", error);
-                    });
-            }
 
             //calculator pop up function
             function toggleCalculator() {
@@ -1252,6 +1138,7 @@
                 popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
             }
 
+
             function updateUtilityRightPanel() {
                 const year = document.getElementById('year-select').value;
                 const county = document.getElementById('utility-county-filter').value;
@@ -1284,8 +1171,11 @@
                                 <th>Year</th>
                                 ${fuelType === "electricity" ? "<th>Residential Electricity</th>" : ""}
                                 ${fuelType === "naturalGas" ? "<th>Residential Natural Gas</th>" : ""}
-                                ${fuelType === "all" ? "<th>Residential Electricity</th><th>Residential Natural Gas</th><th>Total</th>" : ""}
+                                ${fuelType === "all" ? "<th>Residential Electricity</th><th>Residential Natural Gas</th>" : ""}
                             </tr>`;
+
+                        let minVal = Infinity; //added
+                        let maxVal = -Infinity;
 
                         if (data.length) {
                             data.forEach(row => {
@@ -1298,9 +1188,20 @@
                                         ${fuelType === "naturalGas" ? `<td>${row["Residential Natural Gas"] || '-'}</td>` : ""}
                                         ${fuelType === "all" ? `
                                             <td>${row["Residential Electricity"] || '-'}</td>
-                                            <td>${row["Residential Natural Gas"] || '-'}</td>
-                                            <td>${row["Total"] || '-'}</td>` : ""}
+                                            <td>${row["Residential Natural Gas"] || '-'}</td>` : ""}
                                     </tr>`;
+                                //added
+                                const utilityValue = fuelType === "electricity" ? row["Residential Electricity"] : row["Residential Natural Gas"];
+
+                                if (utilityValue < minVal) minVal = utilityValue;
+                                if (utilityValue > maxVal) maxVal = utilityValue;
+
+                                map.setFeatureState({
+                                    source: 'nj-municipalities',
+                                    id: row["Municipality"]
+                                }, {
+                                    utilityValue: utilityValue
+                                });
                             });
                         } else {
                             content += `<tr><td colspan="6">No data found for selected filters.</td></tr>`;
@@ -1309,289 +1210,28 @@
                         content += `</table>`;
                         dropdown.innerHTML = content;
                         dropdown.classList.add('visible');
+
+                        
+
+                        if (minVal === maxVal) {
+                            map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#74c476');
+                            return;
+                        }
+
+                        map.setPaintProperty('municipal-utility-choropleth', 'fill-color', [
+                            'interpolate',
+                            ['linear'],
+                            ['coalesce', ['get', 'utilityValue'], 0], // Handle missing values
+                            minVal, '#f7fcf0',
+                            (minVal + maxVal) / 3, '#c7e9c0',
+                            (minVal + maxVal) * 2 / 3, '#74c476',
+                            maxVal, '#00441b'
+                        ]);
                     })
                     .catch(error => {
                         console.error("Error fetching utility data:", error);
                     });
             }
-
-
-
-            /*
-            //utility
-            function updateUtilityRightPanel() {
-                const year = document.getElementById('year-select').value;
-                const county = document.getElementById('utility-county-filter').value;
-                const fuelType = document.getElementById('fuel-type-select').value;
-                console.log(fuelType);
-
-                const params = new URLSearchParams();
-                if (year !== "all") params.append("year", year);
-                if (county !== "all") params.append("county", county);
-                if (fuelType !== "all") {
-                    if (fuelType === "electricity") {
-                        params.append("electricity", 1);
-                    } else if (fuelType === "naturalGas") {
-                        params.append("naturalGas", 1);
-                    }
-                }
-
-            }
-
-            //highlight the county on the map
-            if (county !== "all") {
-                map.querySourceFeatures('nj-counties', {
-                    sourceLayer: 'county-fills'
-                }).forEach((feature) => {
-                    if (feature.properties.COUNTY === county) {
-                        if (selectedCountyId !== null) {
-                            map.setFeatureState({
-                                source: 'nj-counties',
-                                id: selectedCountyId
-                            }, {
-                                selected: false
-                            });
-                        }
-                        selectedCountyId = feature.id;
-                        map.setFeatureState({
-                            source: 'nj-counties',
-                            id: selectedCountyId
-                        }, {
-                            selected: true
-                        });
-                    }
-                });
-            }
-
-            //get data 
-            fetch(`getdata_all.php?${params.toString()}`)
-                .then(response => response.json())
-                .then(data => {
-                    let minVal = Infinity;
-                    let maxVal = -Infinity;
-
-                    //check for data
-                    if (data.length === 0) {
-                        console.warn("No data found for the selected filters.");
-                        map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#FFFFFF');
-                        return;
-                    }
-
-
-                    data.forEach(row => {
-                        const municipality = row["Municipality"];
-                        const utilityValue = fuelType === "electricity" ? row["residentialElectricity"] : row["residentialNaturalGas"];
-
-                        if (utilityValue < minVal) minVal = utilityValue;
-                        if (utilityValue > maxVal) maxVal = utilityValue;
-
-                        map.setFeatureState({
-                            source: 'nj-municipalities',
-                            id: municipality
-                        }, {
-                            utilityValue: utilityValue
-                        });
-                    });
-
-
-                    if (minVal === maxVal) {
-                        map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#74c476');
-                        return;
-                    }
-
-                    //color scaling
-                    map.setPaintProperty('municipal-utility-choropleth', 'fill-color', [
-                        'interpolate',
-                        ['linear'],
-                        ['coalesce', ['get', 'utilityValue'], 0], // Handle missing values
-                        minVal, '#f7fcf0',
-                        (minVal + maxVal) / 3, '#c7e9c0',
-                        (minVal + maxVal) * 2 / 3, '#74c476',
-                        maxVal, '#00441b'
-                    ]);
-
-                    console.log(`Updated choropleth for year: ${year} and fuel type: ${fuelType}`);
-
-                    //right dropdown
-                    let dropdown = document.querySelector('.green-dropdown');
-                    if (!dropdown) {
-                        dropdown = document.createElement('div');
-                        dropdown.className = 'green-dropdown';
-                        document.body.appendChild(dropdown);
-                    }
-
-                    //determine filtering conditions
-                    const onlyYearSelected = year !== "all" && county === "all" && fuelType === "all";
-                    const onlyCountySelected = year === "all" && county !== "all" && fuelType === "all";
-                    const onlyFuelTypeSelected = year === "all" && county === "all" && fuelType !== "all";
-                    const yearAndCountySelected = year !== "all" && county !== "all" && fuelType === "all";
-                    const yearAndFuelTypeSelected = year !== "all" && county === "all" && fuelType !== "all";
-                    const countyAndFuelTypeSelected = year === "all" && county !== "all" && fuelType !== "all";
-                    const allFiltersSelected = year !== "all" && county !== "all" && fuelType !== "all";
-
-                    //build the table and display the data that was fetched
-                    let content = `<h2>${data[0]?.County || 'No County Selcted'}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
-                    if (onlyYearSelected) {
-                        //show only year, county and total when year is selected
-                        content += `
-                                    <tr>
-                                        <th>Year</th>
-                                        <th>County</th>
-                                        <th>Total</th>
-                                    </tr>`;
-                    } else if (onlyCountySelected) {
-                        //show every year and total for the selected county
-                        content +=
-                            `<tr>
-                                        <th>Year</th>
-                                        <th>County</th>
-                                        <th>Total</th>
-                                        <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
-                                    </tr>`;
-                    } else if (countyAndFuelTypeSelected) {
-                        //show all years, county, total, and selected utility 
-                        content += `
-                                    <tr>
-                                        <th>Year</th>
-                                        <th>County</th>
-                                        <th>Total</th>
-                                        <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
-                                    </tr>`;
-                    } else if (yearAndCountySelected) {
-                        //show year, county, total, and selected utility
-                        content += `
-                                    <tr>
-                                        <th>Year</th>
-                                        <th>County</th>
-                                        <th>Total</th>
-                                        <th>Electricity</th>
-                                        <th>Natural Gas</th>
-                                    </tr>`;
-                    } else if (yearAndFuelTypeSelected) {
-                        //show year, county, total, and selected utility
-                        content += `
-                                    <tr>
-                                        <th>Year</th>
-                                        <th>County</th>
-                                        <th>Total</th>
-                                        <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
-                                    </tr>`;
-                    } else if (allFiltersSelected) {
-                        //show year, county, total and only the selected utility type
-                        content += `
-                                    <tr>
-                                        <th>Year</th>
-                                        <th>County</th>
-                                        <th>Total</th>
-                                        <th>${fuelType === "electricity" ? "Electricity" : "Natural Gas"}</th>
-                                    </tr>`;
-                    }
-                    if (data.length) {
-                        data.forEach(row => {
-                            if (onlyYearSelected) {
-                                content += `
-                                        <tr>
-                                            <td>${row["Year"]}</td>
-                                            <td>${row["County"]}</td>
-                                            <td>${row["Total"]}</td>
-                                        </tr>`;
-                            } else if (onlyCountySelected) {
-                                content += `
-                                        <tr>
-                                            <td>${row["Year"]}</td>
-                                            <td>${row["County"]}</td>
-                                            <td>${row["Total"]}</td>
-                                        </tr>`;
-                            } else if (onlyFuelTypeSelected) {
-                                content += `
-                                        <tr>
-                                            <td>${row["Year"]}</td>
-                                            <td>${row["County"]}</td>
-                                            <td>${row["Total"]}</td>
-                                            <td>${fuelType === "electricity" ? row["Electricity"] : row["Natural Gas"]}</td>
-                                        </tr>`;
-                            } else if (countyAndFuelTypeSelected) {
-                                content += `
-                                        <tr>
-                                            <td>${row["Year"]}</td>
-                                            <td>${row["County"]}</td>
-                                            <td>${row["Total"]}</td>
-                                            <td>${fuelType === "electricity" ? row["Electricity"] : row["Natural Gas"]}</td>
-                                        </tr>`;
-                            } else if (yearAndCountySelected) {
-                                content += `
-                                        <tr>
-                                            <td>${row["Year"]}</td>
-                                            <td>${row["County"]}</td>
-                                            <td>${row["Total"]}</td>
-                                            <td>${row["Electricity"]}</td>
-                                            <td>${row["Natural Gas"]}</td>
-                                        </tr>`;
-                            } else if (yearAndFuelTypeSelected) {
-                                content += `
-                                        <tr>
-                                            <td>${row["Year"]}</td>
-                                            <td>${row["County"]}</td>
-                                            <td>${row["Total"]}</td>
-                                            <td>${fuelType === "electricity" ? row["Electricity"] : row["Natural Gas"]}</td>
-                                        </tr>`;
-                            } else if (allFiltersSelected) {
-                                content += `
-                                        <tr>
-                                            <td>${row["Year"]}</td>
-                                            <td>${row["County"]}</td>
-                                            <td>${row["Total"]}</td>
-                                            <td>${fuelType === "electricity" ? row["Electricity"] : row["Natural Gas"]}</td>
-                                        </tr>`;
-                            }
-                        });
-                    } else {
-                        content += `<tr><td colspan="5">No data available for the selected filters.</td></tr>`;
-                    }
-                    content += `</table>`;
-
-                    dropdown.innerHTML = content;
-                    dropdown.classList.add('visible');
-
-                    //reset if no data found
-                    if (data.length === 0) {
-                        map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#FFFFFF');
-                        return;
-                    }
-
-                    //update map choropleth with utility data
-                    data.forEach(row => {
-                        const municipality = row["Municipality"];
-                        const utilityValue = row["Electricity"] || row["Natural Gas"] || 0;
-
-                        map.setFeatureState({
-                            source: 'nj-municipalities',
-                            id: municipality
-                        }, {
-                            utilityValue: utilityValue
-                        });
-                    });
-
-                    //new color scale
-                    map.setPaintProperty('municipal-utility-choropleth', 'fill-color', [
-                        'interpolate',
-                        ['linear'],
-                        ['get', 'utilityValue'],
-                        0, '#f7fcf0',
-                        25, '#c7e9c0',
-                        50, '#74c476',
-                        75, '#238b45',
-                        100, '#00441b'
-                    ]);
-
-                    //display the content in the green dropdown
-                    dropdown.innerHTML = content;
-                    dropdown.classList.add('visible');
-                })
-                .catch(error => {
-                    console.error("Error fetching utility data:", error);
-                });
-                */
 
         </script>
 </body>
