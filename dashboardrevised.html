@@ -113,7 +113,7 @@
             top: 80px; /* Adjust position from top*/
             left: 79%;
             transform: translateX(-50%);
-            background-color: #04A264;
+            background-color: rgba(4, 162, 100, 0.85);
             color: white;
             padding: 20px;
             border-radius: 8px;
@@ -123,6 +123,8 @@
             text-align: center;
             z-index: 1001;
             overflow-y: auto;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
         }
 
         /* Optional: Style the scrollbar */
@@ -174,6 +176,13 @@
             float: left;
             margin-right: 8px;
             opacity: 0.85;
+        }
+
+        .info.legend h4 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
         }
 
         .leaflet-bottom.leaflet-left .info.legend {
@@ -578,7 +587,7 @@
         
             <label for="tenure-county-filter">Select County:</label><br>
             <select id="tenure-county-filter" onchange="updateTenureRightPanel()">
-                <option value="all">Select a County</option>
+                <option value="all">All</option>
                 <option value="Atlantic County">Atlantic</option>
                 <option value="Bergen County">Bergen</option>
                 <option value="Burlington County">Burlington</option>
@@ -600,8 +609,13 @@
                 <option value="Sussex County">Sussex</option>
                 <option value="Union County">Union</option>
                 <option value="Warren County">Warren</option>
-            </select>
+            </select>        
             <br>
+
+            <small style="color: white; font-size: 12px;">
+                Tip: Set to "All" to view all counties on the map.
+            </small>
+            <br>    
         
             <label for="tenure-filter">Select Tenure Type:</label><br>
             <select id="tenure-filter"onchange="updateTenureRightPanel()">
@@ -808,7 +822,7 @@
                                 '#FFEDA0'; // Pale Yellow
             }
 
-            const map = L.map('map').setView([39.90, -74.40], 7);
+            const map = L.map('map').setView([39.90, -74.40], 8);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -828,14 +842,16 @@
                             fillOpacity: 0
                         },
                         onEachFeature: function (feature, layer) {
-                            // Tooltip for the county name
+                            // Shows county name when hovering
                             layer.bindTooltip(feature.properties.COUNTY, {
                                 permanent: false,
                                 direction: 'top',
                                 offset: [0, -10],
                                 opacity: 0.9,
-                                className: 'county-tooltip'
+                                className: 'county-tooltip',
+                                interactive: false
                             });
+                            
 
                             // Hover behavior
                             layer.on({
@@ -856,10 +872,6 @@
                                     layer.closeTooltip();
                                 }
                             });
-                           //layer.on('click', () => {
-                           //     const countyName = feature.properties.COUNTY;
-                           //     updateRightPanel(countyName);
-                           // });
                         }
                     }).addTo(map);
 
@@ -869,12 +881,26 @@
                         const div = L.DomUtil.create('div', 'info legend');
                         div.id = 'tenure-legend';  // <-- unique ID for toggling
                         div.style.display = 'none'; // hidden by default
+                        div.innerHTML += `
+                            <h4 id="legend-label" style="margin-bottom: 6px;">Occupied Housing Units</h4>
+                            <small id="legend-subtext" style="font-size: 12px; color: #555;">
+                                Number of households per county
+                            </small>
+                            <br>
+                        `;
 
                         const grades = [0, 25000, 40000, 75000, 125000, 200000, 300000];
+
+                        //Styling of the legend found on the bottom left
                         for (let i = 0; i < grades.length; i++) {
-                            div.innerHTML +=
-                                '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-                                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                            div.innerHTML += `
+                                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                    <div style="width: 16px; height: 16px; background:${getColor(grades[i] + 1)}; margin-right: 8px;"></div>
+                                    <span style="font-size: 12px;">
+                                        ${grades[i].toLocaleString()}${grades[i + 1] ? ' – ' + grades[i + 1].toLocaleString() : '+'}
+                                    </span>
+                                </div>
+                            `;
                         }
                         return div;
                     };
@@ -1016,8 +1042,22 @@
                 if (dropdown) {
                     dropdown.classList.remove('visible');
                 }
-            });
 
+                // Reset map zoom
+                map.flyTo([39.90, -74.40], 8.2, {
+                    duration: 1.5
+                });
+
+                // Reset choropleth coloring
+                geojsonLayer.eachLayer(function(layer) {
+                    layer.setStyle({
+                        fillColor: 'transparent',
+                        fillOpacity: 0,
+                        color: '#627BC1',
+                        weight: 2
+                    });
+                });
+            });
 
 
             //Adds an even listener for the calculator for when user inputs a zip code
@@ -1104,6 +1144,45 @@
                 const year = document.getElementById('year-select').value;
                 const county = document.getElementById('tenure-county-filter').value;
                 const tenureType = document.getElementById('tenure-filter').value;
+                const legendLabel = document.getElementById('legend-label');
+                const legendSubtext = document.getElementById('legend-subtext');
+
+                if (legendLabel) {
+                    if (tenureType === "owner") {
+                        legendLabel.innerText = "Owner-Occupied Units (Households)";
+                    } else if (tenureType === "renter") {
+                        legendLabel.innerText = "Renter-Occupied Units (Households)";
+                    } else {
+                        legendLabel.innerText = "Total Occupied Housing Units";
+                    }
+                }
+
+                if (legendSubtext) {
+                    legendSubtext.innerText = "Number of households per county";
+                }
+
+                // If all filters are set to "All", clear the map and exit
+                if (year === "All" && county === "all" && tenureType === "all") {
+                    // Reset choropleth styles
+                    geojsonLayer.eachLayer(function(layer) {
+                        layer.setStyle({
+                            fillColor: 'transparent',
+                            fillOpacity: 0,
+                            color: '#627BC1',
+                            weight: 2
+                        });
+                    });
+
+                    // Hide the green info panel
+                    const dropdown = document.querySelector('.green-dropdown');
+                    if (dropdown) dropdown.classList.remove('visible');
+
+                    // Zoom out to default view
+                    map.setView([39.90, -74.40], 8.2); 
+
+                    return; // stops here
+                }
+
                 console.log(tenureType);
 
                 // Build query parameters dynamically
@@ -1138,18 +1217,18 @@
                             if (row.County === "New Jersey") return; //skip statewide row
                             geojsonLayer.eachLayer(function(layer) {
                                 const mapCounty = layer.feature.properties.COUNTY.toLowerCase().trim();
-                                const matchedRow = data.find(row => 
+
+                                const matchedRow = data.find(row =>
                                     row.County.toLowerCase().replace(' county', '').trim() === mapCounty
                                 );
 
-                                if (matchedRow.County.toLowerCase() !== 'new jersey') {
+                                if (matchedRow && matchedRow.County.toLowerCase() !== 'new jersey') {
                                     const rawValue = tenureType === 'owner'
                                         ? matchedRow["Owner occupied"]
                                         : (tenureType === 'renter' ? matchedRow["Renter occupied"] : matchedRow["Total"]);
 
-                                    const value = parseInt(rawValue.replace(/,/g, ''), 10); // remove commas and parse as int
-                                    
-                                    //Choropleth debugging purposes
+                                    const value = parseInt(rawValue.replace(/,/g, ''), 10);
+
                                     console.log(`County: ${mapCounty}, Raw: ${rawValue}, Parsed: ${value}, Color: ${getColor(value)}`);
 
                                     layer.setStyle({
@@ -1159,11 +1238,38 @@
                                         weight: 2
                                     });
                                     layer.options.originalFillOpacity = 0.85;
-                                } else {
-                                    //Choropleth Debugging purposes
-                                    console.warn(`NO MATCH: ${mapCounty} not found`);
                                 }
                             });
+
+                            // Zoom to selected county if one is chosen with animations
+                            if (county !== "all") {
+                                const selectedCounty = county.toLowerCase().replace(' county', '').trim();
+
+                                geojsonLayer.eachLayer(function(layer) {
+                                    const mapCounty = layer.feature.properties.COUNTY.toLowerCase().trim();
+                                    if (mapCounty === selectedCounty) {
+                                        const center = layer.getBounds().getCenter();
+                                        const targetZoom = 10;
+
+                                        // Only zoom in if current zoom is too far out
+                                        if (map.getZoom() < targetZoom) {
+                                            map.flyTo(center, targetZoom, {
+                                                duration: 1.5
+                                            });
+                                        } else {
+                                            // If already zoomed in, just pan to it
+                                            map.panTo(center);
+                                        }
+                                    }
+                                });
+                            }
+
+                            //Zooms out to see state wide view again
+                            if (county === "all") {
+                                map.flyTo([39.90, -74.40], 8.2, {
+                                    duration: 1.5
+                                });
+                            }
                         });
 
                         // Calls the green dropdown that we established earlier
