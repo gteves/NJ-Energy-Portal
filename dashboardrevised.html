@@ -657,7 +657,7 @@
 
             <label for="heating-county">Select County:</label>
             <select id="heating-county" onchange="updateHeatingRightPanel()">
-                <option value="all">Select a County</option>
+                <option value="all">All</option>
                 <option value="Atlantic County">Atlantic</option>
                 <option value="Bergen County">Bergen</option>
                 <option value="Burlington County">Burlington</option>
@@ -813,6 +813,7 @@
 <!----------------------------------------------------JavaScript Section------------------------------------->
         <!-- Leaflet JavaScript -->
         <script>
+            //Color Scale for Tenure Filter
             function getColor(d) {
                 return d > 300000 ? '#800026' : // Dark red
                     d > 200000 ? '#BD0026' : // Red
@@ -821,6 +822,18 @@
                     d > 40000 ? '#FEB24C' : // Light Orange
                                 '#FFEDA0'; // Pale Yellow
             }
+
+            // Color Scale for Heating Filter
+            function getHeatingColor(d) {
+                return d > 250000 ? '#800026' :  // Very high usage
+                    d > 100000 ? '#BD0026' :
+                    d > 50000  ? '#E31A1C' :
+                    d > 20000  ? '#FD8D3C' :
+                    d > 10000  ? '#FEB24C' :
+                    d > 1000   ? '#FFEDA0' :
+                                    '#f7f7f7';  // Very low or zero
+            }
+
 
             const map = L.map('map').setView([39.90, -74.40], 8);
 
@@ -875,6 +888,7 @@
                         }
                     }).addTo(map);
 
+                    //tenure legend
                     const legend = L.control({ position: 'bottomleft' });
 
                     legend.onAdd = function (map) {
@@ -906,6 +920,39 @@
                     };
 
                     legend.addTo(map);
+
+                    //heating legend
+                    const heatingLegend = L.control({ position: 'bottomleft' });
+
+                    heatingLegend.onAdd = function (map) {
+                        const div = L.DomUtil.create('div', 'info legend');
+                        div.id = 'heating-legend';
+                        div.style.display = 'none'; // hidden by default
+                        div.innerHTML += `
+                            <h4 style="margin-bottom: 6px;">Heating Units</h4>
+                            <small style="font-size: 12px; color: #555;">
+                                Number of households using selected heating type
+                            </small>
+                            <br>
+                        `;
+
+                        const grades = [0, 1000, 10000, 20000, 50000, 100000, 250000];
+                        for (let i = 0; i < grades.length; i++) {
+                            div.innerHTML += `
+                                <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                    <div style="width: 16px; height: 16px; background:${getHeatingColor(grades[i] + 1)}; margin-right: 8px;"></div>
+                                    <span style="font-size: 12px;">
+                                        ${grades[i].toLocaleString()}${grades[i + 1] ? ' – ' + grades[i + 1].toLocaleString() : '+'}
+                                    </span>
+                                </div>
+                            `;
+                        }
+
+                        return div;
+                    };
+
+                    heatingLegend.addTo(map);
+
                 });
 
 
@@ -1012,14 +1059,22 @@
             }
 
             //When clicking tenure feature
+            // Allows it for only 1 filter and legend to be shown at time
             function toggleTenure() {
-                var dropdown = document.getElementById("tenure-dropdown");
-                var legend = document.getElementById("tenure-legend");
+                var tenureDropdown = document.getElementById("tenure-dropdown");
+                var tenureLegend = document.getElementById("tenure-legend");
+                var heatingDropdown = document.getElementById("heating-dropdown");
+                var heatingLegend = document.getElementById("heating-legend");
 
-                const isVisible = dropdown.style.display === "block";
-                
-                dropdown.style.display = isVisible ? "none" : "block";
-                legend.style.display = isVisible ? "none" : "block"; // toggle legend visibility too
+                const isTenureVisible = tenureDropdown.style.display === "block";
+
+                // Show or hide tenure panel
+                tenureDropdown.style.display = isTenureVisible ? "none" : "block";
+                tenureLegend.style.display = isTenureVisible ? "none" : "block";
+
+                // Hide heating if open
+                heatingDropdown.style.display = "none";
+                if (heatingLegend) heatingLegend.style.display = "none";
             }
 
             document.addEventListener("click", function (event) {
@@ -1058,6 +1113,36 @@
                     });
                 });
             });
+
+            //For heating reset button
+            document.getElementById("reset-heating-filters").addEventListener("click", function () {
+                // Reset heating dropdowns
+                document.getElementById('heating-year-select').value = "All";
+                document.getElementById('heating-county').value = "all";
+                document.getElementById('heating-type').value = "all";
+
+                // Hide green info panel
+                const dropdown = document.querySelector('.green-dropdown');
+                if (dropdown) dropdown.classList.remove('visible');
+
+                // Hide heating legend
+                const legend = document.getElementById("heating-legend");
+                if (legend) legend.style.display = "none";
+
+                // Reset map view
+                map.flyTo([39.90, -74.40], 8.2, { duration: 1.5 });
+
+                // Reset map styles
+                geojsonLayer.eachLayer(function(layer) {
+                    layer.setStyle({
+                        fillColor: 'transparent',
+                        fillOpacity: 0,
+                        color: '#627BC1',
+                        weight: 2
+                    });
+                });
+            });
+
 
 
             //Adds an even listener for the calculator for when user inputs a zip code
@@ -1428,9 +1513,22 @@
             }
 
             // Function to toggle the Heating filter dropdown
+            // Allows it for only 1 filter and legend to be shown at time
             function toggleHeating() {
-                var dropdown = document.getElementById("heating-dropdown");
-                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+                var heatingDropdown = document.getElementById("heating-dropdown");
+                var heatingLegend = document.getElementById("heating-legend");
+                var tenureDropdown = document.getElementById("tenure-dropdown");
+                var tenureLegend = document.getElementById("tenure-legend");
+
+                const isHeatingVisible = heatingDropdown.style.display === "block";
+
+                // Show or hide heating panel
+                heatingDropdown.style.display = isHeatingVisible ? "none" : "block";
+                heatingLegend.style.display = isHeatingVisible ? "none" : "block";
+
+                // Hide tenure if open
+                tenureDropdown.style.display = "none";
+                if (tenureLegend) tenureLegend.style.display = "none";
             }
 
             // Function to update the right panel based on Heating filter selection
@@ -1494,6 +1592,72 @@
 
                         dropdown.innerHTML = content;
                         dropdown.classList.add('visible');
+
+                        // Apply choropleth coloring to counties based on heating data
+                        geojsonLayer.eachLayer(function(layer) {
+                            layer.setStyle({
+                                fillColor: 'transparent',
+                                fillOpacity: 0,
+                                color: '#627BC1',
+                                weight: 2
+                            });
+                        });
+
+                        // error handling
+                        console.log("Heating data received:", data);
+
+                        data.forEach(row => {
+                            const heatingValue = heatingType !== "all" ? row[heatingType] : row["Total"];
+                            //error handling
+                            console.log("Processing county:", row.County, "| Value:", heatingValue);
+
+                            if (!heatingValue) return;
+
+                            const parsedValue = typeof heatingValue === 'string'
+                                ? parseInt(heatingValue.replace(/,/g, ''), 10)
+                                : Number(heatingValue);
+
+                            const countyFromData = row.County.toLowerCase().replace(' county', '').trim();
+
+                            geojsonLayer.eachLayer(function(layer) {
+                                const countyFromMap = layer.feature.properties.COUNTY.toLowerCase().trim();
+
+                                if (countyFromData === countyFromMap) {
+                                    layer.setStyle({
+                                        fillColor: getHeatingColor(parsedValue),
+                                        fillOpacity: 0.85,
+                                        color: '#00441b',
+                                        weight: 2
+                                    });
+
+                                    layer.options.originalFillOpacity = 0.85;
+
+                                    // Zoom to selected county (if one is selected)
+                                    if (county !== "all") {
+                                        const selectedCounty = county.toLowerCase().replace(' county', '').trim();
+
+                                        geojsonLayer.eachLayer(function(layer) {
+                                            const mapCounty = layer.feature.properties.COUNTY.toLowerCase().trim();
+                                            if (mapCounty === selectedCounty) {
+                                                const center = layer.getBounds().getCenter();
+                                                const targetZoom = 10;
+
+                                                // Only zoom in if too far out
+                                                if (map.getZoom() < targetZoom) {
+                                                    map.flyTo(center, targetZoom, { duration: 1.5 });
+                                                } else {
+                                                    map.panTo(center);
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        // If 'All' is selected, zoom back out
+                                        map.flyTo([39.90, -74.40], 8.2, { duration: 1.5 });
+                                    }
+                                }
+                            });
+                        });
+
                     })
 
                     .catch(error => {
