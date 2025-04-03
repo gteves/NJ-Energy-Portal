@@ -1580,8 +1580,8 @@
                                     <tr>
                                         <td>${row["Year"]}</td>
                                         <td>${row["County"]}</td>
-                                        <td>${row["Total"]}</td>
-                                        ${displayedHeatingType ? `<td>${row[heatingType]}</td>` : ""}
+                                        <td>${Number(row["Total"]).toLocaleString()}</td>
+                                        ${displayedHeatingType ? `<td>${Number(row[heatingType]).toLocaleString()}</td>` : ""}
                                     </tr>`;
                             });
                         } else {
