@@ -1,4 +1,5 @@
-<!-- Token: pk.eyJ1IjoidGV2ZXNnMSIsImEiOiJjbTczZnhrdXIwbDA5MnNvb3Vwa3RpMzZzIn0.u6xrlzfDJ8JYK7OH8eUqIw-->
+<!-- type into terminal before running: php -S 127.0.0.1:8000-->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,9 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Jersey Energy Portal</title>
 
-    <!-- Mapbox CSS -->
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 
     <!-- Used for icons-->
@@ -68,51 +69,143 @@
             text-decoration: none;
         }
 
-        /* -------------------------------------------------- Left Filter Box Functions ----------------------------------------------*/
-        .left-panel {
-            position: absolute;
-            /* Ensures it floats over the map */
-            top: 80px;
-            /* Adjust to align below the navbar */
-            left: 20px;
-            /* Keep it aligned to the left */
-            width: 20%;
-            /* Adjust width as needed */
-            border-radius: 10px;
-            padding: 20px;
-            height: calc(100vh - 400px);
-            /* Change height of the filter box */
-            z-index: 1;
-            /* Higher than the map */
-            background-color: #04A264;
-            /* Optional: Semi-transparent background for readability */
-            overflow-y: auto;
-            /* Ensure content is scrollable */
-        }
 
-        /*Left filter box*/
-        .filters-box {
-            background-color: #04A264;
-            padding: 300px;
-            border-radius: 8px;
+        /* ---------------------------------------------- Tabbed Filters on Left Panel ----------------------------------------------- */
+        /* Tab like Function for filters on the left side */
+        /* Actual button */
+        .filter-toggle-button {
+            position: fixed;
+            top: 30%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
             color: white;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
         }
 
-        .filter-container label {
-            font-weight: bold;
+        /* Filter box that shows when 'filters' is clicked */
+        .filter-tab {
+            display: none;
+            position: absolute;
+            top: 25%;
+            /* Moves the tab downward */
+            left: 85px;
+            background-color: #04A264;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            z-index: 15;
+            overflow-y: auto;
+            /* Makes the tab scrollable if content overflows */
         }
 
-        .filter-container select {
-            width: 100%;
-            padding: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+        /* Tab like Function for Maps on the left side */
+        /* Actual button */
+        .maps-toggle-button {
+            position: fixed;
+            top: 40%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
         }
 
-        /* --------------------------------------------- End of Left Filter Box Functions -------------------------------------------- */
+        /* Maps drop down function so we can switch from one map to another */
+        .maps-dropdown {
+            display: none;
+            position: absolute;
+            top: 8.5%;
+            /* adjusts where the popup is going to be */
+            left: 85px;
+            background-color: #0a2a1f;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+            width: 150px;
+        }
+
+        /* Buttons inside the dropdown */
+        .dropdown-btn {
+            background-color: #04A264;
+            color: white;
+            width: 130px;
+            height: 50px;
+            /* Makes it square-like */
+            border: none;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #037c4d;
+        }
+
+        /* Utility Filter */
+        /* Actual button */
+        .utility-toggle-button {
+            position: fixed;
+            top: 38%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Maps drop down function so we can switch from one map to another */
+        .utility-dropdown {
+            display: none;
+            position: absolute;
+            top: 28%;
+            /* adjusts where the popup is going to be */
+            left: 85px;
+            background-color: #04A264;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+            width: 210px;
+        }
+
+        /* Buttons inside the dropdown */
+        .dropdown-btn {
+            background-color: #04A264;
+            color: white;
+            width: 130px;
+            height: 50px;
+            /* Makes it square-like */
+            border: none;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #037c4d;
+        }
+
+
+        /* ------------------------------------------ End of Tabbed Filters on Left Panel ----------------------------------------------- */
 
         /* --------------------------------------------- Green Drop down Right Panel Function ---------------------------------------- */
         /* Drop down for when a user clicks on a county*/
@@ -185,162 +278,12 @@
         /* ---------------------------------------------- End of Map Functionalities ------------------------------------------------- */
 
 
-        /* ---------------------------------------------- Tabbed Filters on Left Panel ----------------------------------------------- */
-        /* Tab like Function for filters on the left side */
-        /* Actual button */
-        .filter-toggle-button {
-            position: fixed;
-            top: 16%;
-            left: 0;
-            transform: translateY(-50%);
-            background-color: #0a2a1f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            z-index: 10;
-        }
 
-        /* Filter box that shows when 'filters' is clicked */
-        .filter-tab {
-            position: fixed;
-            top: 200px;
-            /* Moves the tab downward */
-            left: -300px;
-            /* Hidden by default, adjust to match the width */
-            width: 300px;
-            /* Set the desired width */
-            height: calc(100vh - 675spx);
-            /* Shrinks the height, leaving space at the top and bottom */
-            background-color: #04A264;
-            color: white;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-            transition: left 0.3s ease;
-            /* Smooth slide effect */
-            z-index: 9;
-            overflow-y: auto;
-            /* Makes the tab scrollable if content overflows */
-            border-top-left-radius: 8px;
-            /* Optional: Rounded corners */
-            border-bottom-left-radius: 8px;
-            /* Optional: Rounded corners */
-        }
-
-        /* Filter Tab when visible */
-        .filter-tab.visible {
-            left: 0;
-            /* Slide into view */
-        }
-
-        /* Tab like Function for Maps on the left side */
-        /* Actual button */
-        .maps-toggle-button {
-            position: fixed;
-            top: 10.5%;
-            left: 0;
-            transform: translateY(-50%);
-            background-color: #0a2a1f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        /* Maps drop down function so we can switch from one map to another */
-        .maps-dropdown {
-            display: none;
-            position: absolute;
-            top: 8.5%;
-            /* adjusts where the popup is going to be */
-            left: 85px;
-            background-color: #0a2a1f;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            z-index: 15;
-            width: 150px;
-        }
-
-        /* Buttons inside the dropdown */
-        .dropdown-btn {
-            background-color: #04A264;
-            color: white;
-            width: 130px;
-            height: 50px;
-            /* Makes it square-like */
-            border: none;
-            margin: 5px 0;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .dropdown-btn:hover {
-            background-color: #037c4d;
-        }
-
-        /* Utility Filter */
-        /* Actual button */
-        .utility-toggle-button {
-            position: fixed;
-            top: 21%;
-            left: 0;
-            transform: translateY(-50%);
-            background-color: #0a2a1f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        /* Maps drop down function so we can switch from one map to another */
-        .utility-dropdown {
-            display: none;
-            position: absolute;
-            top: 8.5%;
-            /* adjusts where the popup is going to be */
-            left: 85px;
-            background-color: #04A264;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            z-index: 15;
-            width: 210px;
-        }
-
-        /* Buttons inside the dropdown */
-        .dropdown-btn {
-            background-color: #04A264;
-            color: white;
-            width: 130px;
-            height: 50px;
-            /* Makes it square-like */
-            border: none;
-            margin: 5px 0;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .dropdown-btn:hover {
-            background-color: #037c4d;
-        }
-
-
-        /* ------------------------------------------ End of Tabbed Filters on Left Panel ----------------------------------------------- */
         /* ---------------------------------------------------- Calculator Function ----------------------------------------------------- */
         .calculator-widget {
             position: fixed;
             bottom: 10px;
-            right: 420px;
+            right: 20px;
             /* Adjusted to move the positioning of the button */
             background-color: #04A264;
             color: white;
@@ -360,8 +303,8 @@
         .calculator-popup {
             display: none;
             position: fixed;
-            bottom: 80px;
-            right: 410px;
+            bottom: 60px;
+            right: 80px;
             background-color: white;
             color: black;
             padding: 20px;
@@ -497,36 +440,34 @@
 
         /* ----------------------------------------------- Legend Function ------------------------------------------------------ */
         /* Legend for the map */
-        .legend {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
+        .info.legend {
             background: white;
-            padding: 10px;
+            padding: 6px 10px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            font-family: Arial, sans-serif;
         }
 
-        .legend h4 {
-            margin: 0 0 5px;
+        .info.legend i {
+            width: 25px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.85;
+        }
+
+        .info.legend h4 {
             font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
         }
 
-        .legend div {
-            display: flex;
-            align-items: center;
-            font-size: 12px;
-            margin-bottom: 5px;
+        .leaflet-bottom.leaflet-left .info.legend {
+            left: 10px;    /* move horizontally */
+            bottom: 125px;  /* move vertically */
         }
 
-        .legend span {
-            width: 10px;
-            height: 20px;
-            display: inline-block;
-            margin-right: 5px;
-            border: 1px solid #000;
-        }
 
         /* ----------------------------------------------- End of Legend Function ------------------------------------------------- */
     </style>
@@ -716,359 +657,115 @@
             </div>
         </div>
 
-        <!-- Legend -->
-        <div id="legend" class="legend">
-            <h4>Burden Factor Key</h4>
-            <div><span style="background-color: #126830;"></span> Low Income </div>
-            <div><span style="background-color: #C7E9C0;"></span> Minority </div>
-            <div><span style="background-color: #095626;"></span> Limited English </div>
-            <div><span style="background-color: #F7FCF0;"></span> Low Income and Minority </div>
-            <div><span style="background-color: #00441B;"></span> Adjacent </div>
-            <div><span style="background-color: #238B45;"></span> Low Income and Limited English </div>
-            <div><span style="background-color: #4CA85E;"></span> Minority and Limited English </div>
-            <div><span style="background-color: #74c476;"></span> Low Income, Minority, and Limited English </div>
-        </div>
 
         <!----------------------------------------------------JavaScript Section------------------------------------->
-        <!-- Mapbox -->
+        <!-- Leaflet -->
+
+        <!-- Map Loading -->
         <script>
-            mapboxgl.accessToken = 'pk.eyJ1IjoidGV2ZXNnMSIsImEiOiJjbTczZnhrdXIwbDA5MnNvb3Vwa3RpMzZzIn0.u6xrlzfDJ8JYK7OH8eUqIw';
-            const map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/streets-v11',
-                center: [-74.4057, 40.0583], // Centering on New Jersey
-                zoom: 7
-            });
+            const map = L.map('map').setView([39.90, -74.40], 8);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 10,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            let geojsonLayer;
+
+
+            //loads municipalities 
+            fetch('https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson')
+                .then(response => response.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        style: {
+                            color: '#627BC1',
+                            weight: 2,
+                            fillColor: 'transparent',
+                            fillOpacity: 0
+                        },
+                        onEachFeature: function (feature, layer) {
+                            // Shows municipality name name when hovering
+                            layer.bindTooltip(feature.properties.MUN, {
+                                permanent: false,
+                                direction: 'top',
+                                offset: [0, -10],
+                                opacity: 0.9,
+                                className: 'county-tooltip',
+                            });
+
+
+                            // Hover behavior
+                            layer.on({
+                                mouseover: function (e) {
+                                    e.target.setStyle({
+                                        fillOpacity: 0.9,
+                                        color: '#00441b', // darker border on hover
+                                        weight: 3
+                                    });
+                                    layer.openTooltip();
+                                },
+                                mouseout: function (e) {
+                                    e.target.setStyle({
+                                        fillOpacity: 0.6,
+                                        color: '#627BC1', // reset border
+                                        weight: 1
+                                    });
+                                    layer.closeTooltip();
+                                }
+                            });
+                        }
+                    }).addTo(map);
+                })
+                .catch(error => console.error('Error fetching municipal boundaries:', error));
+
 
             let hoveredMunicipalId = null;
             let selectedMunicipalId = null;
 
-            //loads the map into the website 
-            map.on('load', function () {
-                console.log("Map loaded, adding county borders...");
-                map.addSource('nj-counties', {
-                    type: 'geojson',
-                    data: 'https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson'
-                });
+            let countyGeoJSON = null; // Store the GeoJSON data globally
 
-                map.addLayer({
-                    id: 'nj-county-borders',
-                    type: 'line',
-                    source: 'nj-counties',
-                    layout: {
-                        'visibility': 'visible'
-                    },
-                    paint: {
-                        'line-color': '#0000FF',
-                        'line-width': 2
-                    }
-                });
+            // Load NJ County Borders
+            fetch('https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson')
+                .then(response => response.json())
+                .then(data => {
+                    countyGeoJSON = data; // Store the county GeoJSON globally
 
-                console.log("County borders layer added.");
-
-
-                //adds the municipalities
-                console.log("Map loaded, adding municipalities...");
-                map.addSource('nj-municipalities', {
-                    'type': 'geojson',
-                    'data': 'https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson'
-                });
-                map.addLayer({
-                    'id': 'municipal-fills',
-                    'type': 'fill',
-                    'source': 'nj-municipalities',
-                    'paint': {
-                        'fill-color': [
-                            'case',
-                            ['boolean', ['feature-state', 'selected'], false],
-                            '#04A264',
-                            ['boolean', ['feature-state', 'hover'], false],
-                            '#627BC1',
-                            '#D3D3D3'
-                        ],
-                        'fill-opacity': .75
-                    }
-                });
-
-
-                map.on('load', function() {
-                    if (!map.getLayer('municipal-utility-choropleth')) {
-                        map.addLayer({
-                            'id': 'municipal-utility-choropleth',
-                            'type': 'fill',
-                            'source': 'nj-municipalities',
-                            'paint': {
-                                'fill-color': '#888888',
-                                'fill-opacity': 0.4
-                            }
-                        });
-                        console.log('Layer added: municipal-utility-choropleth');
-                    }
-                });
-
-
-                //municipality border
-                map.addLayer({
-                    'id': 'municipal-borders',
-                    'type': 'line',
-                    'source': 'nj-municipalities',
-                    'paint': {
-                        'line-color': '#627BC1',
-                        'line-width': .5
-                    }
-                });
-            });
-
-            //zoom function
-            function zoomToCounty(countyName) {
-                const query = `https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=COUNTY%20%3D%20%27${countyName}%27&f=geojson`;
-                fetch(query)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.features.length > 0) {
-                            const bounds = new mapboxgl.LngLatBounds();
-                            data.features.forEach(feature => {
-                                if (feature.geometry.type === 'Polygon') {
-                                    feature.geometry.coordinates.forEach(ring => {
-                                        ring.forEach(coord => bounds.extend(coord));
-                                    });
-                                } else if (feature.geometry.type === 'MultiPolygon') {
-                                    feature.geometry.coordinates.forEach(polygon => {
-                                        polygon.forEach(ring => {
-                                            ring.forEach(coord => bounds.extend(coord));
-                                        });
-                                    });
-                                }
-                            });
-                            map.fitBounds(bounds, {
-                                padding: 50,
-                                maxZoom: 12
-                            });
-                        } else {
-                            console.error("No data found for county:", countyName);
-                            alert("No data found for the selected county.");
+                    geojsonLayer = L.geoJSON(data, {
+                        style: {
+                            color: '#0000FF',
+                            weight: 2,
+                            fillColor: 'transparent',
+                            fillOpacity: 0
                         }
-                    })
-                    .catch(error => {
-                        console.error("Error fetching county data:", error);
-                        alert("An error occurred while fetching county data.");
-                    });
-            }
+                    }).addTo(map);
 
-            //function to add municipality labels
-            function addMunicipalityLabels(countyName) {
-                const municipalityQuery = `https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/2/query?outFields=*&where=COUNTY%20%3D%20%27${countyName}%27&f=geojson`;
+                    console.log("County borders layer added.");
+                })
+                .catch(error => console.error("Error loading county data:", error));
 
-                fetch(municipalityQuery)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("Municipality Data:", data); // Debugging
-
-                        if (data.features.length > 0) {
-                            console.log("Sample Feature:", data.features[0].properties); // Check property names
-
-                            // Remove old layer if it exists
-                            if (map.getSource('municipalities')) {
-                                map.removeLayer('municipality-labels');
-                                map.removeSource('municipalities');
-                            }
-
-                            // Add new source
-                            map.addSource('municipalities', {
-                                type: 'geojson',
-                                data: data
-                            });
-
-                            console.log("Adding Municipality Labels Layer...");
-
-                            // Add new label layer
-                            map.addLayer({
-                                id: 'municipality-labels',
-                                type: 'symbol',
-                                source: 'municipalities',
-                                layout: {
-                                    'text-field': ['get', 'MUNICIPALITY'], // Change if necessary
-                                    'text-size': 12,
-                                    'text-anchor': 'center'
-                                },
-                                paint: {
-                                    'text-color': '#000000',
-                                    'text-halo-color': '#ffffff',
-                                    'text-halo-width': 1.5
-                                }
-                            });
-
-                            console.log("Municipality Labels Successfully Added");
-
-                        } else {
-                            console.error("No municipality data found for county:", countyName);
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error fetching municipality data:", error);
-                    });
-            }
-
-            //event listener for county filter with zoom functionality
-            document.getElementById('county-filter').addEventListener('change', function () {
-                const selectedCounty = this.value;
-                if (selectedCounty !== "all") {
-                    zoomToCounty(selectedCounty);
-                    updateRightPanel(selectedCounty);
-                } else {
-                    // If "all" is selected, zoom back to the default NJ view
-                    map.flyTo({
-                        center: [-74.4057, 40.0583],
-                        zoom: 7
-                    });
-                }
-            });
-
-
-            // Define the ArcGIS Feature Service URL
-            const obcUrl = "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Overburdened_Communities_under_the_New_Jersey_Environmental_Justice_Law/FeatureServer/19/query?where=1%3D1&outFields=POVUNIVERSE,POPUNDER2XPOV,LOW_INCOME_PCT,TOTALPOP,NONHISPWHITE,TOTALMINORITY,MINORITY_PCT,TOTHH,TOTLANGUAGEISO,PCTLINGUAGEISO,OVERBURDENED_COMMUNITY_CRITERI,BG_TRIBAL,COUNTY,NAME,SPLIT_BG,SPLIT_MUN&outSR=4326&f=geojson";
-
-            // Function to fetch all results
-            async function fetchAllResults() {
-                const results = [];
-                let offset = 0;
-                const limit = 1000; // Maximum number of features returned per query
-
-                // Keep fetching until all results are obtained
-                while (true) {
-                    const url = `${obcUrl}&resultOffset=${offset}&resultRecordCount=${limit}`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-
-                    if (data.features.length === 0) {
-                        break; // No more results to fetch
-                    }
-
-                    results.push(...data.features); // Add fetched features to the results array
-                    offset += limit; // Increment the offset for the next query
-                }
-
-                return results;
-            }
-
-            // Function to add the overburdened communities layer
-            async function addOverburdenedLayer() {
-                try {
-                    const data = await fetchAllResults();
-
-                    map.addSource('overburdened-communities', {
-                        type: 'geojson',
-                        data: {
-                            type: 'FeatureCollection',
-                            features: data
-                        }
-                    });
-
-                    map.addLayer({
-                        id: 'overburdened-layer',
-                        type: 'fill',
-                        source: 'overburdened-communities',
-                        paint: {
-                            'fill-color': [
-                                'case',
-                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Low Income and Minority'], '#F7FCF0',
-                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Minority'], '#C7E9C0',
-                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Low Income, Minority, and Limited English'], '#74C476',
-                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Low Income and Limited English'], '#238B45',
-                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Low Income'], '#126830',
-                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Limited English'], '#095626',
-                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Minority and Limited English'], '#4CA85E',
-                                ['==', ['get', 'OVERBURDENED_COMMUNITY_CRITERI'], 'Adjacent'], '#00441B',
-                                '#000000'
-                            ],
-                            'fill-opacity': 0.75
-                        }
-                    });
-
-                    // Add popup on hover
-                    map.on('click', 'overburdened-layer', (e) => {
-                        const properties = e.features[0].properties;
-                        new mapboxgl.Popup()
-                            .setLngLat(e.lngLat)
-                            .setHTML(
-                                `<strong>Municipality:</strong> ${properties.NAME}<br>
-                    <strong>County:</strong> ${properties.COUNTY}<br>
-                    <strong>Burden Factors:</strong> ${properties.OVERBURDENED_COMMUNITY_CRITERI}`
-                            )
-                            .addTo(map);
-                    });
-
-                    // Change cursor on hover
-                    map.on('mouseenter', 'overburdened-layer', () => {
-                        map.getCanvas().style.cursor = 'pointer';
-                    });
-
-                    map.on('mouseleave', 'overburdened-layer', () => {
-                        map.getCanvas().style.cursor = '';
-                    });
-                } catch (error) {
-                    console.error("Error loading Overburdened Communities data:", error);
-                }
-            }
-
-            document.getElementById('toggleOBC').addEventListener('click', function () {
-                if (map.getLayer('overburdened-layer')) {
-                    map.removeLayer('overburdened-layer');
-                    map.removeSource('overburdened-communities');
-                } else {
-                    addOverburdenedLayer();
-                }
-            });
-
-
-
-
+            // Load NJ Municipal Boundaries
+            // Add the Utility Layer (after loading the municipality data)
+            fetch('https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson')
+                .then(response => response.json())
+                .then(data => {
+                    // Your municipality data (for context)
+                    const municipalityLayer = L.geoJSON(data, {
+                        style: feature => ({
+                            fillColor: '#D3D3D3',
+                            weight: 0.5,
+                            color: '#627BC1',
+                            fillOpacity: 0.75
+                        })
+                    }).addTo(map);
+                });
+        
+/*--- Calculator --- */            
             //calculator pop up function
             function toggleCalculator() {
                 const popup = document.getElementById('calculator-popup');
                 popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
             }
-
-            //tab function on filters
-            function toggleFilter() {
-                const filterTab = document.getElementById('filter-tab');
-                if (filterTab.classList.contains('visible')) {
-                    filterTab.classList.remove('visible');
-                } else {
-                    filterTab.classList.add('visible');
-                }
-            }
-
-            //toggle utility layer visibility 
-            document.getElementById('toggleUtilityLayer').addEventListener('click', function () {
-                let currentOpacity = map.getPaintProperty('municipal-utility-choropleth', 'fill-opacity');
-                let newOpacity = currentOpacity === 0 ? 0.75 : 0;
-                map.setPaintProperty('municipal-utility-choropleth', 'fill-opacity', newOpacity);
-            });
-
-            //when clicking utility 
-            function toggleUtility() {
-                var dropdown = document.getElementById("utility-dropdown");
-                //toggle visibility
-                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-            }
-
-            document.getElementById('reset-utility-filters').addEventListener('click', function () {
-                //reset filters
-                document.getElementById('year-select').value = 'all';
-                document.getElementById('utility-county-filter').value = 'all';
-                document.getElementById('fuel-type-select').value = 'all';
-                updateUtilityRightPanel();
-
-                //hide right panel
-                let dropdown = document.querySelector('.green-dropdown');
-                if (dropdown) {
-                    dropdown.classList.remove('visible');
-                }
-
-                //reset map choropleth 
-                map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#FFFFFF');
-            });
 
 
             // Event listener for the calculate button
@@ -1079,9 +776,7 @@
 
                 // Check if the input is valid
                 if (isNaN(income) || income <= 0 || isNaN(energyOutput) || energyOutput < 0) {
-                    document.getElementById('calculator-result').innerHTML = `
-            <p style="color:red;">Please enter valid income and utility expense values.</p>
-        `;
+                    document.getElementById('calculator-result').innerHTML = `<p style="color:red;">Please enter valid income and utility expense values.</p>`;
                     return;
                 }
 
@@ -1112,13 +807,11 @@
                     ${statusTitle}
                     ${statusMessage}
                     <div style="margin-top: 15px;"></div>
-                    ${tipsLink}
-                    `;
+                    ${tipsLink}`;
 
                 // Update the energy burden message in the list item
                 document.getElementById('energy-burden-message').innerHTML = `
-                    <strong>Your energy burden is ${energyBurden.toFixed(2)}%, which is higher than the state average of 2-3%.</strong>
-                    `;
+                    <strong>Your energy burden is ${energyBurden.toFixed(2)}%, which is higher than the state average of 2-3%.</strong>`;
             });
 
 
@@ -1137,8 +830,237 @@
                 const popup = document.getElementById('calculator-popup');
                 popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
             }
+/*--- End of Calculator functionalities ---*/                
 
 
+/*--- Filter Tab Functionalities ---*/
+    /*--- Zoom to County --- */
+                //county zoom
+            function zoomToCounty(countyName) {
+                if (!countyGeoJSON) {
+                    alert("County data is not loaded yet. Please wait.");
+                    return;
+                }
+
+                // Find the selected county
+                const selectedFeature = countyGeoJSON.features.find(feature => 
+                    feature.properties.COUNTY.toUpperCase() === countyName.toUpperCase()
+                );
+
+                if (selectedFeature) {
+                    const bounds = L.geoJSON(selectedFeature).getBounds();
+                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+                } else {
+                    console.error("County not found:", countyName);
+                    alert("No data found for the selected county.");
+                }
+            }
+
+            // Event listener for county zoom
+            document.getElementById('county-filter').addEventListener('change', function () {
+                const selectedCounty = this.value;
+                if (selectedCounty !== "all") {
+                    zoomToCounty(selectedCounty);
+                    updateUtilityRightPanel(selectedCounty); // Assuming this function exists
+                } else {
+                    map.setView([40.0583, -74.4057], 7); // Reset to NJ default view
+                }
+            });
+
+
+    /*--- Overburdened Community */
+            // Define the ArcGIS Feature Service URL
+            const obcUrl = "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Overburdened_Communities_under_the_New_Jersey_Environmental_Justice_Law/FeatureServer/19/query?where=1%3D1&outFields=POVUNIVERSE,POPUNDER2XPOV,LOW_INCOME_PCT,TOTALPOP,NONHISPWHITE,TOTALMINORITY,MINORITY_PCT,TOTHH,TOTLANGUAGEISO,PCTLINGUAGEISO,OVERBURDENED_COMMUNITY_CRITERI,BG_TRIBAL,COUNTY,NAME,SPLIT_BG,SPLIT_MUN&outSR=4326&f=geojson";
+
+            let obcLayer;
+
+            // Function to fetch all results
+            async function fetchAllResults() {
+                const results = [];
+                let offset = 0;
+                const limit = 1000; // Maximum number of features returned per query
+
+                // Keep fetching until all results are obtained
+                while (true) {
+                    const url = `${obcUrl}&resultOffset=${offset}&resultRecordCount=${limit}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.features.length === 0) {
+                        break; // No more results to fetch
+                    }
+
+                    results.push(...data.features); // Add fetched features to the results array
+                    offset += limit; // Increment the offset for the next query
+                }
+
+                return results;
+            }
+
+            function getOverburdenedColor(criteria) {
+                switch (criteria) {
+                    case 'Low Income and Minority': return '#F7FCF0';
+                    case 'Minority': return '#C7E9C0';
+                    case 'Low Income, Minority, and Limited English': return '#74C476';
+                    case 'Low Income and Limited English': return '#238B45';
+                    case 'Low Income': return '#126830';
+                    case 'Limited English': return '#095626';
+                    case 'Minority and Limited English': return '#4CA85E';
+                    case 'Adjacent': return '#00441B';
+                    default: return '#000000';
+                }
+            }
+
+            // Function to add the overburdened communities layer
+            async function addOverburdenedLayer() {
+                try {
+                    const data = await fetchAllResults();
+
+                    const obcLayer = L.geoJSON(data, {
+                        style: function (feature) {
+                            return {
+                                fillColor: getOverburdenedColor(feature.properties.OVERBURDENED_COMMUNITY_CRITERI),
+                                fillOpacity: 0.75,
+                                weight: 1,
+                                color: '#000000'
+                            };
+                        },
+                        onEachFeature: function (feature, layer) {
+                            // Add popup on click
+                            layer.on('click', function () {
+                                const properties = feature.properties;
+                                layer.bindPopup(`
+                                    <strong>Municipality:</strong> ${properties.NAME}<br>
+                                    <strong>County:</strong> ${properties.COUNTY}<br>
+                                    <strong>Burden Factors:</strong> ${properties.OVERBURDENED_COMMUNITY_CRITERI}
+                                `).openPopup();
+                            });
+
+                            // Change cursor on hover
+                            layer.on('mouseenter', function () {
+                                map.getContainer().style.cursor = 'pointer';
+                            });
+
+                            layer.on('mouseleave', function () {
+                                map.getContainer().style.cursor = '';
+                            });
+                        }
+                    });
+
+                    // Add the layer to the map
+                    obcLayer.addTo(map);
+                } catch (error) {
+                    console.error("Error loading Overburdened Communities data:", error);
+                }
+            }
+
+            // Toggle layer visibility
+            document.getElementById('toggleOBC').addEventListener('click', async function () {
+                if (obcLayer) {
+                    if (map.hasLayer(obcLayer)) {
+                        map.removeLayer(obcLayer);
+                        obcLayer = null; // Reset variable after removal
+                    }
+                } else {
+                    await addOverburdenedLayer(); // Ensure layer is created before checking
+                }
+            });
+
+
+
+            //tab function on filters
+            function toggleFilter() {
+                var dropdown = document.getElementById("filter-tab");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+/*--- end of filter tab functionalities ---*/
+
+/*--- Utility Tab Filter Functionalities ---*/
+
+            // Color Scale for Heating Filter
+            function getUtilityColor(d) {
+                return d > 250000 ? '#800026' :  // Very high usage
+                    d > 100000 ? '#BD0026' :
+                    d > 50000  ? '#E31A1C' :
+                    d > 20000  ? '#FD8D3C' :
+                    d > 10000  ? '#FEB24C' :
+                    d > 1000   ? '#FFEDA0' :
+                                    '#f7f7f7';  // Very low or zero
+            }
+
+            //toggle utility layer visibility 
+            let utilityLayer = null; // Define globally
+
+            fetch('https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson')
+                .then(response => response.json())
+                .then(data => {
+                    utilityLayer = L.geoJSON(data, {
+                        style: function (feature) {
+                            return {
+                                fillColor: '#74c476', // Default placeholder color
+                                fillOpacity: 0.75,
+                                weight: 1,
+                                color: '#000'
+                            };
+                        }
+                    });
+
+                    console.log("Utility layer loaded.");
+                })
+                .catch(error => console.error('Error fetching municipal boundaries:', error));
+
+            document.getElementById('toggleUtilityLayer').addEventListener('click', function () {
+                if (utilityLayer) { // Ensure the layer is initialized
+                    if (map.hasLayer(utilityLayer)) {
+                        map.removeLayer(utilityLayer);
+                    } else {
+                        map.addLayer(utilityLayer);
+                    }
+                } else {
+                    console.error("Utility layer is not yet loaded.");
+                }
+            });
+
+
+
+            //when clicking utility 
+            function toggleUtility() {
+                var dropdown = document.getElementById("utility-dropdown");
+                //toggle visibility
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+
+            document.getElementById('reset-utility-filters').addEventListener('click', function () {
+                //reset filters
+                document.getElementById('year-select').value = 'all';
+                document.getElementById('utility-county-filter').value = 'all';
+                document.getElementById('fuel-type-select').value = 'all';
+                updateUtilityRightPanel();
+
+                //hide right panel
+                let dropdown = document.querySelector('.green-dropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('visible');
+                }
+
+                //reset map choropleth 
+                map.eachLayer(layer => {
+                    if (layer.features && layer.feature.properties) {
+                        layer.setStyle({
+                            fillColor: 'transparent',
+                            fillOpacity: 0,
+                            color: '#627BC1',
+                            weight: 2
+                        });
+                    }
+                });
+            });
+
+
+
+
+    /*--- Right Panel --- */
+            // Right panel update function for Leaflet
             function updateUtilityRightPanel() {
                 const year = document.getElementById('year-select').value;
                 const county = document.getElementById('utility-county-filter').value;
@@ -1174,33 +1096,46 @@
                                 ${fuelType === "all" ? "<th>Residential Electricity</th><th>Residential Natural Gas</th>" : ""}
                             </tr>`;
 
-                        let minVal = Infinity; //added
+                        let minVal = Infinity;
                         let maxVal = -Infinity;
 
+                        // Process the data
                         if (data.length) {
                             data.forEach(row => {
                                 content += `
-                                    <tr>
-                                        <td>${row["Municipality"]}</td>
-                                        <td>${row["County"]}</td>
-                                        <td>${row["Year"]}</td>
-                                        ${fuelType === "electricity" ? `<td>${row["Residential Electricity"] || '-'}</td>` : ""}
-                                        ${fuelType === "naturalGas" ? `<td>${row["Residential Natural Gas"] || '-'}</td>` : ""}
-                                        ${fuelType === "all" ? `
-                                            <td>${row["Residential Electricity"] || '-'}</td>
-                                            <td>${row["Residential Natural Gas"] || '-'}</td>` : ""}
-                                    </tr>`;
-                                //added
-                                const utilityValue = fuelType === "electricity" ? row["Residential Electricity"] : row["Residential Natural Gas"];
+                                <tr>
+                                    <td>${row["Municipality"]}</td>
+                                    <td>${row["County"]}</td>
+                                    <td>${row["Year"]}</td>
+                                    ${fuelType === "electricity" ? `<td>${row["Residential Electricity"] || '-'}</td>` : ""}
+                                    ${fuelType === "naturalGas" ? `<td>${row["Residential Natural Gas"] || '-'}</td>` : ""}
+                                    ${fuelType === "all" ? `
+                                        <td>${row["Residential Electricity"] || '-'}</td>
+                                        <td>${row["Residential Natural Gas"] || '-'}</td>` : ""}
+                                </tr>`;
 
-                                if (utilityValue < minVal) minVal = utilityValue;
-                                if (utilityValue > maxVal) maxVal = utilityValue;
+                                // Get the utility value based on the selected fuel type
+                                let utilityValue = fuelType === "electricity" ? row["Residential Electricity"] : row["Residential Natural Gas"];
 
-                                map.setFeatureState({
-                                    source: 'nj-municipalities',
-                                    id: row["Municipality"]
-                                }, {
-                                    utilityValue: utilityValue
+                                // Update min and max utility values for color scale
+                                if (utilityValue !== undefined && utilityValue !== null) {
+                                    utilityValue = parseFloat(utilityValue);
+                                    if (!isNaN(utilityValue)) {
+                                        if (utilityValue < minVal) minVal = utilityValue;
+                                        if (utilityValue > maxVal) maxVal = utilityValue;
+                                    }
+                                }
+
+                                //update map color 
+                                utilityLayer.eachLayer(layer => {
+                                    if (layer.feature && layer.feature.properties.Municipality === row["Municipality"]) {
+                                        layer.setStyle({
+                                            fillColor: getUtilityColor(utilityValue), 
+                                            fillOpacity: 0.75, 
+                                            weight: 1, 
+                                            color: '#000'
+                                        });
+                                    }
                                 });
                             });
                         } else {
@@ -1210,28 +1145,11 @@
                         content += `</table>`;
                         dropdown.innerHTML = content;
                         dropdown.classList.add('visible');
-
-                        
-
-                        if (minVal === maxVal) {
-                            map.setPaintProperty('municipal-utility-choropleth', 'fill-color', '#74c476');
-                            return;
-                        }
-
-                        map.setPaintProperty('municipal-utility-choropleth', 'fill-color', [
-                            'interpolate',
-                            ['linear'],
-                            ['coalesce', ['get', 'utilityValue'], 0], // Handle missing values
-                            minVal, '#f7fcf0',
-                            (minVal + maxVal) / 3, '#c7e9c0',
-                            (minVal + maxVal) * 2 / 3, '#74c476',
-                            maxVal, '#00441b'
-                        ]);
                     })
                     .catch(error => {
                         console.error("Error fetching utility data:", error);
                     });
-            }
+                }
 
         </script>
 </body>
