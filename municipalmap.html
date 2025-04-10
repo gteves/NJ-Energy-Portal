@@ -484,14 +484,30 @@
         <div class="top-sidebar">
             <h1>New Jersey Energy Portal</h1>
         </div>
+
+        <!-- Map Container -->
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+
         <!-- Filter Toggle Button -->
         <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
 
         <div class="filter-tab" id="filter-tab">
             <!-- Left Panel -->
             <!-- These are for all the filters that will be used-->
-            <!-- County Filters -->
             <div class="filter-container">
+
+                <!-- Add button to turn on overburdened communities-->
+                <button id="toggleOBC"
+                    style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
+                    Toggle Overburdened Communities
+                </button>
+
+                <!--Creates a space between filters-->
+                <div style="margin: 10px 0;"></div>
+
+                <!-- County Filters -->
                 <label for="county-filter">County:</label>
                 <select id="county-filter">
                     <option value="all">Select a County</option>
@@ -518,26 +534,22 @@
                     <option value="WARREN">Warren</option>
                 </select>
 
-                <!--Creates a space between filters-->
-                <div style="margin: 10px 0;"></div>
-
-                <!-- Add button to turn on overburdened communities-->
-                <button id="toggleOBC"
-                    style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
-                    Toggle Overburdened Communities</button>
-
                 <!-- Creates a space between filters-->
                 <div style="margin: 10px 0;"></div>
             </div>
         </div>
         <!-- Utility -->
         <button class="utility-toggle-button" onclick="toggleUtility()">Utility</button>
+        
 
         <!-- Utility Dropdown Menu -->
         <div id="utility-dropdown" class="utility-dropdown">
+            <!--
             <button id="toggleUtilityLayer"
                 style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
                 Toggle Utility Layer </button>
+            -->
+            
             <br>
             <label for="year-select"> Select Year:<br> </label>
             <select id="year-select" onchange="updateUtilityRightPanel()">
@@ -578,6 +590,7 @@
                 <option value="Warren">Warren</option>
             </select>
             <br>
+            
 
             <label for="fuel-type-select">Select Fuel Type:</label>
             <select id="fuel-type-select" onchange="updateUtilityRightPanel()">
@@ -593,10 +606,8 @@
             </button>
         </div>
 
-        <!-- Map Container -->
-        <div id="map-container">
-            <div id="map"></div>
-        </div>
+        <!-- legend box -->
+        <div id="legend" class="info legend leaflet-bottom leaflet-left"></div>
 
         <!-- Calculator Widget Icon-->
         <div class="calculator-widget" onclick="toggleCalculator()">
@@ -671,29 +682,55 @@
             }).addTo(map);
 
             let geojsonLayer;
+            let muniGeoJSONData = null;
+            let hoveredMunicipalId = null;
+            let selectedMunicipalId = null;
+            let countyGeoJSON = null; // Store the GeoJSON data globally
+
+
+            // Load NJ County Borders
+            fetch('https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson')
+                .then(response => response.json())
+                .then(data => {
+                    countyGeoJSON = data; // Store the county GeoJSON globally
+
+                    geojsonLayer = L.geoJSON(data, {
+                        style: {
+                            color: '#0000FF',
+                            weight: 2,
+                            fillColor: 'transparent',
+                            fillOpacity: 0
+                        }
+                    }).addTo(map);
+
+                    console.log("County borders layer added.");
+                })
+                .catch(error => console.error("Error loading county data:", error));
 
 
             //loads municipalities 
             fetch('https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson')
                 .then(response => response.json())
                 .then(data => {
-                    L.geoJSON(data, {
-                        style: {
+                    muniGeoJSONData = data;
+                    utilityLayer = L.geoJSON(muniGeoJSONData, {
+                        style: feature => ({
+                            fillColor: '#D3D3D3',
+                            weight: 0.5,
                             color: '#627BC1',
-                            weight: 2,
-                            fillColor: 'transparent',
-                            fillOpacity: 0
-                        },
+                            fillOpacity: 0.75
+                        }),
                         onEachFeature: function (feature, layer) {
+                            const muniName = feature.properties.MUN;
+                            
                             // Shows municipality name name when hovering
                             layer.bindTooltip(feature.properties.MUN, {
                                 permanent: false,
                                 direction: 'top',
                                 offset: [0, -10],
                                 opacity: 0.9,
-                                className: 'county-tooltip',
+                                className: 'muni-tooltip',
                             });
-
 
                             // Hover behavior
                             layer.on({
@@ -716,49 +753,9 @@
                             });
                         }
                     }).addTo(map);
+                    console.log("Loaded municipal boundaries once and initialized utility layer.");
                 })
                 .catch(error => console.error('Error fetching municipal boundaries:', error));
-
-
-            let hoveredMunicipalId = null;
-            let selectedMunicipalId = null;
-
-            let countyGeoJSON = null; // Store the GeoJSON data globally
-
-            // Load NJ County Borders
-            fetch('https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson')
-                .then(response => response.json())
-                .then(data => {
-                    countyGeoJSON = data; // Store the county GeoJSON globally
-
-                    geojsonLayer = L.geoJSON(data, {
-                        style: {
-                            color: '#0000FF',
-                            weight: 2,
-                            fillColor: 'transparent',
-                            fillOpacity: 0
-                        }
-                    }).addTo(map);
-
-                    console.log("County borders layer added.");
-                })
-                .catch(error => console.error("Error loading county data:", error));
-
-            // Load NJ Municipal Boundaries
-            // Add the Utility Layer (after loading the municipality data)
-            fetch('https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/NJ_Municipal_Boundaries_3424/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson')
-                .then(response => response.json())
-                .then(data => {
-                    // Your municipality data (for context)
-                    const municipalityLayer = L.geoJSON(data, {
-                        style: feature => ({
-                            fillColor: '#D3D3D3',
-                            weight: 0.5,
-                            color: '#627BC1',
-                            fillOpacity: 0.75
-                        })
-                    }).addTo(map);
-                });
         
 /*--- Calculator --- */            
             //calculator pop up function
@@ -833,69 +830,49 @@
 /*--- End of Calculator functionalities ---*/                
 
 
-/*--- Filter Tab Functionalities ---*/
-    /*--- Zoom to County --- */
-                //county zoom
-            function zoomToCounty(countyName) {
-                if (!countyGeoJSON) {
-                    alert("County data is not loaded yet. Please wait.");
-                    return;
-                }
-
-                // Find the selected county
-                const selectedFeature = countyGeoJSON.features.find(feature => 
-                    feature.properties.COUNTY.toUpperCase() === countyName.toUpperCase()
-                );
-
-                if (selectedFeature) {
-                    const bounds = L.geoJSON(selectedFeature).getBounds();
-                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
-                } else {
-                    console.error("County not found:", countyName);
-                    alert("No data found for the selected county.");
-                }
-            }
-
-            // Event listener for county zoom
-            document.getElementById('county-filter').addEventListener('change', function () {
-                const selectedCounty = this.value;
-                if (selectedCounty !== "all") {
-                    zoomToCounty(selectedCounty);
-                    updateUtilityRightPanel(selectedCounty); // Assuming this function exists
-                } else {
-                    map.setView([40.0583, -74.4057], 7); // Reset to NJ default view
-                }
-            });
-
-
-    /*--- Overburdened Community */
+/*--- Overburdened Community */
             // Define the ArcGIS Feature Service URL
             const obcUrl = "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Overburdened_Communities_under_the_New_Jersey_Environmental_Justice_Law/FeatureServer/19/query?where=1%3D1&outFields=POVUNIVERSE,POPUNDER2XPOV,LOW_INCOME_PCT,TOTALPOP,NONHISPWHITE,TOTALMINORITY,MINORITY_PCT,TOTHH,TOTLANGUAGEISO,PCTLINGUAGEISO,OVERBURDENED_COMMUNITY_CRITERI,BG_TRIBAL,COUNTY,NAME,SPLIT_BG,SPLIT_MUN&outSR=4326&f=geojson";
 
-            let obcLayer;
 
             // Function to fetch all results
             async function fetchAllResults() {
                 const results = [];
                 let offset = 0;
-                const limit = 1000; // Maximum number of features returned per query
+                const limit = 1000;
 
-                // Keep fetching until all results are obtained
+                const baseUrl = "https://services1.arcgis.com/QWdNfRs7lkPq4g4Q/arcgis/rest/services/Overburdened_Communities_under_the_New_Jersey_Environmental_Justice_Law/FeatureServer/19/query";
+
                 while (true) {
-                    const url = `${obcUrl}&resultOffset=${offset}&resultRecordCount=${limit}`;
+                    const params = new URLSearchParams({
+                        where: "1=1",
+                        outFields: "POVUNIVERSE,POPUNDER2XPOV,LOW_INCOME_PCT,TOTALPOP,NONHISPWHITE,TOTALMINORITY,MINORITY_PCT,TOTHH,TOTLANGUAGEISO,PCTLINGUAGEISO,OVERBURDENED_COMMUNITY_CRITERI,BG_TRIBAL,COUNTY,NAME,SPLIT_BG,SPLIT_MUN",
+                        outSR: "4326",
+                        f: "geojson",
+                        resultOffset: offset,
+                        resultRecordCount: limit
+                    });
+
+                    const url = `${baseUrl}?${params.toString()}`;
                     const response = await fetch(url);
                     const data = await response.json();
 
-                    if (data.features.length === 0) {
-                        break; // No more results to fetch
+                    if (!data.features || data.features.length === 0) {
+                        break;
                     }
 
-                    results.push(...data.features); // Add fetched features to the results array
-                    offset += limit; // Increment the offset for the next query
+                    results.push(...data.features);
+                    offset += limit;
+                    console.log(`[OBC] Loaded ${offset} features so far...`);
                 }
 
-                return results;
+                console.log(`[OBC] Fetched total ${results.length} features.`);
+                return {
+                    type: "FeatureCollection",
+                    features: results
+                };
             }
+
 
             function getOverburdenedColor(criteria) {
                 switch (criteria) {
@@ -911,61 +888,116 @@
                 }
             }
 
-            // Function to add the overburdened communities layer
-            async function addOverburdenedLayer() {
-                try {
-                    const data = await fetchAllResults();
+            function showOBCLegend() {
+                const legend = document.getElementById("legend");
+                legend.innerHTML = `<h4>Overburdened Community Criteria</h4>`;
 
-                    const obcLayer = L.geoJSON(data, {
-                        style: function (feature) {
-                            return {
-                                fillColor: getOverburdenedColor(feature.properties.OVERBURDENED_COMMUNITY_CRITERI),
-                                fillOpacity: 0.75,
-                                weight: 1,
-                                color: '#000000'
-                            };
-                        },
-                        onEachFeature: function (feature, layer) {
-                            // Add popup on click
-                            layer.on('click', function () {
-                                const properties = feature.properties;
-                                layer.bindPopup(`
-                                    <strong>Municipality:</strong> ${properties.NAME}<br>
-                                    <strong>County:</strong> ${properties.COUNTY}<br>
-                                    <strong>Burden Factors:</strong> ${properties.OVERBURDENED_COMMUNITY_CRITERI}
-                                `).openPopup();
-                            });
+                const categories = {
+                    "Low Income and Minority": "#F7FCF0",
+                    "Minority": "#C7E9C0",
+                    "Low Income, Minority, and Limited English": "#74C476",
+                    "Low Income and Limited English": "#238B45",
+                    "Low Income": "#126830",
+                    "Limited English": "#095626",
+                    "Minority and Limited English": "#4CA85E",
+                    "Adjacent": "#00441B"
+                };
 
-                            // Change cursor on hover
-                            layer.on('mouseenter', function () {
-                                map.getContainer().style.cursor = 'pointer';
-                            });
-
-                            layer.on('mouseleave', function () {
-                                map.getContainer().style.cursor = '';
-                            });
-                        }
-                    });
-
-                    // Add the layer to the map
-                    obcLayer.addTo(map);
-                } catch (error) {
-                    console.error("Error loading Overburdened Communities data:", error);
+                for (const [label, color] of Object.entries(categories)) {
+                    legend.innerHTML += `
+                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                            <div style="width: 20px; height: 20px; background:${color}; border: 1px solid #999; margin-right: 8px;"></div>
+                            <span>${label}</span>
+                        </div>`;
                 }
             }
 
-            // Toggle layer visibility
-            document.getElementById('toggleOBC').addEventListener('click', async function () {
-                if (obcLayer) {
-                    if (map.hasLayer(obcLayer)) {
-                        map.removeLayer(obcLayer);
-                        obcLayer = null; // Reset variable after removal
-                    }
+
+
+            let obcDataCache = null;
+            let obcLayer = null;
+
+            // Independent Zoom Function
+            function zoomToCounty(countyName) {
+                const encodedCounty = encodeURIComponent(countyName.trim().toUpperCase());
+                const url = `https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?where=UPPER(COUNTY)='${encodedCounty}'&outFields=*&f=geojson`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data || !data.features || data.features.length === 0) {
+                            console.warn("No data returned for county:", countyName);
+                            return;
+                        }
+
+                        const bounds = L.geoJSON(data).getBounds();
+                        if (bounds.isValid()) {
+                            map.fitBounds(bounds, {
+                                padding: [40, 40],
+                                maxZoom: 12
+                            });
+                            console.log(`[Zoom] Zoomed to ${countyName}`);
+                        } else {
+                            console.warn(`[Zoom] Invalid bounds for ${countyName}`);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("[Zoom] Fetch error:", err);
+                    });
+            }
+
+            // Zoom anytime the county changes
+            document.getElementById("county-filter").addEventListener("change", function () {
+                const selectedCounty = this.value?.toUpperCase();
+                if (selectedCounty && selectedCounty !== "ALL") {
+                    console.log("[Zoom] County selected:", selectedCounty);
+                    zoomToCounty(selectedCounty);
                 } else {
-                    await addOverburdenedLayer(); // Ensure layer is created before checking
+                    console.log("[Zoom] Reset to full NJ view");
+                    map.setView([40.0583, -74.4057], 7); // Default view
                 }
             });
 
+            // OBC Toggle — completely independent of zoom
+            document.getElementById('toggleOBC').addEventListener('click', async function () {
+                if (obcLayer && map.hasLayer(obcLayer)) {
+                    map.removeLayer(obcLayer);
+                    obcLayer = null;
+                    document.getElementById("legend").innerHTML = "";
+                    console.log("[OBC] Layer removed.");
+                    return;
+                }
+
+                console.log("[OBC] Fetching and displaying OBC layer...");
+                try {
+                    const geojson = await fetchAllResults();
+
+                    obcLayer = L.geoJSON(geojson, {
+                        style: feature => ({
+                            fillColor: getOverburdenedColor(feature.properties.OVERBURDENED_COMMUNITY_CRITERI),
+                            fillOpacity: 0.75,
+                            weight: 1,
+                            color: '#000000'
+                        }),
+                        onEachFeature: (feature, layer) => {
+                            const props = feature.properties;
+                            const popupHTML = `
+                                <strong>Municipality:</strong> ${props.NAME}<br>
+                                <strong>County:</strong> ${props.COUNTY}<br>
+                                <strong>Burden Factors:</strong> ${props.OVERBURDENED_COMMUNITY_CRITERI}
+                            `;
+                            layer.bindPopup(popupHTML);
+                            layer.on('mouseenter', () => map.getContainer().style.cursor = 'pointer');
+                            layer.on('mouseleave', () => map.getContainer().style.cursor = '');
+                        }
+                    }).addTo(map);
+
+                    showOBCLegend();
+                    console.log("[OBC] Layer added.");
+                } catch (err) {
+                    console.error("[OBC] Failed to load:", err);
+                }
+            });
 
 
             //tab function on filters
@@ -978,15 +1010,59 @@
 /*--- Utility Tab Filter Functionalities ---*/
 
             // Color Scale for Heating Filter
-            function getUtilityColor(d) {
-                return d > 250000 ? '#800026' :  // Very high usage
-                    d > 100000 ? '#BD0026' :
-                    d > 50000  ? '#E31A1C' :
-                    d > 20000  ? '#FD8D3C' :
-                    d > 10000  ? '#FEB24C' :
-                    d > 1000   ? '#FFEDA0' :
-                                    '#f7f7f7';  // Very low or zero
+            function getUtilityColor(d, fuelType) {
+                if (fuelType === "electricity") {
+                    return d > 500000000 ? '#800026' :
+                        d > 100000000 ? '#BD0026' :
+                        d > 10000000  ? '#E31A1C' :
+                        d > 1000000   ? '#FD8D3C' :
+                        d > 100000    ? '#FEB24C' :
+                        d > 10000     ? '#FFEDA0' :
+                        d >= 0        ? '#f7f7f7' :
+                                        '#D3D3D3';
+                }else if (fuelType === "naturalGas") {
+                    return d > 50000000 ? '#800026' :
+                        d > 10000000 ? '#BD0026' :
+                        d > 1000000  ? '#E31A1C' :
+                        d > 100000   ? '#FD8D3C' :
+                        d > 10000    ? '#FEB24C' :
+                        d > 1000     ? '#FFEDA0' :
+                        d >= 0       ? '#f7f7f7' :
+                                        '#D3D3D3';
+                } else {
+                    return '#D3D3D3'; // fallback for "all" or unknown
+                }
+
+                if (!utilityValue || utilityValue === "NDA") return;
             }
+
+            function updateLegend(fuelType) {
+                const legend = document.getElementById("legend");
+                legend.innerHTML = `<h4>${fuelType === "electricity" ? "Residential Electricity" : "Residential Natural Gas"}</h4>`;
+
+                const grades = fuelType === "electricity"
+                    ? [10000, 100000, 1000000, 10000000, 100000000, 500000000]
+                    : [1000, 10000, 100000, 1000000, 10000000, 50000000];
+
+                grades.forEach((from, i) => {
+                    const to = grades[i + 1];
+                    const color = getUtilityColor(from + 1, fuelType); // from+1 ensures it's in the right bucket
+
+                    legend.innerHTML += `
+                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                            <div style="width: 20px; height: 20px; background:${color}; border: 1px solid #999; margin-right: 8px;"></div>
+                            <span>${from.toLocaleString()}${to ? " – " + to.toLocaleString() : "+"}</span>
+                        </div>`;
+                });
+
+                // Add NDA box
+                legend.innerHTML += `
+                    <div style="display: flex; align-items: center; margin-top: 10px;">
+                        <div style="width: 20px; height: 20px; background:#D3D3D3; border: 1px solid #999; margin-right: 8px;"></div>
+                        <span>No Data (NDA)</span>
+                    </div>`;
+            }
+
 
             //toggle utility layer visibility 
             let utilityLayer = null; // Define globally
@@ -1008,19 +1084,6 @@
                     console.log("Utility layer loaded.");
                 })
                 .catch(error => console.error('Error fetching municipal boundaries:', error));
-
-            document.getElementById('toggleUtilityLayer').addEventListener('click', function () {
-                if (utilityLayer) { // Ensure the layer is initialized
-                    if (map.hasLayer(utilityLayer)) {
-                        map.removeLayer(utilityLayer);
-                    } else {
-                        map.addLayer(utilityLayer);
-                    }
-                } else {
-                    console.error("Utility layer is not yet loaded.");
-                }
-            });
-
 
 
             //when clicking utility 
@@ -1078,6 +1141,7 @@
                 fetch(`getdata_all.php?${params.toString()}`)
                     .then(response => response.json())
                     .then(data => {
+                        // Create right panel container
                         let dropdown = document.querySelector('.green-dropdown');
                         if (!dropdown) {
                             dropdown = document.createElement('div');
@@ -1085,6 +1149,7 @@
                             document.body.appendChild(dropdown);
                         }
 
+                        // Build panel content
                         let content = `<h2>Utility Data</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
                         content += `
                             <tr>
@@ -1096,13 +1161,15 @@
                                 ${fuelType === "all" ? "<th>Residential Electricity</th><th>Residential Natural Gas</th>" : ""}
                             </tr>`;
 
-                        let minVal = Infinity;
-                        let maxVal = -Infinity;
+                        // Build fast lookup table
+                        const muniLookup = {};
+                        data.forEach(row => {
+                            const muniName = row["Municipality"]?.toUpperCase().trim();
+                            if (muniName && (county === "all" || row["County"] === county)) {
+                                muniLookup[muniName] = row;
+                            }
 
-                        // Process the data
-                        if (data.length) {
-                            data.forEach(row => {
-                                content += `
+                            content += `
                                 <tr>
                                     <td>${row["Municipality"]}</td>
                                     <td>${row["County"]}</td>
@@ -1113,43 +1180,47 @@
                                         <td>${row["Residential Electricity"] || '-'}</td>
                                         <td>${row["Residential Natural Gas"] || '-'}</td>` : ""}
                                 </tr>`;
+                        });
 
-                                // Get the utility value based on the selected fuel type
-                                let utilityValue = fuelType === "electricity" ? row["Residential Electricity"] : row["Residential Natural Gas"];
+                        // Update map colors
+                        utilityLayer.eachLayer(layer => {
+                            const muniProp = layer.feature?.properties?.MUN?.toUpperCase().trim();
+                            const row = muniLookup[muniProp];
 
-                                // Update min and max utility values for color scale
-                                if (utilityValue !== undefined && utilityValue !== null) {
-                                    utilityValue = parseFloat(utilityValue);
-                                    if (!isNaN(utilityValue)) {
-                                        if (utilityValue < minVal) minVal = utilityValue;
-                                        if (utilityValue > maxVal) maxVal = utilityValue;
-                                    }
-                                }
+                            if (!row) return;
 
-                                //update map color 
-                                utilityLayer.eachLayer(layer => {
-                                    if (layer.feature && layer.feature.properties.Municipality === row["Municipality"]) {
-                                        layer.setStyle({
-                                            fillColor: getUtilityColor(utilityValue), 
-                                            fillOpacity: 0.75, 
-                                            weight: 1, 
-                                            color: '#000'
-                                        });
-                                    }
+                            let utilityValue = fuelType === "electricity"
+                                ? row["Residential Electricity"]
+                                : row["Residential Natural Gas"];
+
+                            if (!utilityValue || utilityValue === "NDA") return;
+
+                            if (typeof utilityValue === "string") {
+                                utilityValue = utilityValue.replace(/,/g, "").trim();
+                            }
+                            utilityValue = parseFloat(utilityValue);
+
+                            if (!isNaN(utilityValue)) {
+                                layer.setStyle({
+                                    fillColor: getUtilityColor(utilityValue, fuelType),
+                                    fillOpacity: 0.75,
+                                    weight: 1,
+                                    color: '#000'
                                 });
-                            });
-                        } else {
-                            content += `<tr><td colspan="6">No data found for selected filters.</td></tr>`;
-                        }
+                            }
+                        });
 
                         content += `</table>`;
                         dropdown.innerHTML = content;
                         dropdown.classList.add('visible');
+
+                        // ✅ Update the color legend
+                        updateLegend(fuelType);
                     })
                     .catch(error => {
                         console.error("Error fetching utility data:", error);
                     });
-                }
+            }
 
         </script>
 </body>
