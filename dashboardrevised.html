@@ -214,8 +214,8 @@
         /* Filter box that shows when 'filters' is clicked */
         .filter-tab {
             position: fixed;
-            top: 200px; /* Moves the tab downward */
-            left: -300px; /* Hidden by default, adjust to match the width */
+            top: 115px; /* Moves the tab downward */
+            left: -320px; /* Hidden by default, adjust to match the width */
             width: 300px; /* Set the desired width */
             height: calc(100vh - 675spx); /* Shrinks the height, leaving space at the top and bottom */
             background-color: #04A264;
@@ -231,7 +231,7 @@
 
         /* Filter Tab when visible */
         .filter-tab.visible {
-            left: 0; /* Slide into view */
+            left: 140px; /* move the panel to the right */
         }
 
         /* Tab like Function for Maps on the left side */
@@ -301,8 +301,8 @@
         .tenure-dropdown {
             display: none;
             position: absolute;
-            top: 8.5%; /* adjusts where the popup is going to be */
-            left: 85px;
+            top: 18.8%; /* adjusts where the popup is going to be */
+            left: 140px;
             background-color: #04A264;
             padding: 10px;
             border-radius: 8px;
@@ -347,8 +347,8 @@
         .heating-dropdown {
             display: none;
             position: absolute;
-            top: 8.5%; /* adjusts where the popup is going to be */
-            left: 85px;
+            top: 23.7%; /* adjusts where the popup is going to be */
+            left: 100px;
             background-color: #04A264;
             padding: 10px;
             border-radius: 8px;
@@ -561,7 +561,7 @@
         </div>
 
         <!--Tenure Button-->
-        <button class="tenure-toggle-button" onclick="toggleTenure()">Tenure</button>
+        <button class="tenure-toggle-button" onclick="toggleTenure()">Housing Tenure</button>
 
         <!-- Tenure Dropdown Menu -->
         <div id="tenure-dropdown" class="tenure-dropdown">
@@ -703,12 +703,12 @@
         </div>
 
         <!-- Filter Toggle Button -->
-        <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
+        <button class="filter-toggle-button" onclick="toggleFilter()">County Insights</button>
 
         <div class="filter-tab" id="filter-tab">
             <!-- Left Panel -->
             <!-- These are for all the filters that will be used-->
-            <!-- County Filters -->
+            <!-- County Insight Filter -->
             <div class="filter-container">
                 <label for="county-filter">County:</label>
                 <select id="county-filter">
@@ -736,10 +736,22 @@
                     <option value="Warren">Warren</option>
                 </select>
 
+                <!-- Small note-->
+                <small style="color: white; font-size: 12px;">
+                    Note: Select a county to view electricity and natural gas usage by municipality. Data displayed is for the year 2022.
+                </small>
+                <br>
+                
+                <!-- Reset Button for County Insights -->
+                <button id="reset-county-filters" style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
+                    Reset Filters
+                </button>
+
+
                 <!--Creates a space between filters-->
                 <div style="margin: 10px 0;"></div>
                 
-                <!-- Year Filters -->
+                <!-- Year Filters
                 <label for="year-filter">Year:</label>
                 <select id="year-filter">
                     <option value="all">Select a Year</option>
@@ -758,6 +770,7 @@
                     <option value="2022">2022</option>
                     <option value="2023">2023</option>
                 </select>
+            -->
 
                 <!--Creates a space between filters-->
                 <div style="margin: 10px 0;"></div>
@@ -966,6 +979,31 @@
                         updateRightPanel(selectedCounty);
                     }
                 });
+
+                document.getElementById('reset-county-filters').addEventListener('click', function () {
+                // Reset county dropdown to "all"
+                document.getElementById('county-filter').value = "all";
+
+                // Hide the green dropdown panel
+                const dropdown = document.querySelector('.green-dropdown');
+                if (dropdown) dropdown.classList.remove('visible');
+
+                // Reset map zoom (optional)
+                map.flyTo([39.90, -74.40], 8.2, {
+                    duration: 1.5
+                });
+
+                // Reset map styling (optional)
+                geojsonLayer.eachLayer(function(layer) {
+                    layer.setStyle({
+                        fillColor: 'transparent',
+                        fillOpacity: 0,
+                        color: '#627BC1',
+                        weight: 2
+                    });
+                });
+            });
+
 
             //Updates the information displayed on the right green box
             function updateRightPanel(countyName) {
@@ -1375,7 +1413,23 @@
                         const allFiltersSelected = year !== "All" && county !== "all" && tenureType !== "all";
 
                         // Build the table and display the data that was fetched
-                        let content = `<h2>${data[0]?.County || 'No County Selected'}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                        //let content = `<h2>${data[0]?.County || 'No County Selected'}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                            let heading = "";
+
+                            if (county !== "all") {
+                                heading = `<h2>${data[0]?.County || 'Selected County'}</h2>`;
+                            } else if (tenureType !== "all" && year !== "All") {
+                                heading = `<h2>${tenureType === "owner" ? "Owner-Occupied Units" : "Renter-Occupied Units"} (${year})</h2>`;
+                            } else if (tenureType !== "all") {
+                                heading = `<h2>${tenureType === "owner" ? "Owner-Occupied Units" : "Renter-Occupied Units"}</h2>`;
+                            } else if (year !== "All") {
+                                heading = `<h2>Occupied Housing Units - ${year}</h2>`;
+                            } else {
+                                heading = `<h2>All Tenure Data</h2>`;
+                            }
+
+                            let content = heading + `<table border="0" style="width: 100%; margin-top: 10px;">`;
+
                             if (onlyYearSelected) {
                                 // Show only Year, County, and Total when only the Year is selected
                                 content += `
@@ -1566,7 +1620,22 @@
                             document.body.appendChild(dropdown);
                         }
 
-                        let content = `<h2>${data[0]?.County || 'No County Selected'}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                        let heading = "";
+
+                        if (county !== "all") {
+                            heading = `<h2>${data[0]?.County || 'Selected County'}</h2>`;
+                        } else if (heatingType !== "all" && year !== "All") {
+                            heading = `<h2>${heatingTypeNames[heatingType]} (${year})</h2>`;
+                        } else if (heatingType !== "all") {
+                            heading = `<h2>${heatingTypeNames[heatingType]}</h2>`;
+                        } else if (year !== "All") {
+                            heading = `<h2>Heating Usage - ${year}</h2>`;
+                        } else {
+                            heading = `<h2>All Heating Data</h2>`;
+                        }
+
+                        let content = heading + `<table border="0" style="width: 100%; margin-top: 10px;">`;
+
                         content += `<tr>
                             <th>Year</th>
                             <th>County</th>
