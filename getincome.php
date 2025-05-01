@@ -2,13 +2,13 @@
 header("Content-Type: application/json");
 
 $year = $_GET['year'] ?? '';
-$bracket = $_GET['income'] ?? '';
+$group = $_GET['income'] ?? '';
 
 $db = new PDO('sqlite:Energy.sqlite3');
 $data = [];
 
-// Direct query using exact column name
-$query = "SELECT County, \"$bracket\" AS value FROM income_data WHERE year = :year";
+// Use column name from dropdown (e.g. "Low Income")
+$query = "SELECT County, \"$group\" AS value FROM income_groups_separated WHERE Year = :year";
 $stmt = $db->prepare($query);
 $stmt->bindValue(':year', $year);
 $stmt->execute();
