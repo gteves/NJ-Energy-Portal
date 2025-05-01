@@ -375,6 +375,63 @@
             background-color: #037c4d;
         }
 
+        .income-toggle-button {
+            position: fixed;
+            top: 31%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .race-toggle-button {
+            position: fixed;
+            top: 36%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .housingyear-toggle-button {
+            position: fixed;
+            top: 41%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .energy-toggle-button {
+            position: fixed;
+            top: 46%;
+            left: 0;
+            transform: translateY(-50%);
+            background-color: #0a2a1f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+
     
 /* ------------------------------------------ End of Tabbed Filters on Left Panel ----------------------------------------------- */
 
@@ -784,6 +841,19 @@
         </div>
     </div>
 
+    <!-- Income Filter Button -->
+    <button class="income-toggle-button" onclick="toggleIncome()">Income</button>
+
+    <!-- Race Filter Button -->
+    <button class="race-toggle-button" onclick="toggleRace()">Race</button>
+
+    <!-- Housing Year Filter Button -->
+    <button class="housingyear-toggle-button" onclick="toggleHousingYear()">Housing Year</button>
+
+    <!-- Energy Consumption Filter Button -->
+    <button class="energy-toggle-button" onclick="toggleEnergy()">Energy Consumption</button>
+
+
     <!-- Calculator Widget Icon-->
     <div class="calculator-widget" onclick="toggleCalculator()">
         <i class="fas fa-calculator"></i>
@@ -1114,6 +1184,23 @@
                 heatingDropdown.style.display = "none";
                 if (heatingLegend) heatingLegend.style.display = "none";
             }
+
+            function toggleIncome() {
+                alert("Income filter coming soon!");
+            }
+
+            function toggleRace() {
+                alert("Race filter coming soon!");
+            }
+
+            function toggleHousingYear() {
+                alert("Housing Year filter coming soon!");
+            }
+
+            function toggleEnergy() {
+                alert("Energy Consumption filter coming soon!");
+            }
+
 
             document.addEventListener("click", function (event) {
                 var dropdown = document.getElementById("tenure-dropdown");
