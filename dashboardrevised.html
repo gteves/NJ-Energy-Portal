@@ -375,60 +375,54 @@
             background-color: #037c4d;
         }
 
-        .income-toggle-button {
-            position: fixed;
-            top: 31%;
-            left: 0;
-            transform: translateY(-50%);
-            background-color: #0a2a1f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .race-toggle-button {
-            position: fixed;
-            top: 36%;
-            left: 0;
-            transform: translateY(-50%);
-            background-color: #0a2a1f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .housingyear-toggle-button {
-            position: fixed;
-            top: 41%;
-            left: 0;
-            transform: translateY(-50%);
-            background-color: #0a2a1f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
+        /* === FILTER TAB BUTTONS === */
+        .income-toggle-button,
+        .race-toggle-button,
+        .housingyear-toggle-button,
         .energy-toggle-button {
-            position: fixed;
-            top: 46%;
-            left: 0;
-            transform: translateY(-50%);
             background-color: #0a2a1f;
             color: white;
-            padding: 10px 20px;
             border: none;
-            border-radius: 0 5px 5px 0;
+            padding: 8px 16px;
+            margin: 5px 5px 0 0;
             cursor: pointer;
-            z-index: 10;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .income-toggle-button:hover,
+        .race-toggle-button:hover,
+        .housingyear-toggle-button:hover,
+        .energy-toggle-button:hover {
+            background-color: #136c4b;
+        }
+
+        /* === DROPDOWN PANELS === */
+        #income-dropdown,
+        #race-dropdown,
+        #housingyear-dropdown,
+        #energy-dropdown {
+            display: none;
+            position: absolute;
+            top: 110px; /* Adjust depending on your layout */
+            left: 20px;
+            background-color: white;
+            color: black;
+            padding: 12px;
+            z-index: 1000;
+            border-radius: 5px;
+            box-shadow: 0 0 6px rgba(0,0,0,0.15);
+            font-size: 14px;
+        }
+
+        /* === Common styling for select elements inside panels === */
+        #income-dropdown select,
+        #race-dropdown select,
+        #housingyear-dropdown select,
+        #energy-dropdown select {
+            width: 100%;
+            margin: 5px 0 10px 0;
+            padding: 5px;
         }
 
 
@@ -759,6 +753,133 @@
             </button>
         </div>
 
+        <!-- Income Button -->
+        <button class="income-toggle-button" onclick="toggleIncome()">Household Income</button>
+
+        <!-- Income Dropdown Menu -->
+        <div id="income-dropdown" class="tenure-dropdown">
+            <label for="income-year-select">Select Year (2010 - 2023):</label>
+            <select id="income-year-select" onchange="updateIncomeRightPanel()">
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022" selected>2022</option>
+            </select>
+            <br>
+
+            <label for="income-county-filter">Select County:</label><br>
+            <select id="income-county-filter" onchange="updateIncomeRightPanel()">
+                <option value="all">All</option>
+                <!-- include all counties just like in Tenure -->
+                <option value="Atlantic County">Atlantic</option>
+                <option value="Bergen County">Bergen</option>
+                <option value="Burlington County">Burlington</option>
+                <option value="Camden County">Camden</option>
+                <option value="Cape May County">Cape May</option>
+                <option value="Cumberland County">Cumberland</option>
+                <option value="Essex County">Essex</option>
+                <option value="Gloucester County">Gloucester</option>
+                <option value="Hudson County">Hudson</option>
+                <option value="Hunterdon County">Hunterdon</option>
+                <option value="Mercer County">Mercer</option>
+                <option value="Middlesex County">Middlesex</option>
+                <option value="Monmouth County">Monmouth</option>
+                <option value="Morris County">Morris</option>
+                <option value="Ocean County">Ocean</option>
+                <option value="Passaic County">Passaic</option>
+                <option value="Salem County">Salem</option>
+                <option value="Somerset County">Somerset</option>
+                <option value="Sussex County">Sussex</option>
+                <option value="Union County">Union</option>
+                <option value="Warren County">Warren</option>
+            </select>
+            <br>
+
+            <small style="color: white; font-size: 12px;">
+                Tip: Set to "All" to view all counties on the map.
+            </small>
+            <br>
+
+            <label for="income-group-select">Select Income Group:</label><br>
+            <select id="income-group-select" onchange="updateIncomeRightPanel()">
+                <option value="Low Income">Low Income</option>
+                <option value="Moderate Income">Moderate Income</option>
+                <option value="High Income">High Income</option>
+                <option value="Very High Income">Very High Income</option>
+            </select>
+
+            <button id="reset-income-filters" style="margin-top: 10px; background-color: #fff; color: #04A264; border: 1px solid #04A264; padding: 5px; border-radius: 5px; cursor: pointer;">
+                Reset Filters
+            </button>
+        </div>
+
+
+        <!-- Race Filter -->
+        <button class="race-toggle-button" onclick="toggleRace()">Race</button>
+        <div id="race-dropdown" class="heating-dropdown">
+            <label for="race-year-select">Select Year:</label>
+            <select id="race-year-select">
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022" selected>2022</option>
+            </select>
+            <br>
+            <label for="race-group-select">Select Group:</label>
+            <select id="race-group-select">
+                <option value="Hispanic or Latino">Hispanic or Latino</option>
+                <option value="White alone, not Hispanic or Latino">White (Non-Hispanic)</option>
+                <option value="Black or African American alone">Black or African American</option>
+                <option value="Asian alone">Asian</option>
+            </select>
+            <button id="reset-race-filters" style="margin-top: 10px;">Reset</button>
+        </div>
+
+        <!-- Housing Year Filter -->
+        <button class="housingyear-toggle-button" onclick="toggleHousingYear()">Housing Year</button>
+        <div id="housingyear-dropdown" class="heating-dropdown">
+            <label for="housingyear-year-select">Select Year:</label>
+            <select id="housingyear-year-select">
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022" selected>2022</option>
+            </select>
+            <br>
+            <label for="housingyear-type-select">Year Built Range:</label>
+            <select id="housingyear-type-select">
+                <option value="Built 1950 to 1959">1950–59</option>
+                <option value="Built 1960 to 1969">1960–69</option>
+                <option value="Built 2000 to 2004">2000–04</option>
+                <option value="Built 2010 or later">2010+</option>
+            </select>
+            <button id="reset-housingyear-filters" style="margin-top: 10px;">Reset</button>
+        </div>
+
+        <!-- Energy Filter -->
+        <button class="energy-toggle-button" onclick="toggleEnergy()">Energy</button>
+        <div id="energy-dropdown" class="heating-dropdown">
+            <label for="energy-year-select">Select Year:</label>
+            <select id="energy-year-select">
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022" selected>2022</option>
+            </select>
+            <br>
+            <label for="energy-type-select">Select Type:</label>
+            <select id="energy-type-select">
+                <option value="Residential Electricity">Residential Electricity</option>
+                <option value="Total Electricity (kWh)">Total Electricity</option>
+                <option value="Residential Natural Gas">Residential Gas</option>
+                <option value="Total Natural Gas (Therms)">Total Gas</option>
+            </select>
+            <button id="reset-energy-filters" style="margin-top: 10px;">Reset</button>
+        </div>
+
+
+
+
         <!-- Filter Toggle Button -->
         <button class="filter-toggle-button" onclick="toggleFilter()">County Insights</button>
 
@@ -832,6 +953,7 @@
                 <!--Creates a space between filters-->
                 <div style="margin: 10px 0;"></div>
                 </div>
+
             </div>
 
             <!-- Map Container -->
@@ -840,19 +962,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Income Filter Button -->
-    <button class="income-toggle-button" onclick="toggleIncome()">Income</button>
-
-    <!-- Race Filter Button -->
-    <button class="race-toggle-button" onclick="toggleRace()">Race</button>
-
-    <!-- Housing Year Filter Button -->
-    <button class="housingyear-toggle-button" onclick="toggleHousingYear()">Housing Year</button>
-
-    <!-- Energy Consumption Filter Button -->
-    <button class="energy-toggle-button" onclick="toggleEnergy()">Energy Consumption</button>
-
 
     <!-- Calculator Widget Icon-->
     <div class="calculator-widget" onclick="toggleCalculator()">
@@ -917,6 +1026,47 @@
                                     '#f7f7f7';  // Very low or zero
             }
 
+            //Color Scale for Income Filter 
+            function getIncomeColor(d) {
+                return d > 200000 ? '#800026' : // Dark red
+                    d > 100000 ? '#BD0026' : // Red
+                    d > 75000 ? '#E31A1C' : // Orange-Red
+                    d > 50000 ? '#FD8D3C' : // Orange
+                    d > 25000 ? '#FEB24C' : // Light Orange
+                                '#FFEDA0'; // Pale Yellow
+            }
+
+            //Color Scale for Race Filter
+            function getRaceColor(d) {
+                return d > 50000 ? '#800026' : // Dark red
+                    d > 25000 ? '#BD0026' : // Red
+                    d > 10000 ? '#E31A1C' : // Orange-Red
+                    d > 5000  ? '#FD8D3C' : // Orange
+                    d > 1000  ? '#FEB24C' : // Light Orange
+                                '#FFEDA0'; // Pale Yellow
+            }
+
+            //Color Scale for Housing Year Filter
+            function getHousingYearColor(d) {
+                return d > 50000 ? '#800026' : // Dark red
+                    d > 25000 ? '#BD0026' : // Red
+                    d > 10000 ? '#E31A1C' : // Orange-Red
+                    d > 5000  ? '#FD8D3C' : // Orange
+                    d > 1000  ? '#FEB24C' : // Light Orange
+                                '#FFEDA0'; // Pale Yellow
+            }
+
+            //Color Scale for Energy Consumption Filter
+            function getEnergyColor(d) {
+                return d > 500000 ? '#800026' : // Dark red
+                    d > 250000 ? '#BD0026' : // Red
+                    d > 100000 ? '#E31A1C' : // Orange-Red
+                    d > 50000  ? '#FD8D3C' : // Orange
+                    d > 10000  ? '#FEB24C' : // Light Orange
+                                '#FFEDA0'; // Pale Yellow
+            }
+
+
 
             const map = L.map('map').setView([39.90, -74.40], 8);
 
@@ -927,7 +1077,7 @@
 
             let geojsonLayer;
 
-            fetch('NJCounties_Tenure.geojson')
+            fetch('shapefiles/NJ_Counties.geojson')
                 .then(response => response.json())
                 .then(data => {
                     geojsonLayer = L.geoJSON(data, {
@@ -966,6 +1116,53 @@
                                         weight: 2
                                     });
                                     layer.closeTooltip();
+                                }, 
+                                click: function () {
+                                    console.log("Feature properties:", feature.properties);
+                                    const countyName = feature.properties.COUNTY;
+                                    if (!countyName) {
+                                        console.eror("County name missing in properties!");
+                                        return;
+                                    }
+                                    console.log("County clicked:", countyName);
+
+                                    fetch(`getdata.php?county=${countyName}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            let dropdown = document.querySelector('.green-dropdown');
+                                            if (!dropdown) {
+                                                dropdown = document.createElement('div');
+                                                dropdown.className = 'green-dropdown';
+                                                document.body.appendChild(dropdown);
+                                            }
+
+                                            let content = `<h2>${countyName}</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
+                                            content += `
+                                                <tr>
+                                                    <th>Municipality</th>
+                                                    <th>Residential Electricity</th>
+                                                    <th>Residential Natural Gas</th>
+                                                </tr>`;
+                                            if (data.length) {
+                                                data.forEach(row => {
+                                                    content += `
+                                                    <tr>
+                                                        <td>${row["Municipality"]}</td>
+                                                        <td>${row["Residential Electricity"]} kWh</td>
+                                                        <td>${row["Residential Natural Gas"]} Therms</td>
+                                                    </tr>`;
+                                                });
+                                            } else {
+                                                content += `
+                                                <tr>
+                                                    <td colspan="3">No data available for this county.</td>
+                                                </tr>`;
+                                            }
+                                            content += `</table>`;
+                                            dropdown.innerHTML = content;
+                                            dropdown.classList.add('visible');
+                                        })
+                                        .catch(error => console.error('Error fetching data:', error));
                                 }
                             });
                         }
@@ -1151,15 +1348,222 @@
                 dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
             }
 
-            // Close the dropdown when clicking outside
-            document.addEventListener("click", function (event) {
-                var dropdown = document.getElementById("maps-dropdown");
-                var mapsButton = document.querySelector(".maps-toggle-button");
+            function toggleIncome() {
+                document.getElementById("income-dropdown").style.display = 
+                    document.getElementById("income-dropdown").style.display === "block" ? "none" : "block";
+            }
 
-                if (!dropdown.contains(event.target) && !mapsButton.contains(event.target)) {
-                    dropdown.style.display = "none";
-                }
+            function toggleRace() {
+                document.getElementById("race-dropdown").style.display = 
+                    document.getElementById("race-dropdown").style.display === "block" ? "none" : "block";
+            }
+
+            function toggleHousingYear() {
+                document.getElementById("housingyear-dropdown").style.display = 
+                    document.getElementById("housingyear-dropdown").style.display === "block" ? "none" : "block";
+            }
+
+            function toggleEnergy() {
+                document.getElementById("energy-dropdown").style.display = 
+                    document.getElementById("energy-dropdown").style.display === "block" ? "none" : "block";
+            }
+
+
+            //event listeners
+            // Income
+            document.getElementById("income-type-select").addEventListener("change", () => {
+                const year = document.getElementById("income-year-select").value;
+                const type = document.getElementById("income-type-select").value;
+                fetchFilterData("getincome.php", "income", type, year, "Income");
             });
+
+            // Race
+            document.getElementById("race-group-select").addEventListener("change", () => {
+                const year = document.getElementById("race-year-select").value;
+                const type = document.getElementById("race-group-select").value;
+                fetchFilterData("getrace.php", "group", type, year, "Race/Ethnicity");
+            });
+
+            // Housing Year
+            document.getElementById("housingyear-type-select").addEventListener("change", () => {
+                const year = document.getElementById("housingyear-year-select").value;
+                const type = document.getElementById("housingyear-type-select").value;
+                fetchFilterData("gethousingyear.php", "built", type, year, "Housing Year Built");
+            });
+
+            // Energy
+            document.getElementById("energy-type-select").addEventListener("change", () => {
+                const year = document.getElementById("energy-year-select").value;
+                const type = document.getElementById("energy-type-select").value;
+                fetchFilterData("getenergy.php", "type", type, year, "Energy");
+            });
+
+            function fetchFilterData(endpoint, paramKey, paramValue, year, label) {
+                fetch(`${endpoint}?year=${year}&${paramKey}=${encodeURIComponent(paramValue)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        geojsonLayer.eachLayer(layer => {
+                            const county = layer.feature.properties.COUNTY;
+                            let val = data[county];
+
+                            if (!val || val === "NDA" || val === "" || val === null) {
+                                layer.setStyle({ fillColor: "#ccc", fillOpacity: 0.7 });
+                                val = "N/A";
+                            } else {
+                                const numeric = parseFloat(val.toString().replace(/,/g, ""));
+                                let color;
+                                switch (label) {
+                                    case "Income":
+                                        color = getIncomeColor(numeric);
+                                        break;
+                                    case "Housing Year Built":
+                                        color = getHousingYearColor(numeric);
+                                        break;
+                                    case "Race/Ethnicity":
+                                        color = getRaceColor(numeric);
+                                        break;
+                                    case "Energy":
+                                        color = getEnergyColor(numeric);
+                                        break;
+                                    default:
+                                        color = "#ccc";
+                                }
+                                layer.setStyle({ fillColor: color, fillOpacity: 0.8 });
+                            }
+
+                            layer.bindTooltip(`${county}<br>${label}: ${val}`);
+                        });
+
+                        updateLegend(label);
+                    })
+                    .catch(err => console.error("Error fetching data:", err));
+            }
+
+            // your map setup, filter logic, etc...
+
+            // --- Add legend.onAdd definitions here ---
+            var incomeLegend = L.control({ position: "bottomright" });
+            incomeLegend.onAdd = function () {
+                var div = L.DomUtil.create("div", "info legend");
+                div.innerHTML += "<strong>Income</strong><br>";
+                div.innerHTML += '<i style="background: #084081"></i> > 90,000<br>';
+                div.innerHTML += '<i style="background: #0868ac"></i> 60k – 90k<br>';
+                div.innerHTML += '<i style="background: #2b8cbe"></i> 30k – 60k<br>';
+                div.innerHTML += '<i style="background: #4eb3d3"></i> 10k – 30k<br>';
+                div.innerHTML += '<i style="background: #7bccc4"></i> 1k – 10k<br>';
+                div.innerHTML += '<i style="background: #ccc"></i> N/A';
+                return div;
+            };
+
+            var raceLegend = L.control({ position: "bottomright" });
+                raceLegend.onAdd = function () {
+                    var div = L.DomUtil.create("div", "info legend");
+                    div.innerHTML += "<strong>Race / Ethnicity</strong><br>";
+                    div.innerHTML += '<i style="background: #800026"></i> > 50,000<br>';
+                    div.innerHTML += '<i style="background: #BD0026"></i> 25k – 50k<br>';
+                    div.innerHTML += '<i style="background: #E31A1C"></i> 10k – 25k<br>';
+                    div.innerHTML += '<i style="background: #FD8D3C"></i> 5k – 10k<br>';
+                    div.innerHTML += '<i style="background: #FEB24C"></i> 1k – 5k<br>';
+                    div.innerHTML += '<i style="background: #ccc"></i> N/A';
+                    return div;
+                };
+
+                var housingyearLegend = L.control({ position: "bottomright" });
+                housingyearLegend.onAdd = function () {
+                    var div = L.DomUtil.create("div", "info legend");
+                    div.innerHTML += "<strong>Housing Year</strong><br>";
+                    div.innerHTML += '<i style="background: #800026"></i> > 50,000<br>';
+                    div.innerHTML += '<i style="background: #BD0026"></i> 25k – 50k<br>';
+                    div.innerHTML += '<i style="background: #E31A1C"></i> 10k – 25k<br>';
+                    div.innerHTML += '<i style="background: #FD8D3C"></i> 5k – 10k<br>';
+                    div.innerHTML += '<i style="background: #FEB24C"></i> 1k – 5k<br>';
+                    div.innerHTML += '<i style="background: #ccc"></i> N/A';
+                    return div;
+                };
+
+                var energyLegend = L.control({ position: "bottomright" });
+                energyLegend.onAdd = function () {
+                    var div = L.DomUtil.create("div", "info legend");
+                    div.innerHTML += "<strong>Energy Use</strong><br>";
+                    div.innerHTML += '<i style="background: #800026"></i> > 500k<br>';
+                    div.innerHTML += '<i style="background: #BD0026"></i> 250k – 500k<br>';
+                    div.innerHTML += '<i style="background: #E31A1C"></i> 100k – 250k<br>';
+                    div.innerHTML += '<i style="background: #FD8D3C"></i> 50k – 100k<br>';
+                    div.innerHTML += '<i style="background: #FEB24C"></i> 10k – 50k<br>';
+                    div.innerHTML += '<i style="background: #ccc"></i> N/A';
+                    return div;
+                };
+
+            // --- Then put updateLegend() here ---
+            function updateLegend(label) {
+                incomeLegend.remove();
+                raceLegend.remove();
+                housingyearLegend.remove();
+                energyLegend.remove();
+
+                switch (label) {
+                    case "Income":
+                        incomeLegend.addTo(map);
+                        break;
+                    case "Race/Ethnicity":
+                        raceLegend.addTo(map);
+                        break;
+                    case "Housing Year Built":
+                        housingyearLegend.addTo(map);
+                        break;
+                    case "Energy":
+                        energyLegend.addTo(map);
+                        break;
+                }
+            }
+
+
+            // Close any open dropdown when clicking outside of it
+            document.addEventListener("click", function (event) {
+                const dropdowns = [
+                    { 
+                        id: "maps-dropdown", 
+                        buttonClass: "maps-toggle-button" 
+                    },
+                    { 
+                        id: "income-dropdown", 
+                        buttonClass: "income-toggle-button" 
+                    },
+                    { 
+                        id: "race-dropdown", 
+                        buttonClass: "race-toggle-button" 
+                    },
+                    { 
+                        id: "housingyear-dropdown", 
+                        buttonClass: "housingyear-toggle-button" 
+                    },
+                    { 
+                        id: "energy-dropdown", 
+                        buttonClass: "energy-toggle-button" 
+                    },
+                    { 
+                        id: "heating-dropdown", 
+                        buttonClass: "heating-toggle-button" 
+                    },
+                    { 
+                        id: "tenure-dropdown", 
+                        buttonClass: "tenure-toggle-button" 
+                    }
+                ];
+
+                dropdowns.forEach(({ id, buttonClass }) => {
+                    const dropdown = document.getElementById(id);
+                    const button = document.querySelector(`.${buttonClass}`);
+                    if (
+                        dropdown &&
+                        !dropdown.contains(event.target) &&
+                        (!button || !button.contains(event.target))
+                    ) {
+                        dropdown.classList.remove("show");
+                    }
+                });
+            });
+
             
             //When Municipal level is clicked, this redirects it to the other map
             function redirectToMunicipalMap() {
@@ -1184,23 +1588,6 @@
                 heatingDropdown.style.display = "none";
                 if (heatingLegend) heatingLegend.style.display = "none";
             }
-
-            function toggleIncome() {
-                alert("Income filter coming soon!");
-            }
-
-            function toggleRace() {
-                alert("Race filter coming soon!");
-            }
-
-            function toggleHousingYear() {
-                alert("Housing Year filter coming soon!");
-            }
-
-            function toggleEnergy() {
-                alert("Energy Consumption filter coming soon!");
-            }
-
 
             document.addEventListener("click", function (event) {
                 var dropdown = document.getElementById("tenure-dropdown");
@@ -1267,6 +1654,35 @@
                     });
                 });
             });
+
+            //for fetching data
+            function fetchFilterData(endpoint, paramKey, paramValue, year, label) {
+                fetch(`${endpoint}?year=${year}&${paramKey}=${encodeURIComponent(paramValue)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        geojsonLayer.eachLayer(layer => {
+                            const county = layer.feature.properties.COUNTY;
+                            let val = data[county];
+
+                            // Format
+                            if (!val || val === "NDA" || val === "" || val === null) {
+                                layer.setStyle({ fillColor: "#ccc", fillOpacity: 0.7 });
+                                val = "N/A";
+                            } else {
+                                const numeric = parseFloat(val.toString().replace(/,/g, ""));
+                                const color = getColorForValue(numeric);
+                                layer.setStyle({ fillColor: color, fillOpacity: 0.8 });
+                            }
+
+                            // Tooltip update
+                            layer.bindTooltip(`${county}<br>${label}: ${val}`);
+                        });
+
+                        updateLegend(label);
+                    })
+                    .catch(err => console.error("Error fetching data:", err));
+            }
+
 
 
 
@@ -1406,6 +1822,7 @@
                         params.append("renterOccupied", "1"); // Assuming 1 means occupied
                     }
                 }
+                
 
                 // Fetch data with all filters applied
                 fetch(`gettenure.php?${params.toString()}`)
