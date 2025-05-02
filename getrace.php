@@ -1,27 +1,87 @@
 <?php
-header("Content-Type: application/json");
-
-$year = $_GET['year'] ?? '';
-$group = $_GET['group'] ?? '';
-
-// Open SQLite DB
+// Open the SQLite database
 $db = new PDO('sqlite:Energy.sqlite3');
-$data = [];
 
-// Clean the race/ethnicity group label
-$group = str_replace("\xC2\xA0", " ", $group);
-$group = trim($group);
+// Filter the data
+$year = 'all';
+$county = 'all';
+$total = 'all';
+$hispanicOrLatino = 'all';
+$notHispanicOrLatino = 'all';
+$limit = 'all';
 
-// Prepare query
-$query = "SELECT County, \"$group\" AS value FROM race WHERE Year = :year";
-$stmt = $db->prepare($query);
-$stmt->bindValue(':year', $year);
-$stmt->execute();
-
-// Format response
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $data[$row['County']] = $row['value'] ?? "NDA";
+if (isset($_GET['year'])) {
+    $year = $_GET['year'];
 }
 
-echo json_encode($data);
+if (isset($_GET['county'])) {
+    $county = $_GET['county'];
+}
+
+if (isset($_GET['total'])) {
+    $total = $_GET['total'];
+}
+
+if (isset($_GET['hispanicOrLatino'])) {
+    $hispanicOrLatino = $_GET['hispanicOrLatino'];
+}
+
+if (isset($_GET['notHispanicOrLatino'])) {
+    $notHispanicOrLatino = $_GET['notHispanicOrLatino'];
+}
+
+if (isset($_GET['limit'])) {
+    $limit = $_GET['limit'];
+}
+
+// Build Query
+$query = 'SELECT * FROM "race"';
+$conditions = [];
+$params = [];
+
+if ($year !== 'all') {
+    $conditions[] = 'LOWER("Year") = LOWER(:year)';
+    $params[':year'] = $year;
+}
+
+if ($county !== 'all') {
+    $conditions[] = 'LOWER("County") = LOWER(:county)';
+    $params[':county'] = $county;
+}
+
+if ($total !== 'all') {
+    $conditions[] = 'LOWER("Total") = LOWER(:total)';
+    $params[':total'] = $total;
+}
+
+if ($hispanicOrLatino !== 'all') {
+    $conditions[] = 'LOWER("Hispanic or Latino") = LOWER(:hispanicOrLatino)';
+    $params[':hispanicOrLatino'] = $hispanicOrLatino;
+}
+
+if ($notHispanicOrLatino !== 'all') {
+    $conditions[] = 'LOWER("Not Hispanic or Latino") = LOWER(:notHispanicOrLatino)';
+    $params[':notHispanicOrLatino'] = $notHispanicOrLatino;
+}
+
+// Make the final query
+if (!empty($conditions)) {
+    $query .= ' WHERE ' . implode(' AND ', $conditions);
+}
+
+if ($limit !== 'all') {
+    $query .= ' LIMIT :limit';
+    $params[':limit'] = $limit;
+}
+
+// Prepare the statement
+$statement = $db->prepare($query);
+
+// Execute the statement
+$statement->execute($params);
+
+// Fetch all rows as an associative array
+$rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+echo json_encode($rows);
 ?>
