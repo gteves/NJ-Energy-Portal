@@ -27,6 +27,7 @@
         body {
             font-family: gill sans, sans-serif;
             background-color: #04A264;
+            height: 100%;
         }
 
         .container {
@@ -36,6 +37,7 @@
         }
 
         .top-sidebar {
+            flex: 0 0 0px;
             background-color: #0a2a1f;
             color: white;
             padding: 20px;
@@ -70,14 +72,14 @@
         }
 
 
-        /* ---------------------------------------------- Tabbed Filters on Left Panel ----------------------------------------------- */
-        /* Tab like Function for filters on the left side */
-        /* Actual button */
-        .filter-toggle-button {
+  /* ----------------------------- Tabbed Filter Buttons (Left Panel) ----------------------------- */
+        .filter-toggle-button,
+        .utility-toggle-button,
+        .income-toggle-button,
+        .tenure-toggle-button,
+        .race-toggle-button {
             position: fixed;
-            top: 30%;
             left: 0;
-            transform: translateY(-50%);
             background-color: #0a2a1f;
             color: white;
             padding: 10px 20px;
@@ -87,95 +89,30 @@
             z-index: 10;
         }
 
-        /* Filter box that shows when 'filters' is clicked */
-        .filter-tab {
+        .filter-toggle-button { 
+            top: 20%; transform: translateY(-50%); 
+        }
+        .utility-toggle-button { 
+            top: 25%; transform: translateY(-50%); 
+        }
+        .income-toggle-button { 
+            top: 30%; transform: translateY(-50%); 
+        }
+        .tenure-toggle-button { 
+            top: 35%; transform: translateY(-50%); 
+        }
+        .race-toggle-button { 
+            top: 40%; transform: translateY(-50%); 
+        }
+
+/* ----------------------------- Dropdown Filter Panels ----------------------------- */
+        .filter-tab,
+        .utility-dropdown,
+        .income-dropdown,
+        .tenure-dropdown,
+        .race-dropdown {
             display: none;
             position: absolute;
-            top: 25%;
-            /* Moves the tab downward */
-            left: 85px;
-            background-color: #04A264;
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-            z-index: 15;
-            overflow-y: auto;
-            /* Makes the tab scrollable if content overflows */
-        }
-
-        /* Tab like Function for Maps on the left side */
-        /* Actual button */
-        .maps-toggle-button {
-            position: fixed;
-            top: 40%;
-            left: 0;
-            transform: translateY(-50%);
-            background-color: #0a2a1f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        /* Maps drop down function so we can switch from one map to another */
-        .maps-dropdown {
-            display: none;
-            position: absolute;
-            top: 8.5%;
-            /* adjusts where the popup is going to be */
-            left: 85px;
-            background-color: #0a2a1f;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            z-index: 15;
-            width: 150px;
-        }
-
-        /* Buttons inside the dropdown */
-        .dropdown-btn {
-            background-color: #04A264;
-            color: white;
-            width: 130px;
-            height: 50px;
-            /* Makes it square-like */
-            border: none;
-            margin: 5px 0;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .dropdown-btn:hover {
-            background-color: #037c4d;
-        }
-
-        /* Utility Filter */
-        /* Actual button */
-        .utility-toggle-button {
-            position: fixed;
-            top: 38%;
-            left: 0;
-            transform: translateY(-50%);
-            background-color: #0a2a1f;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        /* Maps drop down function so we can switch from one map to another */
-        .utility-dropdown {
-            display: none;
-            position: absolute;
-            top: 28%;
-            /* adjusts where the popup is going to be */
             left: 85px;
             background-color: #04A264;
             padding: 10px;
@@ -183,15 +120,35 @@
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
             z-index: 15;
             width: 210px;
+            color: white;
+            overflow-y: auto;
         }
 
-        /* Buttons inside the dropdown */
-        .dropdown-btn {
+        .filter-tab { 
+            top: 15%; 
+        }
+        .utility-dropdown { 
+            top: 20%; 
+        }
+        .income-dropdown { 
+            top: 28%; 
+        }
+        .tenure-dropdown { 
+            top: 40%; 
+        }
+        .race-dropdown { 
+            top: 60%; 
+        }
+
+/* ----------------------------- Buttons Inside Dropdowns ----------------------------- */
+        .dropdown-btn,
+        .income-dropdown-btn,
+        .tenure-dropdown-btn,
+        .race-dropdown-btn {
             background-color: #04A264;
             color: white;
             width: 130px;
             height: 50px;
-            /* Makes it square-like */
             border: none;
             margin: 5px 0;
             border-radius: 5px;
@@ -200,7 +157,10 @@
             text-align: center;
         }
 
-        .dropdown-btn:hover {
+        .dropdown-btn:hover,
+        .income-dropdown-btn:hover,
+        .tenure-dropdown-btn:hover,
+        .race-dropdown-btn:hover {
             background-color: #037c4d;
         }
 
@@ -258,21 +218,16 @@
         /* ------------------------------------------------- Map Functionalities ----------------------------------------------------- */
         #map-container {
             position: absolute;
-            /* Position relative to the document flow */
             top: 60px;
-            /* Adjust based on the height of the navigation bar */
             left: 0%;
             width: 100%;
-            /* Full width */
-            height: calc(100vh - 80px);
-            /* Subtract the height of the navbar from the viewport height */
+            height: calc(100vh - 60px);
             z-index: 0;
-            /* Ensure it stays behind other elements */
         }
 
         #map {
             width: 100%;
-            height: 120%;
+            height: 100%;
         }
 
         /* ---------------------------------------------- End of Map Functionalities ------------------------------------------------- */
@@ -491,7 +446,7 @@
         </div>
 
         <!-- Filter Toggle Button -->
-        <button class="filter-toggle-button" onclick="toggleFilter()">Filters</button>
+        <button class="filter-toggle-button" onclick="toggleFilter()">OBC</button>
 
         <div class="filter-tab" id="filter-tab">
             <!-- Left Panel -->
@@ -606,6 +561,25 @@
             </button>
         </div>
 
+        <!--Income-->
+        <button class="income-toggle-button" onclick="toggleIncome()">Income</button>
+        <div id="income-dropdown" class="income-dropdown">
+            <p>Income filter placeholder</p>
+        </div>
+
+        <!--Tenure-->
+        <button class="tenure-toggle-button" onclick="toggleTenure()">Tenure</button>
+        <div id="tenure-dropdown" class="income-dropdown">
+            <p>Tenure filter placeholder</p>
+        </div>
+
+        <!--Race-->
+        <button class="race-toggle-button" onclick="toggleRace()">Race</button>
+        <div id="race-dropdown" class="income-dropdown">
+            <p>Race filter placeholder</p>
+        </div>
+
+
         <!-- legend box -->
         <div id="legend" class="info legend leaflet-bottom leaflet-left"></div>
 
@@ -666,7 +640,7 @@
                 </ul>
                 <button onclick="closeTips()">Close</button>
             </div>
-        </div>
+        </div>         
 
 
         <!----------------------------------------------------JavaScript Section------------------------------------->
@@ -677,7 +651,7 @@
             const map = L.map('map').setView([39.90, -74.40], 8);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 10,
+                maxZoom: 19,
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
@@ -687,6 +661,13 @@
             let selectedMunicipalId = null;
             let countyGeoJSON = null; // Store the GeoJSON data globally
 
+            //function to help keep municipalities on top to allow hover to work
+            function ensureUtilityLayerOnTop() {
+                if (utilityLayer && map.hasLayer(utilityLayer)) {
+                    utilityLayer.bringToFront();
+                    console.log("[Layer Priority] utilityLayer brought to front.");
+                }
+            }
 
             // Load NJ County Borders
             fetch('https://maps.nj.gov/arcgis/rest/services/Framework/Government_Boundaries/MapServer/1/query?outFields=*&where=1%3D1&f=geojson')
@@ -702,6 +683,7 @@
                             fillOpacity: 0
                         }
                     }).addTo(map);
+                    utilityLayer.bringToFront();
 
                     console.log("County borders layer added.");
                 })
@@ -718,7 +700,7 @@
                             fillColor: '#D3D3D3',
                             weight: 0.5,
                             color: '#627BC1',
-                            fillOpacity: 0.75
+                            fillOpacity: 0.5
                         }),
                         onEachFeature: function (feature, layer) {
                             const muniName = feature.properties.MUN;
@@ -737,21 +719,23 @@
                                 mouseover: function (e) {
                                     e.target.setStyle({
                                         fillOpacity: 0.9,
-                                        color: '#00441b', // darker border on hover
+                                        color: '#00441b',
                                         weight: 3
                                     });
                                     layer.openTooltip();
                                 },
                                 mouseout: function (e) {
                                     e.target.setStyle({
-                                        fillOpacity: 0.6,
-                                        color: '#627BC1', // reset border
-                                        weight: 1
+                                        fillOpacity: 0.75, // match the default or filtered state
+                                        color: '#627BC1',
+                                        weight: 1,
+                                        fillColor: e.target.feature.properties._originalColor || '#D3D3D3'
                                     });
                                     layer.closeTooltip();
                                 }
                             });
-                        }
+                        }, 
+                        interactive: true
                     }).addTo(map);
                     console.log("Loaded municipal boundaries once and initialized utility layer.");
                 })
@@ -991,6 +975,8 @@
                             layer.on('mouseleave', () => map.getContainer().style.cursor = '');
                         }
                     }).addTo(map);
+                    obcLayer.bringToFront();
+                    //ensureUtilityLayerOnTop();
 
                     showOBCLegend();
                     console.log("[OBC] Layer added.");
@@ -1063,7 +1049,7 @@
                     </div>`;
             }
 
-
+/*
             //toggle utility layer visibility 
             let utilityLayer = null; // Define globally
 
@@ -1084,7 +1070,7 @@
                     console.log("Utility layer loaded.");
                 })
                 .catch(error => console.error('Error fetching municipal boundaries:', error));
-
+*/
 
             //when clicking utility 
             function toggleUtility() {
@@ -1119,6 +1105,19 @@
                 });
             });
 
+/*--- Additional Tabs ---*/
+            function toggleIncome() {
+                const box = document.getElementById("income-dropdown");
+                box.style.display = box.style.display === "block" ? "none" : "block";
+            }
+            function toggleTenure() {
+                const box = document.getElementById("tenure-dropdown");
+                box.style.display = box.style.display === "block" ? "none" : "block";
+            }
+            function toggleRace() {
+                const box = document.getElementById("race-dropdown");
+                box.style.display = box.style.display === "block" ? "none" : "block";
+            }
 
 
 
@@ -1141,13 +1140,10 @@
                 fetch(`getdata_all.php?${params.toString()}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Create right panel container
-                        let dropdown = document.querySelector('.green-dropdown');
-                        if (!dropdown) {
-                            dropdown = document.createElement('div');
-                            dropdown.className = 'green-dropdown';
-                            document.body.appendChild(dropdown);
-                        }
+                        const dropdown = document.querySelector('.green-dropdown') || document.createElement('div');
+                        dropdown.className = 'green-dropdown';
+                        if (!document.body.contains(dropdown)) document.body.appendChild(dropdown);
+                        
 
                         // Build panel content
                         let content = `<h2>Utility Data</h2><table border="0" style="width: 100%; margin-top: 10px;">`;
@@ -1182,6 +1178,11 @@
                                 </tr>`;
                         });
 
+                        //ensure the utilityLayer is on the map
+                        if (!map.hasLayer(utilityLayer)) {
+                            utilityLayer.addTo(map);
+                        }
+
                         // Update map colors
                         utilityLayer.eachLayer(layer => {
                             const muniProp = layer.feature?.properties?.MUN?.toUpperCase().trim();
@@ -1193,7 +1194,10 @@
                                 ? row["Residential Electricity"]
                                 : row["Residential Natural Gas"];
 
-                            if (!utilityValue || utilityValue === "NDA") return;
+                            if (!utilityValue || utilityValue === "NDA") {
+                                console.warn(`[Utility] No data or NDA for: ${muniProp}`);
+                                return;
+                            }
 
                             if (typeof utilityValue === "string") {
                                 utilityValue = utilityValue.replace(/,/g, "").trim();
@@ -1214,8 +1218,9 @@
                         dropdown.innerHTML = content;
                         dropdown.classList.add('visible');
 
-                        // ✅ Update the color legend
-                        updateLegend(fuelType);
+                        if (fuelType === "electricity" || fuelType === "naturalGas") {
+                            updateLegend(fuelType);
+                        } 
                     })
                     .catch(error => {
                         console.error("Error fetching utility data:", error);
